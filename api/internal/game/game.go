@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"bufio"
@@ -9,18 +9,15 @@ import (
 	"time"
 )
 
+const kFactor = 32.0
+
 type Item struct {
 	Id    int
 	Score float64
 }
 
-const kFactor = 32.0
-
-func main() {
+func Run(items []Item) {
 	reader := bufio.NewReaderSize(os.Stdin, 1024*1024)
-	fmt.Println("Hello, World!")
-	items := generateItems()
-
 	for {
 		item1, item2 := pickTwoItems(items)
 		fmt.Printf("Comparing Item %d (Score: %.2f) with Item %d (Score: %.2f)\n", item1.Id, item1.Score, item2.Id, item2.Score)
@@ -40,7 +37,7 @@ func main() {
 	}
 }
 
-func generateItems() []Item {
+func GenerateItems() []Item {
 	items := make([]Item, 0)
 	for i := 1; i <= 10; i++ {
 		item := Item{
