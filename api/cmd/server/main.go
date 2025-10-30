@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
-	"frogsmash/internal/game"
+	"frogsmash/internal/app"
+	"frogsmash/internal/delivery/http"
 )
 
 func main() {
 	fmt.Println("Hello, World!")
-	items := game.GenerateItems()
-	game.Run(items)
+	items := app.GenerateItems()
+	app.Run(items)
+
+	r := http.SetupRoutes()
+	r.Run(":8080")
 }
