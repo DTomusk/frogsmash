@@ -1,11 +1,8 @@
 package app
 
 import (
-	"bufio"
-	"fmt"
 	"math"
 	"math/rand"
-	"os"
 	"time"
 )
 
@@ -16,28 +13,7 @@ type Item struct {
 	Score float64
 }
 
-func Run(items []Item) {
-	reader := bufio.NewReaderSize(os.Stdin, 1024*1024)
-	for {
-		item1, item2 := pickTwoItems(items)
-		fmt.Printf("Comparing Item %d (Score: %.2f) with Item %d (Score: %.2f)\n", item1.Id, item1.Score, item2.Id, item2.Score)
-		fmt.Print("Which item is better? (0 or 1): ")
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Error reading input:", err)
-			continue
-		}
-		var choice int
-		_, err = fmt.Sscanf(input, "%d", &choice)
-		if err != nil || (choice != 0 && choice != 1) {
-			fmt.Println("Invalid input. Please enter 0 or 1.")
-			continue
-		}
-		compare(item1, item2, choice)
-	}
-}
-
-func GenerateItems() []Item {
+func generateItems() []Item {
 	items := make([]Item, 0)
 	for i := 1; i <= 10; i++ {
 		item := Item{
@@ -49,7 +25,9 @@ func GenerateItems() []Item {
 	return items
 }
 
-func pickTwoItems(items []Item) (*Item, *Item) {
+// Replace with actual storage retrieval
+func PickTwoItems() (*Item, *Item) {
+	items := generateItems()
 	var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 	if len(items) < 2 {
 		return nil, nil // not enough items

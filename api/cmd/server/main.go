@@ -1,16 +1,33 @@
 package main
 
 import (
-	"fmt"
-	"frogsmash/internal/app"
+	"flag"
+	"frogsmash/internal/config"
+	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/http"
+	"log"
+
+	_ "github.com/lib/pq"
 )
 
+// Entry point
+// TODO: load config and set up container
 func main() {
-	fmt.Println("Hello, World!")
-	items := app.GenerateItems()
-	app.Run(items)
+	verbose := flag.Bool("v", false, "enable verbose output")
+	flag.Parse()
+	if *verbose {
+		log.Println("Verbose mode enabled")
+	}
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-	r := http.SetupRoutes()
+	c, err := container.NewContainer(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create container: %v", err)
+	}
+
+	r := http.SetupRoutes(c)
 	r.Run(":8080")
 }
