@@ -11,7 +11,6 @@ import (
 )
 
 // Entry point
-// TODO: load config and set up container
 func main() {
 	verbose := flag.Bool("v", false, "enable verbose output")
 	flag.Parse()

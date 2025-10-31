@@ -7,6 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type EventsService interface {
+	LogEvent(winnerId, loserId string) error
+}
+
+type EventsHandler struct {
+	EventsService EventsService
+}
+
+func NewEventsHandler(c *container.Container) *EventsHandler {
+	return &EventsHandler{
+		EventsService: c.EventsService,
+	}
+}
+
 func SetupRoutes(c *container.Container) *gin.Engine {
 	r := gin.Default()
 
@@ -16,9 +30,10 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		})
 	})
 
+	eventsHandler := NewEventsHandler(c)
 	r.GET("/items", GetItems)
 
-	r.POST("/compare", CompareItems)
+	r.POST("/compare", eventsHandler.CompareItems)
 
 	return r
 }
@@ -32,11 +47,11 @@ func GetItems(ctx *gin.Context) {
 }
 
 type CompareRequest struct {
-	WinnerId int `json:"winner_id"`
-	LoserId  int `json:"loser_id"`
+	WinnerId string `json:"winner_id"`
+	LoserId  string `json:"loser_id"`
 }
 
-func CompareItems(ctx *gin.Context) {
+func (h *EventsHandler) CompareItems(ctx *gin.Context) {
 	var request CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid request"})
@@ -46,6 +61,15 @@ func CompareItems(ctx *gin.Context) {
 	// Call service function
 	// Service checks that IDs have associated items
 	// Then it queues a message to update scores asynchronously
+	err := h.EventsService.LogEvent(
+		request.WinnerId,
+		request.LoserId,
+	)
+
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to log event"})
+		return
+	}
 
 	// Placeholder implementation
 	ctx.JSON(200, gin.H{
