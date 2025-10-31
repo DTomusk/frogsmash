@@ -14,7 +14,46 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/compare": {
+            "post": {
+                "description": "Records the result of a comparison between two items",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Compare two items",
+                "parameters": [
+                    {
+                        "description": "Comparison Request",
+                        "name": "compareRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.CompareRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "http.CompareRequest": {
+            "description": "Request payload for comparing two items",
+            "type": "object",
+            "properties": {
+                "loser_id": {
+                    "type": "string"
+                },
+                "winner_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

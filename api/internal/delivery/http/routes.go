@@ -50,11 +50,20 @@ func GetItems(ctx *gin.Context) {
 	})
 }
 
+// CompareRequest godoc
+// @Description  Request payload for comparing two items
 type CompareRequest struct {
 	WinnerId string `json:"winner_id"`
 	LoserId  string `json:"loser_id"`
 }
 
+// CompareItems godoc
+// @Summary      Compare two items
+// @Description  Records the result of a comparison between two items
+// @Router       /compare [post]
+// @Accept       json
+// @Produce      json
+// @Param        compareRequest  body      CompareRequest  true  "Comparison Request"
 func (h *EventsHandler) CompareItems(ctx *gin.Context) {
 	var request CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {

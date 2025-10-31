@@ -1,7 +1,32 @@
+definitions:
+  http.CompareRequest:
+    description: Request payload for comparing two items
+    properties:
+      loser_id:
+        type: string
+      winner_id:
+        type: string
+    type: object
 info:
   contact: {}
   description: The API for comparing frogs and other things
   title: Frog Smash API
   version: "1.0"
-paths: {}
+paths:
+  /compare:
+    post:
+      consumes:
+      - application/json
+      description: Records the result of a comparison between two items
+      parameters:
+      - description: Comparison Request
+        in: body
+        name: compareRequest
+        required: true
+        schema:
+          $ref: '#/definitions/http.CompareRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Compare two items
 swagger: "2.0"
