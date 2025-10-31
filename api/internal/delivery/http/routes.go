@@ -5,6 +5,8 @@ import (
 	"frogsmash/internal/container"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type EventsService interface {
@@ -34,6 +36,8 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.GET("/items", GetItems)
 
 	r.POST("/compare", eventsHandler.CompareItems)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
 }

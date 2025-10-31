@@ -1,0 +1,10 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "The API for comparing frogs and other things",
+        "title": "Frog Smash API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {}
+}

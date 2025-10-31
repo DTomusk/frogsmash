@@ -7,10 +7,14 @@ import (
 	"frogsmash/internal/delivery/http"
 	"log"
 
+	_ "frogsmash/docs"
+
 	_ "github.com/lib/pq"
 )
 
-// Entry point
+// @title Frog Smash API
+// @version 1.0
+// @description The API for comparing frogs and other things
 func main() {
 	verbose := flag.Bool("v", false, "enable verbose output")
 	flag.Parse()

@@ -1,0 +1,7 @@
+info:
+  contact: {}
+  description: The API for comparing frogs and other things
+  title: Frog Smash API
+  version: "1.0"
+paths: {}
+swagger: "2.0"
