@@ -57,6 +57,17 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	return r
 }
 
+type GetComparisonItemsResponse struct {
+	LeftItem  ItemDTO `json:"left_item"`
+	RightItem ItemDTO `json:"right_item"`
+}
+
+type ItemDTO struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	ImageURL string `json:"image_url"`
+}
+
 // Gets two random distinct items for comparison from storage
 // TODO: define return type
 // GetItems godoc
@@ -71,7 +82,18 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, gin.H{
-		"items": []string{item1.ID, item2.ID},
+		"items": GetComparisonItemsResponse{
+			LeftItem: ItemDTO{
+				ID:       item1.ID,
+				Name:     item1.Name,
+				ImageURL: item1.ImageURL,
+			},
+			RightItem: ItemDTO{
+				ID:       item2.ID,
+				Name:     item2.Name,
+				ImageURL: item2.ImageURL,
+			},
+		},
 	})
 }
 
