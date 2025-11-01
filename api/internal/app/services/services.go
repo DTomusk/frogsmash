@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"frogsmash/internal/app/models"
+	"math"
 )
 
 type EventsRepo interface {
@@ -25,12 +26,14 @@ type ItemsRepo interface {
 	GetRandomItems(numberOfItems int) ([]models.Item, error)
 }
 
+// TODO: read kfactor from config and only expose getter
 type ItemService struct {
-	Repo ItemsRepo
+	Repo    ItemsRepo
+	kFactor float64
 }
 
 func NewItemService(repo ItemsRepo) *ItemService {
-	return &ItemService{Repo: repo}
+	return &ItemService{Repo: repo, kFactor: 32.0}
 }
 
 func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
@@ -42,4 +45,11 @@ func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
 		return nil, nil, fmt.Errorf("not enough items available for comparison")
 	}
 	return &items[0], &items[1], nil
+}
+
+func (s *ItemService) UpdateEloScores(winner, loser *models.Item) {
+	expectedWinner := 1 / (1 + math.Pow(10, (loser.Score-winner.Score)/400))
+	expectedLoser := 1 / (1 + math.Pow(10, (winner.Score-loser.Score)/400))
+	winner.Score += s.kFactor * (1 - expectedWinner)
+	loser.Score += s.kFactor * (0 - expectedLoser)
 }
