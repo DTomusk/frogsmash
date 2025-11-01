@@ -26,7 +26,8 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	eventsRepo := repos.NewEventsRepo(db)
 	eventsService := services.NewEventsService(eventsRepo)
 
-	itemsService := services.NewItemService()
+	itemsRepo := repos.NewItemsRepo(db)
+	itemsService := services.NewItemService(itemsRepo)
 
 	return &Container{
 		DB:            db,

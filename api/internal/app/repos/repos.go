@@ -1,6 +1,9 @@
 package repos
 
-import "database/sql"
+import (
+	"database/sql"
+	"frogsmash/internal/app/models"
+)
 
 type EventsRepo struct {
 	DB *sql.DB
@@ -24,4 +27,23 @@ func (r *EventsRepo) LogEvent(winnerId, loserId string) error {
 
 func NewItemsRepo(db *sql.DB) *ItemsRepo {
 	return &ItemsRepo{DB: db}
+}
+
+func (r *ItemsRepo) GetRandomItems(numberOfItems int) ([]models.Item, error) {
+	var items []models.Item
+	query := "SELECT id, name, image_url, score FROM items ORDER BY RANDOM() LIMIT $1"
+	rows, err := r.DB.Query(query, numberOfItems)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		if err := rows.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }

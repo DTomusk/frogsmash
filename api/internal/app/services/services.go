@@ -1,6 +1,9 @@
 package services
 
-import "frogsmash/internal/app/models"
+import (
+	"fmt"
+	"frogsmash/internal/app/models"
+)
 
 type EventsRepo interface {
 	LogEvent(winnerId, loserId string) error
@@ -18,15 +21,25 @@ func (s *EventsService) LogEvent(winnerId, loserId string) error {
 	return s.Repo.LogEvent(winnerId, loserId)
 }
 
-type ItemService struct {
-	// Add dependencies if needed
+type ItemsRepo interface {
+	GetRandomItems(numberOfItems int) ([]models.Item, error)
 }
 
-func NewItemService() *ItemService {
-	return &ItemService{}
+type ItemService struct {
+	Repo ItemsRepo
+}
+
+func NewItemService(repo ItemsRepo) *ItemService {
+	return &ItemService{Repo: repo}
 }
 
 func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
-	// Placeholder implementation
-	return &models.Item{ID: "1"}, &models.Item{ID: "2"}, nil
+	items, err := s.Repo.GetRandomItems(2)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(items) < 2 {
+		return nil, nil, fmt.Errorf("not enough items available for comparison")
+	}
+	return &items[0], &items[1], nil
 }
