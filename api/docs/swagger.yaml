@@ -29,4 +29,11 @@ paths:
       - application/json
       responses: {}
       summary: Compare two items
+  /items:
+    get:
+      description: Retrieves two distinct items for comparison
+      produces:
+      - application/json
+      responses: {}
+      summary: Get two items for comparison
 swagger: "2.0"

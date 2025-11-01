@@ -38,6 +38,16 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/items": {
+            "get": {
+                "description": "Retrieves two distinct items for comparison",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get two items for comparison",
+                "responses": {}
+            }
         }
     },
     "definitions": {

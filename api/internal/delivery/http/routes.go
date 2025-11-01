@@ -59,6 +59,11 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 
 // Gets two random distinct items for comparison from storage
 // TODO: define return type
+// GetItems godoc
+// @Summary      Get two items for comparison
+// @Description  Retrieves two distinct items for comparison
+// @Router       /items [get]
+// @Produce      json
 func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 	item1, item2, err := h.ItemsService.GetComparisonItems()
 	if err != nil {
