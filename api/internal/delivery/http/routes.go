@@ -1,7 +1,7 @@
 package http
 
 import (
-	"frogsmash/internal/app"
+	"frogsmash/internal/app/models"
 	"frogsmash/internal/container"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +23,20 @@ func NewEventsHandler(c *container.Container) *EventsHandler {
 	}
 }
 
+type ItemsService interface {
+	GetComparisonItems() (*models.Item, *models.Item, error)
+}
+
+type ItemsHandler struct {
+	ItemsService ItemsService
+}
+
+func NewItemsHandler(c *container.Container) *ItemsHandler {
+	return &ItemsHandler{
+		ItemsService: c.ItemsService,
+	}
+}
+
 func SetupRoutes(c *container.Container) *gin.Engine {
 	r := gin.Default()
 
@@ -32,8 +46,9 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		})
 	})
 
+	itemsHandler := NewItemsHandler(c)
 	eventsHandler := NewEventsHandler(c)
-	r.GET("/items", GetItems)
+	r.GET("/items", itemsHandler.GetItems)
 
 	r.POST("/compare", eventsHandler.CompareItems)
 
@@ -43,10 +58,15 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 }
 
 // Gets two random distinct items for comparison from storage
-func GetItems(ctx *gin.Context) {
-	item1, item2 := app.PickTwoItems()
+// TODO: define return type
+func (h *ItemsHandler) GetItems(ctx *gin.Context) {
+	item1, item2, err := h.ItemsService.GetComparisonItems()
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to get items"})
+		return
+	}
 	ctx.JSON(200, gin.H{
-		"items": []int{item1.Id, item2.Id},
+		"items": []string{item1.ID, item2.ID},
 	})
 }
 
@@ -71,9 +91,6 @@ func (h *EventsHandler) CompareItems(ctx *gin.Context) {
 		return
 	}
 
-	// Call service function
-	// Service checks that IDs have associated items
-	// Then it queues a message to update scores asynchronously
 	err := h.EventsService.LogEvent(
 		request.WinnerId,
 		request.LoserId,

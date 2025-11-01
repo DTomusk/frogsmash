@@ -10,6 +10,7 @@ import (
 type Container struct {
 	DB            *sql.DB
 	EventsService *services.EventsService
+	ItemsService  *services.ItemService
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -25,8 +26,11 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	eventsRepo := repos.NewEventsRepo(db)
 	eventsService := services.NewEventsService(eventsRepo)
 
+	itemsService := services.NewItemService()
+
 	return &Container{
 		DB:            db,
 		EventsService: eventsService,
+		ItemsService:  itemsService,
 	}, nil
 }
