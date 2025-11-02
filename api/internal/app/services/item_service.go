@@ -5,23 +5,22 @@ import (
 	"fmt"
 	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
-	"math"
 )
 
 type ItemsRepo interface {
 	GetRandomItems(numberOfItems int, ctx context.Context, db repos.DBTX) ([]models.Item, error)
 	GetItemsByIds(ids []string, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
+	GetItemById(id string, ctx context.Context, db repos.DBTX) (*models.Item, error)
+	UpdateItemScore(itemID string, newScore float64, ctx context.Context, db repos.DBTX) error
 }
 
-// TODO: read kfactor from config and only expose getter
 type ItemService struct {
 	Repo          ItemsRepo
 	EventsService *EventsService
-	kFactor       float64
 }
 
 func NewItemService(repo ItemsRepo, eventsService *EventsService) *ItemService {
-	return &ItemService{Repo: repo, EventsService: eventsService, kFactor: 32.0}
+	return &ItemService{Repo: repo, EventsService: eventsService}
 }
 
 func (s *ItemService) GetComparisonItems(ctx context.Context, db repos.DBTX) (*models.Item, *models.Item, error) {
@@ -49,11 +48,4 @@ func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context
 	}
 	// Log event to be picked up by worker later
 	return s.EventsService.LogEvent(winnerId, loserId, ctx, db)
-}
-
-func (s *ItemService) UpdateEloScores(winner, loser *models.Item) {
-	expectedWinner := 1 / (1 + math.Pow(10, (loser.Score-winner.Score)/400))
-	expectedLoser := 1 / (1 + math.Pow(10, (winner.Score-loser.Score)/400))
-	winner.Score += s.kFactor * (1 - expectedWinner)
-	loser.Score += s.kFactor * (0 - expectedLoser)
 }

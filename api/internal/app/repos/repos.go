@@ -67,6 +67,19 @@ func (r *ItemsRepo) GetRandomItems(numberOfItems int, ctx context.Context, db DB
 	return items, nil
 }
 
+func (r *ItemsRepo) GetItemById(id string, ctx context.Context, db DBTX) (*models.Item, error) {
+	query := "SELECT id, name, image_url, score FROM items WHERE id = $1"
+	row := db.QueryRowContext(ctx, query, id)
+	var item models.Item
+	if err := row.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &item, nil
+}
+
 func (r *ItemsRepo) GetItemsByIds(ids []string, ctx context.Context, db DBTX) ([]*models.Item, error) {
 	var items []*models.Item
 	query := "SELECT id, name, image_url, score FROM items WHERE id = ANY($1)"
@@ -84,4 +97,11 @@ func (r *ItemsRepo) GetItemsByIds(ids []string, ctx context.Context, db DBTX) ([
 		items = append(items, &item)
 	}
 	return items, nil
+}
+
+func (r *ItemsRepo) UpdateItemScore(itemID string, newScore float64, ctx context.Context, db DBTX) error {
+	_, err := db.ExecContext(ctx,
+		"UPDATE items SET score = $1 WHERE id = $2", newScore, itemID,
+	)
+	return err
 }
