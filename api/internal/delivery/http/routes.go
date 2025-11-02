@@ -25,7 +25,9 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 }
 
 func SetupRoutes(c *container.Container) *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	r.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
