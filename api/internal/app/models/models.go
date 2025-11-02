@@ -6,3 +6,9 @@ type Item struct {
 	ImageURL string
 	Score    float64
 }
+
+type Event struct {
+	ID       string
+	WinnerID string
+	LoserID  string
+}

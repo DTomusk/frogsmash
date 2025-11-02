@@ -8,9 +8,9 @@ import (
 )
 
 type Container struct {
-	DB            *sql.DB
-	EventsService *services.EventsService
-	ItemsService  *services.ItemService
+	DB           *sql.DB
+	ItemsService *services.ItemService
+	ScoreUpdater *services.ScoreUpdater
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -29,8 +29,11 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	itemsRepo := repos.NewItemsRepo(db)
 	itemsService := services.NewItemService(itemsRepo, eventsService)
 
+	scoreUpdater := services.NewScoreUpdater(eventsRepo)
+
 	return &Container{
 		DB:           db,
 		ItemsService: itemsService,
+		ScoreUpdater: scoreUpdater,
 	}, nil
 }

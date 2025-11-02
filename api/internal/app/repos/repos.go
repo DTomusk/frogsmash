@@ -27,6 +27,19 @@ func (r *EventsRepo) LogEvent(winnerId, loserId string) error {
 	return err
 }
 
+func (r *EventsRepo) GetNextUnprocessedEvent() (*models.Event, error) {
+	query := "SELECT id, winner_id, loser_id FROM events WHERE processed_at IS NULL ORDER BY created_at ASC LIMIT 1"
+	row := r.DB.QueryRow(query)
+	var event models.Event
+	if err := row.Scan(&event.ID, &event.WinnerID, &event.LoserID); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &event, nil
+}
+
 func NewItemsRepo(db *sql.DB) *ItemsRepo {
 	return &ItemsRepo{DB: db}
 }

@@ -31,6 +31,9 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
+	// Start background score updater
+	go c.ScoreUpdater.Run()
+
 	r := http.SetupRoutes(c)
 	r.Run(":8080")
 }
