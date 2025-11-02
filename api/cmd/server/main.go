@@ -5,8 +5,9 @@ import (
 	"flag"
 	"frogsmash/internal/config"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/http"
+	appHttp "frogsmash/internal/delivery/http"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,6 +27,7 @@ func main() {
 	if *verbose {
 		log.Println("Verbose mode enabled")
 	}
+
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -38,16 +40,34 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	go c.ScoreUpdater.Run(ctx)
 
-	// Listen for termination signals to gracefully shut down background services
+	r := appHttp.SetupRoutes(c)
+
+	srv := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: r,
+	}
+
+	// Server runs in a goroutine
 	go func() {
-		sigCh := make(chan os.Signal, 1)
-		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-		<-sigCh
-		cancel()
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
 	}()
 
-	r := http.SetupRoutes(c)
-	r.Run(":8080")
+	quitCh := make(chan os.Signal, 1)
+	signal.Notify(quitCh, syscall.SIGINT, syscall.SIGTERM)
+	// This blocks until an interrupt or terminate signal is received
+	<-quitCh
+	log.Println("Shutting down server...")
+
+	cancel()
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server exiting")
 }

@@ -56,8 +56,6 @@ type ItemDTO struct {
 	ImageURL string `json:"image_url"`
 }
 
-// Gets two random distinct items for comparison from storage
-// TODO: define return type
 // GetItems godoc
 // @Summary      Get two items for comparison
 // @Description  Retrieves two distinct items for comparison
