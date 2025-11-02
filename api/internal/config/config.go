@@ -19,10 +19,16 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("could not load KFACTOR from environment: %v", err)
 	}
 
+	scoreUpdateInterval, err := strconv.Atoi(os.Getenv("SCORE_UPDATE_INTERVAL_SECONDS"))
+	if err != nil {
+		return nil, fmt.Errorf("could not load SCORE_UPDATE_INTERVAL_SECONDS from environment: %v", err)
+	}
+
 	cfg := &Config{
-		DatabaseURL: os.Getenv("DATABASE_URL"),
-		Port:        os.Getenv("PORT"),
-		KFactor:     kFactor,
+		DatabaseURL:         os.Getenv("DATABASE_URL"),
+		Port:                os.Getenv("PORT"),
+		KFactor:             kFactor,
+		ScoreUpdateInterval: scoreUpdateInterval,
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -36,7 +42,8 @@ func NewConfig() (*Config, error) {
 }
 
 type Config struct {
-	DatabaseURL string
-	Port        string
-	KFactor     float64
+	DatabaseURL         string
+	Port                string
+	KFactor             float64
+	ScoreUpdateInterval int
 }

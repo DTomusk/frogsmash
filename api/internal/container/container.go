@@ -5,6 +5,7 @@ import (
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/app/services"
 	"frogsmash/internal/config"
+	"time"
 )
 
 type Container struct {
@@ -29,7 +30,9 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	itemsRepo := repos.NewItemsRepo()
 	itemsService := services.NewItemService(itemsRepo, eventsService)
 
-	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor)
+	updateInterval := time.Duration(cfg.ScoreUpdateInterval) * time.Second
+
+	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
 
 	return &Container{
 		DB:           db,

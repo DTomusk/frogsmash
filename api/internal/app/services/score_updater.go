@@ -16,20 +16,19 @@ type EventRepo interface {
 	SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error
 }
 
-// TODO: read kfactor from config and only expose getter
 type ScoreUpdater struct {
-	db        *sql.DB
-	EventRepo EventRepo
-	ItemsRepo ItemsRepo
-	kFactor   float64
+	db             *sql.DB
+	EventRepo      EventRepo
+	ItemsRepo      ItemsRepo
+	kFactor        float64
+	updateInterval time.Duration
 }
 
-func NewScoreUpdater(db *sql.DB, er EventRepo, ir ItemsRepo, kFactor float64) *ScoreUpdater {
-	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor}
+func NewScoreUpdater(db *sql.DB, er EventRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) *ScoreUpdater {
+	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor, updateInterval: updateInterval}
 }
 
 func (su *ScoreUpdater) Run(ctx context.Context) {
-	// Implementation for processing events and updating scores would go here
 	log.Println("ScoreUpdater is running...")
 	for {
 		select {
@@ -39,7 +38,7 @@ func (su *ScoreUpdater) Run(ctx context.Context) {
 		default:
 			log.Println("Checking for unprocessed events...")
 			su.handleEvent(ctx)
-			time.Sleep(10 * time.Second)
+			time.Sleep(su.updateInterval)
 		}
 	}
 }
