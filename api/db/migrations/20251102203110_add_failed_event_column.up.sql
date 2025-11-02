@@ -1,0 +1,2 @@
+ALTER TABLE events
+ADD COLUMN failed_to_process BOOLEAN NOT NULL DEFAULT false;

@@ -2,12 +2,15 @@ package services
 
 import (
 	"context"
+	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
 )
 
 type EventsRepo interface {
 	LogEvent(winnerId, loserId string, ctx context.Context, db repos.DBTX) error
 	SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error
+	SetEventFailed(eventID string, ctx context.Context, db repos.DBTX) error
+	GetNextUnprocessedEvent(ctx context.Context, db repos.DBTX) (*models.Event, error)
 }
 
 type EventsService struct {

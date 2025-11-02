@@ -5,26 +5,20 @@ import (
 	"database/sql"
 	"fmt"
 	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
 	"log"
 	"math"
 	"time"
 )
 
-type EventRepo interface {
-	GetNextUnprocessedEvent(ctx context.Context, db repos.DBTX) (*models.Event, error)
-	SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error
-}
-
 type ScoreUpdater struct {
 	db             *sql.DB
-	EventRepo      EventRepo
+	EventRepo      EventsRepo
 	ItemsRepo      ItemsRepo
 	kFactor        float64
 	updateInterval time.Duration
 }
 
-func NewScoreUpdater(db *sql.DB, er EventRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) *ScoreUpdater {
+func NewScoreUpdater(db *sql.DB, er EventsRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) *ScoreUpdater {
 	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor, updateInterval: updateInterval}
 }
 
@@ -58,6 +52,10 @@ func (su *ScoreUpdater) handleEvent(ctx context.Context) {
 	winner, loser, err := su.GetWinnerAndLoser(event.WinnerID, event.LoserID, ctx)
 	if err != nil {
 		log.Printf("Error getting winner and loser: %v", err)
+		err := su.EventRepo.SetEventFailed(event.ID, ctx, su.db)
+		if err != nil {
+			log.Printf("Error marking event as failed: %v", err)
+		}
 		return
 	}
 
