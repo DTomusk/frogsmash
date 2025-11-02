@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -13,9 +14,15 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 
+	kFactor, err := strconv.ParseFloat(os.Getenv("KFACTOR"), 64)
+	if err != nil {
+		return nil, fmt.Errorf("could not load KFACTOR from environment: %v", err)
+	}
+
 	cfg := &Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Port:        os.Getenv("PORT"),
+		KFactor:     kFactor,
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -31,4 +38,5 @@ func NewConfig() (*Config, error) {
 type Config struct {
 	DatabaseURL string
 	Port        string
+	KFactor     float64
 }

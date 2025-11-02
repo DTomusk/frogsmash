@@ -29,7 +29,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	itemsRepo := repos.NewItemsRepo()
 	itemsService := services.NewItemService(itemsRepo, eventsService)
 
-	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo)
+	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor)
 
 	return &Container{
 		DB:           db,

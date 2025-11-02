@@ -24,8 +24,8 @@ type ScoreUpdater struct {
 	kFactor   float64
 }
 
-func NewScoreUpdater(db *sql.DB, er EventRepo, ir ItemsRepo) *ScoreUpdater {
-	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: 32.0}
+func NewScoreUpdater(db *sql.DB, er EventRepo, ir ItemsRepo, kFactor float64) *ScoreUpdater {
+	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor}
 }
 
 func (su *ScoreUpdater) Run(ctx context.Context) {
