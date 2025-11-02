@@ -1,7 +1,10 @@
 package http
 
 import (
+	"context"
+	"database/sql"
 	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
 
 	"github.com/gin-gonic/gin"
@@ -10,17 +13,19 @@ import (
 )
 
 type ItemsService interface {
-	GetComparisonItems() (*models.Item, *models.Item, error)
-	CompareItems(winnerId, loserId string) error
+	GetComparisonItems(ctx context.Context, dbtx repos.DBTX) (*models.Item, *models.Item, error)
+	CompareItems(winnerId, loserId string, ctx context.Context, dbtx repos.DBTX) error
 }
 
 type ItemsHandler struct {
 	ItemsService ItemsService
+	db           *sql.DB
 }
 
 func NewItemsHandler(c *container.Container) *ItemsHandler {
 	return &ItemsHandler{
 		ItemsService: c.ItemsService,
+		db:           c.DB,
 	}
 }
 
@@ -62,7 +67,7 @@ type ItemDTO struct {
 // @Router       /items [get]
 // @Produce      json
 func (h *ItemsHandler) GetItems(ctx *gin.Context) {
-	item1, item2, err := h.ItemsService.GetComparisonItems()
+	item1, item2, err := h.ItemsService.GetComparisonItems(ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to get items"})
 		return
@@ -107,6 +112,8 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	err := h.ItemsService.CompareItems(
 		request.WinnerId,
 		request.LoserId,
+		ctx.Request.Context(),
+		h.db,
 	)
 
 	if err != nil {

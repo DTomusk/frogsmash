@@ -1,14 +1,16 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/repos"
 	"math"
 )
 
 type ItemsRepo interface {
-	GetRandomItems(numberOfItems int) ([]models.Item, error)
-	GetItemsByIds(ids []string) ([]*models.Item, error)
+	GetRandomItems(numberOfItems int, ctx context.Context, db repos.DBTX) ([]models.Item, error)
+	GetItemsByIds(ids []string, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
 }
 
 // TODO: read kfactor from config and only expose getter
@@ -22,8 +24,8 @@ func NewItemService(repo ItemsRepo, eventsService *EventsService) *ItemService {
 	return &ItemService{Repo: repo, EventsService: eventsService, kFactor: 32.0}
 }
 
-func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
-	items, err := s.Repo.GetRandomItems(2)
+func (s *ItemService) GetComparisonItems(ctx context.Context, db repos.DBTX) (*models.Item, *models.Item, error) {
+	items, err := s.Repo.GetRandomItems(2, ctx, db)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -33,12 +35,12 @@ func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
 	return &items[0], &items[1], nil
 }
 
-func (s *ItemService) CompareItems(winnerId, loserId string) error {
+func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context, db repos.DBTX) error {
 	if winnerId == loserId {
 		return fmt.Errorf("winner and loser cannot be the same")
 	}
 	// Validate items exist
-	items, err := s.Repo.GetItemsByIds([]string{winnerId, loserId})
+	items, err := s.Repo.GetItemsByIds([]string{winnerId, loserId}, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -46,7 +48,7 @@ func (s *ItemService) CompareItems(winnerId, loserId string) error {
 		return fmt.Errorf("one or both items not found")
 	}
 	// Log event to be picked up by worker later
-	return s.EventsService.LogEvent(winnerId, loserId)
+	return s.EventsService.LogEvent(winnerId, loserId, ctx, db)
 }
 
 func (s *ItemService) UpdateEloScores(winner, loser *models.Item) {

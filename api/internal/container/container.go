@@ -23,13 +23,13 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		return nil, err
 	}
 
-	eventsRepo := repos.NewEventsRepo(db)
+	eventsRepo := repos.NewEventsRepo()
 	eventsService := services.NewEventsService(eventsRepo)
 
-	itemsRepo := repos.NewItemsRepo(db)
+	itemsRepo := repos.NewItemsRepo()
 	itemsService := services.NewItemService(itemsRepo, eventsService)
 
-	scoreUpdater := services.NewScoreUpdater(eventsRepo)
+	scoreUpdater := services.NewScoreUpdater(db, eventsRepo)
 
 	return &Container{
 		DB:           db,

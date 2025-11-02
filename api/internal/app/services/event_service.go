@@ -1,7 +1,13 @@
 package services
 
+import (
+	"context"
+	"frogsmash/internal/app/repos"
+)
+
 type EventsRepo interface {
-	LogEvent(winnerId, loserId string) error
+	LogEvent(winnerId, loserId string, ctx context.Context, db repos.DBTX) error
+	SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error
 }
 
 type EventsService struct {
@@ -12,6 +18,10 @@ func NewEventsService(repo EventsRepo) *EventsService {
 	return &EventsService{Repo: repo}
 }
 
-func (s *EventsService) LogEvent(winnerId, loserId string) error {
-	return s.Repo.LogEvent(winnerId, loserId)
+func (s *EventsService) LogEvent(winnerId, loserId string, ctx context.Context, db repos.DBTX) error {
+	return s.Repo.LogEvent(winnerId, loserId, ctx, db)
+}
+
+func (s *EventsService) SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error {
+	return s.Repo.SetEventProcessed(eventID, ctx, db)
 }
