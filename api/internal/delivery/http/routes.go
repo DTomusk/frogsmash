@@ -9,22 +9,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-type EventsService interface {
-	LogEvent(winnerId, loserId string) error
-}
-
-type EventsHandler struct {
-	EventsService EventsService
-}
-
-func NewEventsHandler(c *container.Container) *EventsHandler {
-	return &EventsHandler{
-		EventsService: c.EventsService,
-	}
-}
-
 type ItemsService interface {
 	GetComparisonItems() (*models.Item, *models.Item, error)
+	CompareItems(winnerId, loserId string) error
 }
 
 type ItemsHandler struct {
@@ -47,10 +34,9 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	})
 
 	itemsHandler := NewItemsHandler(c)
-	eventsHandler := NewEventsHandler(c)
-	r.GET("/items", itemsHandler.GetItems)
 
-	r.POST("/compare", eventsHandler.CompareItems)
+	r.GET("/items", itemsHandler.GetItems)
+	r.POST("/compare", itemsHandler.CompareItems)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -111,24 +97,23 @@ type CompareRequest struct {
 // @Accept       json
 // @Produce      json
 // @Param        compareRequest  body      CompareRequest  true  "Comparison Request"
-func (h *EventsHandler) CompareItems(ctx *gin.Context) {
+func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	var request CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	err := h.EventsService.LogEvent(
+	err := h.ItemsService.CompareItems(
 		request.WinnerId,
 		request.LoserId,
 	)
 
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to log event"})
+		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Placeholder implementation
 	ctx.JSON(200, gin.H{
 		"status": "comparison recorded",
 	})

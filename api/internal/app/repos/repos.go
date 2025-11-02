@@ -3,6 +3,8 @@ package repos
 import (
 	"database/sql"
 	"frogsmash/internal/app/models"
+
+	"github.com/lib/pq"
 )
 
 type EventsRepo struct {
@@ -44,6 +46,25 @@ func (r *ItemsRepo) GetRandomItems(numberOfItems int) ([]models.Item, error) {
 			return nil, err
 		}
 		items = append(items, item)
+	}
+	return items, nil
+}
+
+func (r *ItemsRepo) GetItemsByIds(ids []string) ([]*models.Item, error) {
+	var items []*models.Item
+	query := "SELECT id, name, image_url, score FROM items WHERE id = ANY($1)"
+	rows, err := r.DB.Query(query, pq.Array(ids))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		if err := rows.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score); err != nil {
+			return nil, err
+		}
+		items = append(items, &item)
 	}
 	return items, nil
 }

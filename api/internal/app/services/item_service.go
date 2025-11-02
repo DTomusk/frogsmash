@@ -6,34 +6,20 @@ import (
 	"math"
 )
 
-type EventsRepo interface {
-	LogEvent(winnerId, loserId string) error
-}
-
-type EventsService struct {
-	Repo EventsRepo
-}
-
-func NewEventsService(repo EventsRepo) *EventsService {
-	return &EventsService{Repo: repo}
-}
-
-func (s *EventsService) LogEvent(winnerId, loserId string) error {
-	return s.Repo.LogEvent(winnerId, loserId)
-}
-
 type ItemsRepo interface {
 	GetRandomItems(numberOfItems int) ([]models.Item, error)
+	GetItemsByIds(ids []string) ([]*models.Item, error)
 }
 
 // TODO: read kfactor from config and only expose getter
 type ItemService struct {
-	Repo    ItemsRepo
-	kFactor float64
+	Repo          ItemsRepo
+	EventsService *EventsService
+	kFactor       float64
 }
 
-func NewItemService(repo ItemsRepo) *ItemService {
-	return &ItemService{Repo: repo, kFactor: 32.0}
+func NewItemService(repo ItemsRepo, eventsService *EventsService) *ItemService {
+	return &ItemService{Repo: repo, EventsService: eventsService, kFactor: 32.0}
 }
 
 func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
@@ -45,6 +31,22 @@ func (s *ItemService) GetComparisonItems() (*models.Item, *models.Item, error) {
 		return nil, nil, fmt.Errorf("not enough items available for comparison")
 	}
 	return &items[0], &items[1], nil
+}
+
+func (s *ItemService) CompareItems(winnerId, loserId string) error {
+	if winnerId == loserId {
+		return fmt.Errorf("winner and loser cannot be the same")
+	}
+	// Validate items exist
+	items, err := s.Repo.GetItemsByIds([]string{winnerId, loserId})
+	if err != nil {
+		return err
+	}
+	if len(items) != 2 {
+		return fmt.Errorf("one or both items not found")
+	}
+	// Log event to be picked up by worker later
+	return s.EventsService.LogEvent(winnerId, loserId)
 }
 
 func (s *ItemService) UpdateEloScores(winner, loser *models.Item) {
