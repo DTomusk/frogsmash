@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"frogsmash/internal/config"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/http"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	_ "frogsmash/docs"
 
@@ -16,6 +20,7 @@ import (
 // @version 1.0
 // @description The API for comparing frogs and other things
 func main() {
+	// TODO: use elsewhere
 	verbose := flag.Bool("v", false, "enable verbose output")
 	flag.Parse()
 	if *verbose {
@@ -31,8 +36,17 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
-	// Start background score updater
-	go c.ScoreUpdater.Run()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go c.ScoreUpdater.Run(ctx)
+
+	// Listen for termination signals to gracefully shut down background services
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+		<-sigCh
+		cancel()
+	}()
 
 	r := http.SetupRoutes(c)
 	r.Run(":8080")

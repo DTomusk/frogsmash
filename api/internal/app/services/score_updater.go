@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"frogsmash/internal/app/models"
 	"log"
 	"time"
@@ -18,11 +19,17 @@ func NewScoreUpdater(r EventReader) *ScoreUpdater {
 	return &ScoreUpdater{EventReader: r}
 }
 
-func (su *ScoreUpdater) Run() {
+func (su *ScoreUpdater) Run(ctx context.Context) {
 	// Implementation for processing events and updating scores would go here
 	log.Println("ScoreUpdater is running...")
 	for {
-		log.Println("Checking for unprocessed events...")
-		time.Sleep(10 * time.Second)
+		select {
+		case <-ctx.Done():
+			log.Println("ScoreUpdater is stopping...")
+			return
+		default:
+			log.Println("Checking for unprocessed events...")
+			time.Sleep(10 * time.Second)
+		}
 	}
 }
