@@ -27,6 +27,7 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{
 		DatabaseURL:         os.Getenv("DATABASE_URL"),
 		Port:                os.Getenv("PORT"),
+		AllowedOrigin:       os.Getenv("ALLOWED_ORIGIN"),
 		KFactor:             kFactor,
 		ScoreUpdateInterval: scoreUpdateInterval,
 	}
@@ -46,4 +47,5 @@ type Config struct {
 	Port                string
 	KFactor             float64
 	ScoreUpdateInterval int
+	AllowedOrigin       string
 }

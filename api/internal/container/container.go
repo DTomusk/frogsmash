@@ -8,10 +8,12 @@ import (
 	"time"
 )
 
+// TODO: do we want the allowed origin here?
 type Container struct {
-	DB           *sql.DB
-	ItemsService *services.ItemService
-	ScoreUpdater *services.ScoreUpdater
+	DB            *sql.DB
+	ItemsService  *services.ItemService
+	ScoreUpdater  *services.ScoreUpdater
+	AllowedOrigin string
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -35,8 +37,9 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
 
 	return &Container{
-		DB:           db,
-		ItemsService: itemsService,
-		ScoreUpdater: scoreUpdater,
+		DB:            db,
+		ItemsService:  itemsService,
+		ScoreUpdater:  scoreUpdater,
+		AllowedOrigin: cfg.AllowedOrigin,
 	}, nil
 }
