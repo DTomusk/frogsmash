@@ -1,9 +1,11 @@
-import { AppBar, Toolbar } from "@mui/material";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
 function NavBar() {
     return (<AppBar position="static">
         <Toolbar>
-            Frog Smash
+            <Typography variant='h5'>
+                🐸 Frog Smash
+            </Typography>
         </Toolbar>
     </AppBar>);
 }

@@ -1,4 +1,4 @@
-import { Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import { Image } from 'mui-image'
 
 interface ContenderProps {
@@ -8,12 +8,14 @@ interface ContenderProps {
 
 function Contender({ imageUrl, name }: ContenderProps) {
     return (
-        <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', height: 300, width: 200 }}>
-            <Image src={imageUrl} alt={name} height='70%' />
-            <Paper elevation={10} sx={{ backgroundColor: 'primary.main', width: '80%', py: 2 }}>
-                <Typography variant="h4" color="white">{name}</Typography>
-            </Paper>
+    <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative'>
+        <Paper elevation={3}>
+            <Image src={imageUrl} alt={name} />
         </Paper>
+        <Paper elevation={10} sx={{ backgroundColor: 'primary.main', width: '80%', py: 2, display: 'flex', justifyContent: 'center', mt: -5, zIndex: 1, borderRadius: 4 }}>
+            <Typography variant="h4" color="white">{name}</Typography>
+        </Paper>
+    </Box>
     );
 }
 export default Contender;
