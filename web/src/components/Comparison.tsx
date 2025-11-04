@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useItems } from "../hooks/useItems"
 import Contender from "./Contender";
 
@@ -18,7 +18,8 @@ function Comparison() {
   return (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
         <Contender imageUrl={left_item.image_url} name={left_item.name} />
-        {/* <Contender imageUrl={right_item.image_url} name={right_item.name} /> */}
+        <Typography variant="h3" sx={{ alignSelf: 'center' }}>VS</Typography>
+        <Contender imageUrl={right_item.image_url} name={right_item.name} />
     </Box>
   );
 }

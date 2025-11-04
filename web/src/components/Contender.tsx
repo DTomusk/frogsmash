@@ -8,10 +8,10 @@ interface ContenderProps {
 
 function Contender({ imageUrl, name }: ContenderProps) {
     return (
-        <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Image src={imageUrl} alt={name} />
-            <Paper>
-                <Typography variant="h6">{name}</Typography>
+        <Paper elevation={3} sx={{ padding: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', height: 300, width: 200 }}>
+            <Image src={imageUrl} alt={name} height='70%' />
+            <Paper elevation={10} sx={{ backgroundColor: 'primary.main', width: '80%', py: 2 }}>
+                <Typography variant="h4" color="white">{name}</Typography>
             </Paper>
         </Paper>
     );
