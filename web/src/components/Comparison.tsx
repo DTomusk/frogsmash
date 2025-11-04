@@ -1,4 +1,6 @@
+import { Box } from "@mui/material";
 import { useItems } from "../hooks/useItems"
+import Contender from "./Contender";
 
 function Comparison() {
   const { isPending, error, data } = useItems();
@@ -14,10 +16,10 @@ function Comparison() {
   const { left_item, right_item } = data;
 
   return (
-    <div className="flex gap-4">
-      <img src={left_item.image_url} alt={left_item.name} />
-      <img src={right_item.image_url} alt={right_item.name} />
-    </div>
+    <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+        <Contender imageUrl={left_item.image_url} name={left_item.name} />
+        {/* <Contender imageUrl={right_item.image_url} name={right_item.name} /> */}
+    </Box>
   );
 }
 

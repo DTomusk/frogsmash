@@ -4,7 +4,7 @@ import NavBar from "./NavBar";
 
 function Template() {
     return (
-         <Box sx={{ display: 'flex', flexDirection: 'column', width: '100vw' }}>
+         <Box sx={{ display: 'flex', flexDirection: 'column', width: '100vw', minHeight: '100vh' }}>
             <NavBar />
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1, mt: 13 }}>
                 <Outlet />
