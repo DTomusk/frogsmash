@@ -8,7 +8,15 @@ interface ContenderProps {
 
 function Contender({ imageUrl, name }: ContenderProps) {
     return (
-    <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative'>
+    <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative'
+    sx={{
+        transition: "transform 0.3s ease",
+        transformOrigin: "center center",
+        "&:hover": {
+          transform: "scale(1.05)",
+          cursor: "pointer",
+        },
+      }}>
         <Paper elevation={3}>
             <Image src={imageUrl} alt={name} />
         </Paper>
