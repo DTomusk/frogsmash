@@ -4,7 +4,7 @@ function NavBar() {
     return (<AppBar position="static">
         <Toolbar>
             <Typography variant='h5'>
-                🐸 Frog Smash
+                🐸 FrogSmash
             </Typography>
         </Toolbar>
     </AppBar>);

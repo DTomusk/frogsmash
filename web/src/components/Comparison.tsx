@@ -19,9 +19,9 @@ function Comparison() {
     <Box>
         <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>Ribbit ribbit</Typography>
         <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
-            <Contender imageUrl={left_item.image_url} name={left_item.name} />
+            <Contender imageUrl={left_item.image_url} name={left_item.name} onClick={() => {}} />
             <Typography variant="h3" sx={{ alignSelf: 'center' }}>VS</Typography>
-            <Contender imageUrl={right_item.image_url} name={right_item.name} />
+            <Contender imageUrl={right_item.image_url} name={right_item.name} onClick={() => {}} />
         </Box>
     </Box>
   );

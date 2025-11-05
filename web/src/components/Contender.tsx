@@ -4,9 +4,10 @@ import { Image } from 'mui-image'
 interface ContenderProps {
     imageUrl: string;
     name: string;
+    onClick: () => void;
 }
 
-function Contender({ imageUrl, name }: ContenderProps) {
+function Contender({ imageUrl, name, onClick }: ContenderProps) {
     return (
     <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative'
     sx={{

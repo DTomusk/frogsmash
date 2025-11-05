@@ -9,5 +9,9 @@ export function useItems() {
             const response = await apiFetch<ItemsResponse>('/items');
             return response.items;
         },
+        refetchOnWindowFocus: false,  
+        refetchOnReconnect: false,     
+        refetchOnMount: false,         
+        staleTime: Infinity,           
     });
 }
