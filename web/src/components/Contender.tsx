@@ -9,7 +9,7 @@ interface ContenderProps {
 
 function Contender({ imageUrl, name, onClick }: ContenderProps) {
     return (
-    <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative'
+    <Box display="flex" flexDirection="column" alignItems="center" maxHeight="70%" position='relative' onClick={onClick}
     sx={{
         transition: "transform 0.3s ease",
         transformOrigin: "center center",

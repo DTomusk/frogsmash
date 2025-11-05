@@ -5,7 +5,7 @@ function useComparison() {
     return useMutation({
         mutationKey: ['comparison'],
         mutationFn: async ({ winner_id, loser_id }: { winner_id: string; loser_id: string; }) => {
-            await apiFetch<void>('/comparison', {
+            await apiFetch<void>('/compare', {
                 method: 'POST',
                 body: JSON.stringify({ winner_id, loser_id }),
             });
