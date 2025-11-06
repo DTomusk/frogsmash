@@ -38,10 +38,8 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	go c.ScoreUpdater.Run(ctx)
 
 	r := appHttp.SetupRoutes(c)
 
