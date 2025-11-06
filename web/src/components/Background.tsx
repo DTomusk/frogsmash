@@ -3,8 +3,10 @@ import { GlobalStyles, useTheme, CssBaseline } from "@mui/material";
 export default function Background() {
   const theme = useTheme();
 
-  // const gradient = `linear-gradient(180deg, 
-  //   ${theme.palette.secondary.light} 0%,
+  // const gradient = `linear-gradient(110deg, 
+  //   ${theme.palette.primary.main} 0%,
+  //   ${theme.palette.primary.light} 45%,
+  //   ${theme.palette.secondary.light} 55%,
   //   ${theme.palette.secondary.main} 100%)
   //   `;
 

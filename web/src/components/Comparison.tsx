@@ -33,8 +33,8 @@ function Comparison() {
 
   return (
     <Box>
-        <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>Ribbit ribbit</Typography>
-        <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
+        <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>Ribbit ribbit? Ribbit.</Typography>
+        <Box sx={{ display: 'flex', gap: 4, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' } }}>
             <Contender imageUrl={left_item.image_url} name={left_item.name} onClick={() => handleComparison(left_item.id, right_item.id)} variant="left" />
             <Typography variant="h3" sx={{ alignSelf: 'center' }}>VS</Typography>
             <Contender imageUrl={right_item.image_url} name={right_item.name} onClick={() => handleComparison(right_item.id, left_item.id)} variant="right" />

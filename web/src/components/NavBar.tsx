@@ -1,9 +1,9 @@
 import { AppBar, Toolbar, Typography } from "@mui/material";
 
 function NavBar() {
-    return (<AppBar position="static" color="primary">
+    return (<AppBar position="fixed" color="primary">
         <Toolbar>
-            <Typography variant='h5'>
+            <Typography variant='h4'>
                 🐸 FrogSmash
             </Typography>
         </Toolbar>
