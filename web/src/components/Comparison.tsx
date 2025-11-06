@@ -1,8 +1,9 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useItems } from "../hooks/useItems"
 import Contender from "./Contender";
 import { useComparison } from "../hooks/useComparison";
 import LoadingSpinner from "./LoadingSpinner";
+import ErrorMessage from "./ErrorMessage";
 
 function Comparison() {
   const { isPending, error, data, refetch } = useItems();
@@ -13,7 +14,14 @@ function Comparison() {
   }
 
   if (error) {
-    return <LoadingSpinner />;
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+        <ErrorMessage message={'Error loading contenders'} />
+        <Button variant="contained" onClick={() => refetch()} sx={{ mt: 2, textAlign: 'center' }}>
+          Retry
+        </Button>
+      </Box>
+    );
   }
 
   const { left_item, right_item } = data;
@@ -27,9 +35,9 @@ function Comparison() {
     <Box>
         <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>Ribbit ribbit</Typography>
         <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
-            <Contender imageUrl={left_item.image_url} name={left_item.name} onClick={() => handleComparison(left_item.id, right_item.id)} />
+            <Contender imageUrl={left_item.image_url} name={left_item.name} onClick={() => handleComparison(left_item.id, right_item.id)} variant="left" />
             <Typography variant="h3" sx={{ alignSelf: 'center' }}>VS</Typography>
-            <Contender imageUrl={right_item.image_url} name={right_item.name} onClick={() => handleComparison(right_item.id, left_item.id)} />
+            <Contender imageUrl={right_item.image_url} name={right_item.name} onClick={() => handleComparison(right_item.id, left_item.id)} variant="right" />
         </Box>
     </Box>
   );
