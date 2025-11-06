@@ -2,17 +2,18 @@ import { Box, Typography } from "@mui/material";
 import { useItems } from "../hooks/useItems"
 import Contender from "./Contender";
 import { useComparison } from "../hooks/useComparison";
+import LoadingSpinner from "./LoadingSpinner";
 
 function Comparison() {
   const { isPending, error, data, refetch } = useItems();
   const { mutate: compareItems } = useComparison();
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return <div>Error loading items.</div>;
+    return <LoadingSpinner />;
   }
 
   const { left_item, right_item } = data;
