@@ -9,9 +9,11 @@ import (
 )
 
 func NewConfig() (*Config, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, err
+	if os.Getenv("ENV") != "production" {
+		// Load .env file in non-production environments (not running in docker)
+		if err := godotenv.Load(); err != nil {
+			return nil, fmt.Errorf("error loading .env file: %v", err)
+		}
 	}
 
 	kFactor, err := strconv.ParseFloat(os.Getenv("KFACTOR"), 64)

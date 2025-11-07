@@ -10,11 +10,13 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
-# Build the application
+# Build the application, output to bin folder
 RUN go build -o /bin/frogsmash-score-updater ./cmd/scoreupdater
 
 # Stage 2: Create the final image
 FROM alpine:3.22.2
+
+ENV ENV=production
 
 RUN apk --no-cache add ca-certificates
 
