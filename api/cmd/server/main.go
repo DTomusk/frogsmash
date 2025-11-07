@@ -14,6 +14,9 @@ import (
 
 	_ "frogsmash/docs"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
@@ -31,6 +34,16 @@ func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	// TODO: this introduces a dependency from scoreupdater to server, consider running separately
+	m, err := migrate.New("file://db/migrations", cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("failed to create migrate instance: %v", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("migration failed: %v", err)
 	}
 
 	c, err := container.NewContainer(cfg)

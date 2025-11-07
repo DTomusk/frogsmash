@@ -13,9 +13,24 @@ services:
     
   api:
     build:
+      # the directory where this is run 
       context: ./api
+      # the path to the Dockerfile relative to the context
       dockerfile: ./cmd/server/Dockerfile
     ports:
       - "8080:8080"
     env_file:
       - ./api/.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  scoreupdater:
+    build:
+      context: ./api
+      dockerfile: ./cmd/scoreupdater/Dockerfile
+    env_file:
+      - ./api/.env
+    depends_on:
+      db:
+        condition: service_healthy

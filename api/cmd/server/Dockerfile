@@ -10,6 +10,8 @@ RUN go mod download
 # Copy the source code
 COPY . .
 
+COPY db/migrations ./db/migrations
+
 # Build the application
 RUN go build -o /bin/frogsmash-api ./cmd/server
 
@@ -21,5 +23,6 @@ ENV ENV=production
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /bin/frogsmash-api /usr/local/bin/
+COPY --from=builder /app/db/migrations ./db/migrations
 
 CMD ["/usr/local/bin/frogsmash-api"]
