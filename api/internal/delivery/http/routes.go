@@ -6,6 +6,8 @@ import (
 	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
+	"frogsmash/internal/delivery/dto"
+	"frogsmash/internal/delivery/utils"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -55,21 +57,11 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 
 	r.GET("/items", itemsHandler.GetItems)
 	r.POST("/compare", itemsHandler.CompareItems)
+	r.GET("/leaderboard", itemsHandler.GetLeaderboard)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
-}
-
-type GetComparisonItemsResponse struct {
-	LeftItem  ItemDTO `json:"left_item"`
-	RightItem ItemDTO `json:"right_item"`
-}
-
-type ItemDTO struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	ImageURL string `json:"image_url"`
 }
 
 // GetItems godoc
@@ -84,26 +76,19 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, gin.H{
-		"items": GetComparisonItemsResponse{
-			LeftItem: ItemDTO{
+		"items": dto.GetComparisonItemsResponse{
+			LeftItem: dto.ItemDTO{
 				ID:       item1.ID,
 				Name:     item1.Name,
 				ImageURL: item1.ImageURL,
 			},
-			RightItem: ItemDTO{
+			RightItem: dto.ItemDTO{
 				ID:       item2.ID,
 				Name:     item2.Name,
 				ImageURL: item2.ImageURL,
 			},
 		},
 	})
-}
-
-// CompareRequest godoc
-// @Description  Request payload for comparing two items
-type CompareRequest struct {
-	WinnerId string `json:"winner_id"`
-	LoserId  string `json:"loser_id"`
 }
 
 // CompareItems godoc
@@ -114,7 +99,7 @@ type CompareRequest struct {
 // @Produce      json
 // @Param        compareRequest  body      CompareRequest  true  "Comparison Request"
 func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
-	var request CompareRequest
+	var request dto.CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid request"})
 		return
@@ -135,4 +120,18 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"status": "comparison recorded",
 	})
+}
+
+func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
+	p := utils.NewPagination(ctx)
+
+	leaderboard, err := h.ItemsService.GetLeaderboard(p.Limit, p.Offset, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard"})
+		return
+	}
+
+	res := dto.NewPagedResponse(leaderboard, leaderboard.total, p.Page, p.Limit)
+
+	ctx.JSON(200, res)
 }
