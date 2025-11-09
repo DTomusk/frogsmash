@@ -12,6 +12,8 @@ type ItemsRepo interface {
 	GetItemsByIds(ids []string, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
 	GetItemById(id string, ctx context.Context, db repos.DBTX) (*models.Item, error)
 	UpdateItemScore(itemID string, newScore float64, ctx context.Context, db repos.DBTX) error
+	GetLeaderboardItems(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
+	GetTotalItemCount(ctx context.Context, db repos.DBTX) (int, error)
 }
 
 type ItemService struct {
@@ -53,6 +55,14 @@ func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context
 func (s *ItemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.Item, int, error) {
 	// Placeholder implementation, replace with repo call
 	var items []*models.Item
-	var total int
+	items, err := s.Repo.GetLeaderboardItems(limit, offset, ctx, db)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err := s.Repo.GetTotalItemCount(ctx, db)
+	if err != nil {
+		return nil, 0, err
+	}
 	return items, total, nil
 }

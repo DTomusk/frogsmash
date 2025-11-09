@@ -112,3 +112,35 @@ func (r *ItemsRepo) UpdateItemScore(itemID string, newScore float64, ctx context
 	)
 	return err
 }
+
+func (r *ItemsRepo) GetLeaderboardItems(limit int, offset int, ctx context.Context, db DBTX) ([]*models.Item, error) {
+	var items []*models.Item
+	query := "SELECT id, name, image_url, score FROM items ORDER BY score DESC LIMIT $1 OFFSET $2"
+	rows, err := db.QueryContext(ctx, query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.Item
+		if err := rows.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score); err != nil {
+			return nil, err
+		}
+		items = append(items, &item)
+	}
+	return items, nil
+}
+
+func (r *ItemsRepo) GetTotalItemCount(ctx context.Context, db DBTX) (int, error) {
+	var count int
+	query := "SELECT COUNT(*) FROM items"
+	row := db.QueryRowContext(ctx, query)
+	if err := row.Scan(&count); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return count, nil
+}
