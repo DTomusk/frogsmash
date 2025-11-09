@@ -1,8 +1,6 @@
 package dto
 
-impori "math"
-
-tmport "math"
+import "math"
 
 type GetComparisonItemsResponse struct {
 	LeftItem  ItemDTO `json:"left_item"`

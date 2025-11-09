@@ -19,6 +19,7 @@ import (
 type ItemsService interface {
 	GetComparisonItems(ctx context.Context, dbtx repos.DBTX) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId string, ctx context.Context, dbtx repos.DBTX) error
+	GetLeaderboardPage(limit int, offset int, ctx context.Context, dbtx repos.DBTX) ([]*models.Item, int, error)
 }
 
 type ItemsHandler struct {
@@ -125,13 +126,13 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 	p := utils.NewPagination(ctx)
 
-	leaderboard, err := h.ItemsService.GetLeaderboard(p.Limit, p.Offset, ctx.Request.Context(), h.db)
+	items, total, err := h.ItemsService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard"})
 		return
 	}
 
-	res := dto.NewPagedResponse(leaderboard, leaderboard.total, p.Page, p.Limit)
+	res := dto.NewPagedResponse(items, total, p.Page, p.Limit)
 
 	ctx.JSON(200, res)
 }

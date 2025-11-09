@@ -49,3 +49,10 @@ func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context
 	// Log event to be picked up by worker later
 	return s.EventsService.LogEvent(winnerId, loserId, ctx, db)
 }
+
+func (s *ItemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.Item, int, error) {
+	// Placeholder implementation, replace with repo call
+	var items []*models.Item
+	var total int
+	return items, total, nil
+}
