@@ -19,7 +19,7 @@ import (
 type ItemsService interface {
 	GetComparisonItems(ctx context.Context, dbtx repos.DBTX) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId string, ctx context.Context, dbtx repos.DBTX) error
-	GetLeaderboardPage(limit int, offset int, ctx context.Context, dbtx repos.DBTX) ([]*models.Item, int, error)
+	GetLeaderboardPage(limit int, offset int, ctx context.Context, dbtx repos.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
 type ItemsHandler struct {

@@ -12,7 +12,7 @@ type ItemsRepo interface {
 	GetItemsByIds(ids []string, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
 	GetItemById(id string, ctx context.Context, db repos.DBTX) (*models.Item, error)
 	UpdateItemScore(itemID string, newScore float64, ctx context.Context, db repos.DBTX) error
-	GetLeaderboardItems(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.Item, error)
+	GetLeaderboardItems(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.LeaderboardItem, error)
 	GetTotalItemCount(ctx context.Context, db repos.DBTX) (int, error)
 }
 
@@ -52,9 +52,9 @@ func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context
 	return s.EventsService.LogEvent(winnerId, loserId, ctx, db)
 }
 
-func (s *ItemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.Item, int, error) {
+func (s *ItemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.LeaderboardItem, int, error) {
 	// Placeholder implementation, replace with repo call
-	var items []*models.Item
+	var items []*models.LeaderboardItem
 	items, err := s.Repo.GetLeaderboardItems(limit, offset, ctx, db)
 	if err != nil {
 		return nil, 0, err
