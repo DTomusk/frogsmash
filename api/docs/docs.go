@@ -32,7 +32,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/http.CompareRequest"
+                            "$ref": "#/definitions/dto.CompareRequest"
                         }
                     }
                 ],
@@ -48,10 +48,20 @@ const docTemplate = `{
                 "summary": "Get two items for comparison",
                 "responses": {}
             }
+        },
+        "/leaderboard": {
+            "get": {
+                "description": "Retrieves a paginated leaderboard of items",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get leaderboard",
+                "responses": {}
+            }
         }
     },
     "definitions": {
-        "http.CompareRequest": {
+        "dto.CompareRequest": {
             "description": "Request payload for comparing two items",
             "type": "object",
             "properties": {

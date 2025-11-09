@@ -1,5 +1,5 @@
 definitions:
-  http.CompareRequest:
+  dto.CompareRequest:
     description: Request payload for comparing two items
     properties:
       loser_id:
@@ -24,7 +24,7 @@ paths:
         name: compareRequest
         required: true
         schema:
-          $ref: '#/definitions/http.CompareRequest'
+          $ref: '#/definitions/dto.CompareRequest'
       produces:
       - application/json
       responses: {}
@@ -36,4 +36,11 @@ paths:
       - application/json
       responses: {}
       summary: Get two items for comparison
+  /leaderboard:
+    get:
+      description: Retrieves a paginated leaderboard of items
+      produces:
+      - application/json
+      responses: {}
+      summary: Get leaderboard
 swagger: "2.0"

@@ -98,7 +98,7 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 // @Router       /compare [post]
 // @Accept       json
 // @Produce      json
-// @Param        compareRequest  body      CompareRequest  true  "Comparison Request"
+// @Param        compareRequest  body      dto.CompareRequest  true  "Comparison Request"
 func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	var request dto.CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -123,6 +123,11 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	})
 }
 
+// GetLeaderboard godoc
+// @Summary      Get leaderboard
+// @Description  Retrieves a paginated leaderboard of items
+// @Router       /leaderboard [get]
+// @Produce      json
 func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 	p := utils.NewPagination(ctx)
 
