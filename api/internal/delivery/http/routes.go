@@ -128,6 +128,8 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 // @Description  Retrieves a paginated leaderboard of items
 // @Router       /leaderboard [get]
 // @Produce      json
+// @Param        page   query     int  false  "Page number"  default(1)
+// @Param        limit  query     int  false  "Items per page"  default(10)
 func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 	p := utils.NewPagination(ctx)
 

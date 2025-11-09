@@ -7,12 +7,13 @@ type Item struct {
 	Score    float64
 }
 
+// TODO: JSON isn't a model concern, consider moving to dto package
 type LeaderboardItem struct {
-	ID       string
-	Name     string
-	Score    float64
-	ImageURL string
-	Rank     int
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	Score    float64 `json:"score"`
+	ImageURL string  `json:"image_url"`
+	Rank     int     `json:"rank"`
 }
 
 type Event struct {
