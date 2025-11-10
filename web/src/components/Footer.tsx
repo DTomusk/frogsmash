@@ -24,7 +24,7 @@ function Footer() {
                 </Typography>
             </Link>
         </Box>
-        <Typography variant="body2" color="primary.contrastText" align="center" sx={{ py: 2 }}>
+        <Typography variant="body2" color="primary.contrastText" align="center" sx={{ py: 2, mx: 4 }}>
             © {new Date().getFullYear()} FrogSmash. All rights reserved.
         </Typography>
     </Box>
