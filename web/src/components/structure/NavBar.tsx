@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import DrawerContent from "./DrawerContent";
+import ThemeSwitch from "./ThemeSwitch";
 
 function NavBar() {
     const [open, setOpen] = useState(false);
@@ -36,6 +37,7 @@ function NavBar() {
                         Leaderboard
                     </Typography>
                 </Link>
+                <ThemeSwitch />
             </Box>
         </Toolbar>
     </AppBar></>);

@@ -1,6 +1,7 @@
 import { Home } from "@mui/icons-material";
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
+import ThemeSwitch from "./ThemeSwitch";
 
 interface DrawerContentProps {
     onClick: () => void;
@@ -19,8 +20,8 @@ function DrawerContent({ onClick }: DrawerContentProps) {
                             <ListItemText primary="Home" />
                         </ListItemButton>
                     </ListItem>
-                    </Link>
-                    <Link to='/leaderboard' style={{ textDecoration: 'none', color: 'inherit' }}>
+                </Link>
+                <Link to='/leaderboard' style={{ textDecoration: 'none', color: 'inherit' }}>
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
@@ -29,9 +30,10 @@ function DrawerContent({ onClick }: DrawerContentProps) {
                             <ListItemText primary="Leaderboard" />
                         </ListItemButton>
                     </ListItem>
-                    </Link>
-                </List>
-            </Box>);
+                </Link>
+                <ThemeSwitch />
+            </List>
+        </Box>);
 }
 
 export default DrawerContent;
