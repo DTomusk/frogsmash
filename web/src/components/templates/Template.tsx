@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import NavBar from "../NavBar";
+import Footer from "../Footer";
 
 function Template() {
     return (
@@ -9,6 +10,7 @@ function Template() {
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexGrow: 1, mt: 8 }}>
                 <Outlet />
             </Box>
+            <Footer />
         </Box>
     );
 }
