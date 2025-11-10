@@ -7,7 +7,7 @@ export function useLeaderboard(page: number, limit: number) {
         queryKey: ['leaderboardItems', page, limit],
         queryFn: async () => {
             const response = await apiFetch<LeaderboardResponse>(`/leaderboard?page=${page}&limit=${limit}`);
-            return response.data;
+            return response;
         }
     });
 }
