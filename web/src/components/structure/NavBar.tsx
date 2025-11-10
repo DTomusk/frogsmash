@@ -1,8 +1,8 @@
-import { AppBar, Box, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Drawer, IconButton, Toolbar, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
-import { Home } from "@mui/icons-material";
+import DrawerContent from "./DrawerContent";
 
 function NavBar() {
     const [open, setOpen] = useState(false);
@@ -10,39 +10,12 @@ function NavBar() {
         setOpen(newOpen);
     };
 
-    const drawerContent = (
-        <Box sx={{ width: 250 }} role="presentation" onClick={() => handleMenuToggle(false)} onKeyDown={() => handleMenuToggle(false)}>
-            <List>
-                <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Home />
-                        </ListItemIcon>
-                        <ListItemText primary="Home" />
-                    </ListItemButton>
-                </ListItem>
-                </Link>
-                <Link to='/leaderboard' style={{ textDecoration: 'none', color: 'inherit' }}>
-                <ListItem disablePadding>
-                    <ListItemButton>
-                        <ListItemIcon>
-                            <Home />
-                        </ListItemIcon>
-                        <ListItemText primary="Leaderboard" />
-                    </ListItemButton>
-                </ListItem>
-                </Link>
-            </List>
-        </Box>
-    )
-
     return (
         <>
         <Drawer open={open} 
             onClose={() => handleMenuToggle(false)} 
             anchor="right">
-            {drawerContent}
+            <DrawerContent onClick={() => handleMenuToggle(false)} />
         </Drawer>
         <AppBar position="fixed" color="primary">
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -52,7 +25,7 @@ function NavBar() {
                 </Typography>
             </Link>
             <IconButton onClick={() => handleMenuToggle(true)}
-                sx={{ display: { xs: "flex", md: "none" } }} // show on small only
+                sx={{ display: { xs: "flex", sm: "none" } }} // show on small only
                 color="inherit"
                 >
                 <MenuIcon />
