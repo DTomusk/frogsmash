@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import theme from './theme.ts'
-import Background from './components/Background.tsx'
+import Background from './components/structure/Background.tsx'
 
 const queryClient = new QueryClient()
 
