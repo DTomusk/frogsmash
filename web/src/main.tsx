@@ -4,9 +4,8 @@ import './index.css'
 import App from './App.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from '@mui/material'
-import theme from './theme.ts'
 import Background from './components/structure/Background.tsx'
+import { AppThemeProvider } from './theme/ThemeProvider.tsx'
 
 const queryClient = new QueryClient()
 
@@ -14,10 +13,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ThemeProvider theme={theme}>
+        <AppThemeProvider>
           <Background />
           <App />
-        </ThemeProvider>
+        </AppThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
