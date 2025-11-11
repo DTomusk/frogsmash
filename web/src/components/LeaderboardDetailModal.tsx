@@ -1,5 +1,7 @@
-import { Box, Button, Card, CardActionArea, CardActions, CardMedia, Modal, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardMedia, IconButton, Modal, Tooltip, Typography } from "@mui/material";
 import type { LeaderboardItem } from "../models/items";
+import { format } from 'date-fns';
+import InfoIcon from '@mui/icons-material/Info';
 
 interface LeaderboardDetailModalProps {
     open: boolean;
@@ -25,12 +27,22 @@ function LeaderboardDetailModal({ open, setOpen, item }: LeaderboardDetailModalP
           }}
         >
           <Card sx={{ width: 400 }}>
-            <CardActionArea>
-                <CardMedia component='img' image={item.image_url} alt={item.name} />
-                <Typography id="card-modal-title" variant="h6" gutterBottom sx={{ p: 2 }}>
+            <CardMedia component='img' image={item.image_url} alt={item.name} />
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <Typography variant="h6" gutterBottom sx={{ px: 2, pt: 2 }}>
                 {item.name}
-              </Typography>
-            </CardActionArea>
+            </Typography>
+            <Tooltip sx={{mx: 2}} title={`Licensing info: ${item.license}`} arrow>
+                <IconButton size="small">
+                    <InfoIcon color="action" />
+                </IconButton>
+            </Tooltip>
+            </Box>
+            <Typography variant="body1" sx={{ px: 2, pb: 2 }}>
+                Rank: #{item.rank} <br/>
+                Active since: {format(new Date(item.created_at), 'yyyy-MM-dd')}<br/>
+                Score: {item.score}
+            </Typography>
             <CardActions sx={{ justifyContent: "flex-end" }}>
               <Button onClick={() => setOpen(false)}>Close</Button>
             </CardActions>

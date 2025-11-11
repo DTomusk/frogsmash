@@ -25,4 +25,6 @@ export interface LeaderboardItem {
   name: string;
   image_url: string;
   score: number;
+  created_at: string;
+  license: string;
 }
