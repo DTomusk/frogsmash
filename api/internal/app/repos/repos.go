@@ -115,7 +115,7 @@ func (r *ItemsRepo) UpdateItemScore(itemID string, newScore float64, ctx context
 
 func (r *ItemsRepo) GetLeaderboardItems(limit int, offset int, ctx context.Context, db DBTX) ([]*models.LeaderboardItem, error) {
 	var items []*models.LeaderboardItem
-	query := "SELECT id, name, image_url, score, RANK() OVER (ORDER BY score DESC) as rank FROM items ORDER BY score DESC LIMIT $1 OFFSET $2"
+	query := "SELECT id, name, image_url, score, RANK() OVER (ORDER BY score DESC) as rank, created_at, license FROM items ORDER BY score DESC LIMIT $1 OFFSET $2"
 	rows, err := db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func (r *ItemsRepo) GetLeaderboardItems(limit int, offset int, ctx context.Conte
 
 	for rows.Next() {
 		var item models.LeaderboardItem
-		if err := rows.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score, &item.Rank); err != nil {
+		if err := rows.Scan(&item.ID, &item.Name, &item.ImageURL, &item.Score, &item.Rank, &item.CreatedAt, &item.License); err != nil {
 			return nil, err
 		}
 		items = append(items, &item)

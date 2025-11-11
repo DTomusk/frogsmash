@@ -135,7 +135,7 @@ func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 
 	items, total, err := h.ItemsService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard"})
+		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard: " + err.Error()})
 		return
 	}
 
