@@ -9,7 +9,17 @@ interface LeaderboardEntryProps {
 function LeaderboardEntry({ item, onClick }: LeaderboardEntryProps) {
     return (
         <Paper 
-            sx={{ marginBottom: 2, padding: 1, width: '100%', cursor: 'pointer' }} 
+            sx={{ marginBottom: 2, 
+                padding: 1, 
+                width: '100%', 
+                transition: "transform 0.3s ease",
+                transformOrigin: "center center",
+                "&:hover": {
+                    transform: "scale(1.05)",
+                    cursor: "pointer",
+                    backgroundColor: 'action.hover',
+                },
+            }} 
             onClick={onClick}>
         <ListItem sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '40%' }}>
