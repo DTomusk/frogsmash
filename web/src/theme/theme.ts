@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 
-const bodyFont = "'Kalam', system-ui, Avenir, Helvetica, Arial, sans-serif";
+const bodyFont = "system-ui, Avenir, Helvetica, Arial, sans-serif";
 const headingFont = "'Luckiest Guy', cursive";
 const typography = {
     fontFamily: bodyFont,
