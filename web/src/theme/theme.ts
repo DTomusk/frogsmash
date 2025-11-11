@@ -1,9 +1,19 @@
 import { createTheme } from "@mui/material";
 
+const bodyFont = "'Kalam', system-ui, Avenir, Helvetica, Arial, sans-serif";
+const headingFont = "'Luckiest Guy', cursive";
+const typography = {
+    fontFamily: bodyFont,
+    h1: { fontFamily: headingFont },
+    h2: { fontFamily: headingFont },
+    h3: { fontFamily: headingFont },
+    h4: { fontFamily: headingFont },
+    h5: { fontFamily: headingFont },
+    h6: { fontFamily: headingFont},
+};
+
 export const lightTheme = createTheme({
-    typography: {
-        fontFamily: "'Luckiest Guy', system-ui, Avenir, Helvetica, Arial, sans-serif",
-    },
+    typography: typography,
     palette: {
         primary: {
             main: '#327425ff',
@@ -18,9 +28,7 @@ export const lightTheme = createTheme({
 });
 
 export const darkTheme = createTheme({
-    typography: {
-        fontFamily: "'Luckiest Guy', system-ui, Avenir, Helvetica, Arial, sans-serif",
-    },
+    typography: typography,
     palette: {
         mode: 'dark',
         primary: {
@@ -34,3 +42,4 @@ export const darkTheme = createTheme({
         },
     },
 });
+

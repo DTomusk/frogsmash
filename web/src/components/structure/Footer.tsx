@@ -13,12 +13,12 @@ function Footer() {
         justifyContent: 'space-between'
     }}>
         <Box>
-            <Link to="/privacy" style={{ textDecoration: 'none' }}>
+            <Link to="/privacy">
                 <Typography variant="body2" color="primary.contrastText" sx={{ px: 2, py: 2, display: 'inline-block' }}>
                     Privacy Policy
                 </Typography>
             </Link>
-            <Link to="/terms" style={{ textDecoration: 'none' }}>
+            <Link to="/terms">
                 <Typography variant="body2" color="primary.contrastText" sx={{ px: 2, py: 2, display: 'inline-block' }}>
                     Terms of Service
                 </Typography>
