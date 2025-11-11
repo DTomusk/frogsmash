@@ -2,6 +2,7 @@ import { Box, Button, Card, CardActions, CardMedia, IconButton, Modal, Tooltip, 
 import type { LeaderboardItem } from "../models/items";
 import { format } from 'date-fns';
 import InfoIcon from '@mui/icons-material/Info';
+import { Image } from 'mui-image'
 
 interface LeaderboardDetailModalProps {
     open: boolean;
@@ -27,7 +28,17 @@ function LeaderboardDetailModal({ open, setOpen, item }: LeaderboardDetailModalP
           }}
         >
           <Card sx={{ width: 400 }}>
-            <CardMedia component='img' image={item.image_url} alt={item.name} />
+            {/* <CardMedia component='img' image={item.image_url} alt={item.name} /> */}
+            <CardMedia>
+                <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    showLoading 
+                    width="100%"
+                    height={300}
+                    fit="cover"
+                    />
+            </CardMedia>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
             <Typography variant="h6" gutterBottom sx={{ px: 2, pt: 2 }}>
                 {item.name}
