@@ -54,4 +54,19 @@ paths:
       - application/json
       responses: {}
       summary: Get leaderboard
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image to the server
+      parameters:
+      - description: Image file to upload
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses: {}
+      summary: Upload an image
 swagger: "2.0"

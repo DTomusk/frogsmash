@@ -74,6 +74,28 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/upload": {
+            "post": {
+                "description": "Uploads an image to the server",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Upload an image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Image file to upload",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
         }
     },
     "definitions": {
