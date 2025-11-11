@@ -1,9 +1,16 @@
 import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from "@mui/material";
 import type { LeaderboardItem } from "../models/items";
 
-function LeaderboardEntry({ item }: { item: LeaderboardItem }) {
+interface LeaderboardEntryProps {
+    item: LeaderboardItem;
+    onClick?: () => void;
+}
+
+function LeaderboardEntry({ item, onClick }: LeaderboardEntryProps) {
     return (
-        <Paper sx={{ marginBottom: 2, padding: 1, width: '100%' }}>
+        <Paper 
+            sx={{ marginBottom: 2, padding: 1, width: '100%', cursor: 'pointer' }} 
+            onClick={onClick}>
         <ListItem sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', width: '40%' }}>
             <ListItemText primary={
