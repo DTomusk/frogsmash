@@ -1,9 +1,9 @@
-import { AppBar, Box, Drawer, IconButton, Toolbar, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import { AppBar, Box, Drawer, IconButton, Toolbar } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import DrawerContent from "./DrawerContent";
-import ThemeSwitch from "./ThemeSwitch";
+import LogoLink from "./LogoLink";
+import NavLinks from "./NavLinks";
 
 function NavBar() {
     const [open, setOpen] = useState(false);
@@ -12,35 +12,27 @@ function NavBar() {
     };
 
     return (
-        <>
+    <>
         <Drawer open={open} 
             onClose={() => handleMenuToggle(false)} 
             anchor="right">
             <DrawerContent onClick={() => handleMenuToggle(false)} />
         </Drawer>
         <AppBar position="fixed" color="primary">
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Typography variant='h4'>
-                    🐸 FrogSmash
-                </Typography>
-            </Link>
-            <IconButton onClick={() => handleMenuToggle(true)}
-                sx={{ display: { xs: "flex", sm: "none" } }} // show on small only
-                color="inherit"
-                >
-                <MenuIcon />
-            </IconButton>
-            <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
-                <Link to='/leaderboard' style={{ color: 'inherit' }}>
-                    <Typography variant='h6'>
-                        Leaderboard
-                    </Typography>
-                </Link>
-                <ThemeSwitch />
-            </Box>
-        </Toolbar>
-    </AppBar></>);
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <LogoLink />
+                <IconButton onClick={() => handleMenuToggle(true)}
+                    sx={{ display: { xs: "flex", sm: "none" } }} // show on small only
+                    color="inherit"
+                    >
+                    <MenuIcon />
+                </IconButton>
+                <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                    <NavLinks />
+                </Box>
+            </Toolbar>
+        </AppBar>
+    </>);
 }
 
 export default NavBar;
