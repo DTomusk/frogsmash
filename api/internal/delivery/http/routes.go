@@ -9,6 +9,7 @@ import (
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
 	"frogsmash/internal/delivery/utils"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -169,6 +170,11 @@ func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 // @Produce      json
 // @Param        image  formData  file  true  "Image file to upload"
 func (h *UploadHandler) UploadImage(ctx *gin.Context) {
+	// TODO: Move max size to config
+	const maxImageSize = 5 << 20
+
+	ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, maxImageSize)
+
 	file, err := ctx.FormFile("image")
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": "No image is received"})
