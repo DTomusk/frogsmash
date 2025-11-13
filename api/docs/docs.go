@@ -75,6 +75,45 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/login": {
+            "post": {
+                "description": "Logs in a user with username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "User login",
+                "responses": {}
+            }
+        },
+        "/refresh": {
+            "post": {
+                "description": "Refreshes the JWT token using a refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Refresh JWT token",
+                "responses": {}
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Registers a new user with username, email, and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register a new user",
+                "responses": {}
+            }
+        },
         "/upload": {
             "post": {
                 "description": "Uploads an image to the server",

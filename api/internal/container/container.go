@@ -16,6 +16,7 @@ type Container struct {
 	ItemsService   *services.ItemService
 	ScoreUpdater   *services.ScoreUpdater
 	UploadService  *services.UploadService
+	AuthService    *services.AuthService
 	AllowedOrigin  string
 	MaxRequestSize int64
 }
@@ -53,11 +54,14 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	uploadService := services.NewUploadService(storageClient, cfg.MaxFileSize)
 
+	authService := services.NewAuthService()
+
 	return &Container{
 		DB:             db,
 		ItemsService:   itemsService,
 		ScoreUpdater:   scoreUpdater,
 		UploadService:  uploadService,
+		AuthService:    authService,
 		AllowedOrigin:  cfg.AllowedOrigin,
 		MaxRequestSize: cfg.MaxFileSize,
 	}, nil

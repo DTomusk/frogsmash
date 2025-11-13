@@ -54,6 +54,33 @@ paths:
       - application/json
       responses: {}
       summary: Get leaderboard
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user with username and password
+      produces:
+      - application/json
+      responses: {}
+      summary: User login
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refreshes the JWT token using a refresh token
+      produces:
+      - application/json
+      responses: {}
+      summary: Refresh JWT token
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with username, email, and password
+      produces:
+      - application/json
+      responses: {}
+      summary: Register a new user
   /upload:
     post:
       consumes:

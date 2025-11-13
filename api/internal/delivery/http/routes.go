@@ -41,6 +41,11 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	uploadHandler := NewUploadHandler(c)
 	r.POST("/upload", uploadHandler.UploadImage)
 
+	AuthHandler := NewAuthHandler(c)
+	r.POST("/register", AuthHandler.Register)
+	r.POST("/login", AuthHandler.Login)
+	r.POST("/refresh-token", AuthHandler.RefreshToken)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
