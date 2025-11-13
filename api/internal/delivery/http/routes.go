@@ -3,21 +3,18 @@ package http
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
 	"frogsmash/internal/delivery/utils"
+	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -40,11 +37,18 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 	}
 }
 
-type UploadHandler struct {
+type UploadService interface {
+	UploadImage(fileHeader *multipart.FileHeader) (string, error)
 }
 
-func NewUploadHandler() *UploadHandler {
-	return &UploadHandler{}
+type UploadHandler struct {
+	UploadService UploadService
+}
+
+func NewUploadHandler(c *container.Container) *UploadHandler {
+	return &UploadHandler{
+		UploadService: c.UploadService,
+	}
 }
 
 func SetupRoutes(c *container.Container) *gin.Engine {
@@ -75,7 +79,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.POST("/compare", itemsHandler.CompareItems)
 	r.GET("/leaderboard", itemsHandler.GetLeaderboard)
 
-	uploadHandler := NewUploadHandler()
+	uploadHandler := NewUploadHandler(c)
 	r.POST("/upload", uploadHandler.UploadImage)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -181,34 +185,45 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 		return
 	}
 
-	// Pull all of this out into service
-	// Might want to define dir in config
-	uploadDir := "./uploads/"
-	if err := ensureDir(uploadDir); err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to create upload directory"})
+	fileUrl, err := h.UploadService.UploadImage(file)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-		ctx.JSON(400, gin.H{"error": "Unsupported file format"})
-		return
-	}
-
-	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
-	dst := filepath.Join(uploadDir, filename)
-
-	if err := ctx.SaveUploadedFile(file, dst); err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to save image"})
-		return
-	}
-
-	fileUrl := fmt.Sprintf("/uploads/%s", filename)
 	ctx.JSON(200, gin.H{
 		"message": "Image uploaded successfully",
 		"url":     fileUrl,
 	})
+
+	// // Pull all of this out into service
+	// // Might want to define dir in config
+	// uploadDir := "./uploads/"
+	// if err := ensureDir(uploadDir); err != nil {
+	// 	ctx.JSON(500, gin.H{"error": "Failed to create upload directory"})
+	// 	return
+	// }
+
+	// ext := strings.ToLower(filepath.Ext(file.Filename))
+
+	// if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+	// 	ctx.JSON(400, gin.H{"error": "Unsupported file format"})
+	// 	return
+	// }
+
+	// filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
+	// dst := filepath.Join(uploadDir, filename)
+
+	// if err := ctx.SaveUploadedFile(file, dst); err != nil {
+	// 	ctx.JSON(500, gin.H{"error": "Failed to save image"})
+	// 	return
+	// }
+
+	// fileUrl := fmt.Sprintf("/uploads/%s", filename)
+	// ctx.JSON(200, gin.H{
+	// 	"message": "Image uploaded successfully",
+	// 	"url":     fileUrl,
+	// })
 }
 
 func ensureDir(dirName string) error {

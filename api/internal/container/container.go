@@ -13,6 +13,7 @@ type Container struct {
 	DB            *sql.DB
 	ItemsService  *services.ItemService
 	ScoreUpdater  *services.ScoreUpdater
+	UploadService *services.UploadService
 	AllowedOrigin string
 }
 
@@ -36,10 +37,14 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
 
+	storageClient := repos.NewStorageClient()
+	uploadService := services.NewUploadService(storageClient)
+
 	return &Container{
 		DB:            db,
 		ItemsService:  itemsService,
 		ScoreUpdater:  scoreUpdater,
+		UploadService: uploadService,
 		AllowedOrigin: cfg.AllowedOrigin,
 	}, nil
 }
