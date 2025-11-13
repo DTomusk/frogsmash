@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/gin-gonic/gin"
 )
 
 type StorageClient struct {
@@ -42,8 +41,7 @@ func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, buck
 }
 
 // TODO: should this specifically be a gin context?
-func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error) {
-	// Implement the logic to upload a file to your storage solution
+func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
 		return "", err

@@ -37,7 +37,7 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 }
 
 type UploadService interface {
-	UploadImage(fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error)
+	UploadImage(fileHeader *multipart.FileHeader, ctx context.Context) (string, error)
 }
 
 type UploadHandler struct {
