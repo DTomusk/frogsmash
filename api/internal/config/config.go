@@ -32,6 +32,10 @@ func NewConfig() (*Config, error) {
 		AllowedOrigin:       os.Getenv("ALLOWED_ORIGIN"),
 		KFactor:             kFactor,
 		ScoreUpdateInterval: scoreUpdateInterval,
+		StorageAccountID:    os.Getenv("STORAGE_ACCOUNT_ID"),
+		StorageAccessKey:    os.Getenv("STORAGE_ACCESS_KEY"),
+		StorageSecretKey:    os.Getenv("STORAGE_SECRET_KEY"),
+		StorageBucket:       os.Getenv("STORAGE_BUCKET"),
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -50,4 +54,8 @@ type Config struct {
 	KFactor             float64
 	ScoreUpdateInterval int
 	AllowedOrigin       string
+	StorageAccountID    string
+	StorageAccessKey    string
+	StorageSecretKey    string
+	StorageBucket       string
 }

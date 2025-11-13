@@ -1,6 +1,7 @@
 package container
 
 import (
+	"context"
 	"database/sql"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/app/services"
@@ -18,6 +19,7 @@ type Container struct {
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
+	ctx := context.Background()
 	db, err := sql.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
@@ -37,7 +39,10 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
 
-	storageClient := repos.NewStorageClient()
+	storageClient, err := repos.NewStorageClient(ctx, cfg.StorageAccountID, cfg.StorageAccessKey, cfg.StorageSecretKey, cfg.StorageBucket)
+	if err != nil {
+		return nil, err
+	}
 	uploadService := services.NewUploadService(storageClient)
 
 	return &Container{
