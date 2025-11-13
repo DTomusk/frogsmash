@@ -1,6 +1,9 @@
 import { Button, TextField, Typography } from "@mui/material";
 import FormWrapper from "../FormWrapper";
 import { useForm } from "react-hook-form";
+import { useRegister } from "../../hooks/useRegister";
+import AlertSnackbar from "../AlertSnackbar";
+import { useState } from "react";
 
 interface RegistrationData {
     email: string;
@@ -13,13 +16,28 @@ function RegistrationPage() {
         register,
         handleSubmit,
         formState: { errors },
+        reset,
     } = useForm<RegistrationData>();
+    const { mutate, data, isPending } = useRegister();
+    const [errorMessage, setErrorMessage] = useState("");
+    const [openError, setOpenError] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
 
     const onSubmit = (data: RegistrationData) => {
-        console.log(data);
+        mutate(data, {
+            onSuccess: () => {
+                setOpenSuccess(true);
+                reset();
+            },
+            onError: (err: any) => {
+              setErrorMessage(err.message || "Registration failed");
+              setOpenError(true);
+            },
+        });
     }
   
   return (
+    <>
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h3" sx={{ mb: 2 }}>Register</Typography>
       <TextField
@@ -67,10 +85,23 @@ function RegistrationPage() {
         error={!!errors.password}
         helperText={errors.password ? errors.password.message?.toString() : ""}
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth>
+      <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
         Register
       </Button>
     </FormWrapper>
+    <AlertSnackbar
+      open={openError}
+      message={errorMessage}
+      severity="error"
+      onClose={() => setOpenError(false)}
+    />
+    <AlertSnackbar
+      open={openSuccess}
+      message={data?.message || "Registration successful!"}
+      severity="success"
+      onClose={() => setOpenSuccess(false)}
+    />
+    </>
   );
 }
 
