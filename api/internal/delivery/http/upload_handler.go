@@ -4,7 +4,6 @@ import (
 	"context"
 	"frogsmash/internal/container"
 	"mime/multipart"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +14,11 @@ type UploadService interface {
 
 type UploadHandler struct {
 	UploadService UploadService
-	maxImageSize  int64
 }
 
 func NewUploadHandler(c *container.Container) *UploadHandler {
 	return &UploadHandler{
 		UploadService: c.UploadService,
-		maxImageSize:  5 << 20, // 5 MB
 	}
 }
 
@@ -33,8 +30,6 @@ func NewUploadHandler(c *container.Container) *UploadHandler {
 // @Produce      json
 // @Param        image  formData  file  true  "Image file to upload"
 func (h *UploadHandler) UploadImage(ctx *gin.Context) {
-	ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, h.maxImageSize)
-
 	file, err := ctx.FormFile("image")
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": "No image is received"})

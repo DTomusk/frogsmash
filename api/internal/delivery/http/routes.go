@@ -2,6 +2,7 @@ package http
 
 import (
 	"frogsmash/internal/container"
+	"frogsmash/internal/delivery/middleware"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -14,6 +15,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.MaxBodySize(c.MaxRequestSize + 1<<20))
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{c.AllowedOrigin},
