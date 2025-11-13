@@ -8,7 +8,7 @@ function FormWrapper({ children, onSubmit }: { children: React.ReactNode; onSubm
         sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 1,
             alignItems: "center",
             m: 4,
             p: 4,

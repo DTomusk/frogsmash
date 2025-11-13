@@ -6,12 +6,14 @@ import LeaderboardPage from "./components/pages/LeaderboardPage";
 import NotFoundPage from "./components/pages/NotFoundPage";
 import UploadPage from "./components/pages/UploadPage";
 import RegistrationPage from "./components/pages/RegistrationPage";
+import LoginPage from "./components/pages/LoginPage";
 
 function App() {
   return (<Routes>
     <Route element={<Template />}>
         <Route path='/' element={<Comparison />} />
         <Route path='/loading' element={<LoadingPage />} />
+        <Route path='/login' element={<LoginPage />} />
         <Route path='/leaderboard' element={<LeaderboardPage />} />
         <Route path='/upload' element={<UploadPage />} />
         <Route path='/register' element={<RegistrationPage />} />

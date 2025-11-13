@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRegister } from "../../hooks/useRegister";
 import AlertSnackbar from "../AlertSnackbar";
 import { useState } from "react";
+import StyledLink from "../StyledLink";
 
 interface RegistrationData {
     email: string;
@@ -39,7 +40,8 @@ function RegistrationPage() {
   return (
     <>
     <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-      <Typography variant="h3" sx={{ mb: 2 }}>Register</Typography>
+      <Typography variant="h3">Register</Typography>
+      <Typography variant="body1" sx={{ mb: 2 }}>Already have an account? Click <StyledLink to="/login" text="here" /> to login.</Typography>
       <TextField
         label="Email"
         variant="outlined"
