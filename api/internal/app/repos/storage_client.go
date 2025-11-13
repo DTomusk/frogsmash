@@ -2,11 +2,13 @@ package repos
 
 import (
 	"context"
+	"mime/multipart"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/gin-gonic/gin"
 )
 
 type StorageClient struct {
@@ -39,6 +41,24 @@ func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, buck
 	}, nil
 }
 
-func (s *StorageClient) UploadFile() {
+// TODO: should this specifically be a gin context?
+func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error) {
 	// Implement the logic to upload a file to your storage solution
+	file, err := fileHeader.Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	_, err = s.S3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.Bucket),
+		Key:    aws.String(filename),
+		Body:   file,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return s.Endpoint + "/" + filename, nil
 }

@@ -10,7 +10,6 @@ import (
 	"frogsmash/internal/delivery/utils"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -38,7 +37,7 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 }
 
 type UploadService interface {
-	UploadImage(fileHeader *multipart.FileHeader) (string, error)
+	UploadImage(fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error)
 }
 
 type UploadHandler struct {
@@ -185,7 +184,7 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 		return
 	}
 
-	fileUrl, err := h.UploadService.UploadImage(file)
+	fileUrl, err := h.UploadService.UploadImage(file, ctx)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -195,40 +194,4 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 		"message": "Image uploaded successfully",
 		"url":     fileUrl,
 	})
-
-	// // Pull all of this out into service
-	// // Might want to define dir in config
-	// uploadDir := "./uploads/"
-	// if err := ensureDir(uploadDir); err != nil {
-	// 	ctx.JSON(500, gin.H{"error": "Failed to create upload directory"})
-	// 	return
-	// }
-
-	// ext := strings.ToLower(filepath.Ext(file.Filename))
-
-	// if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-	// 	ctx.JSON(400, gin.H{"error": "Unsupported file format"})
-	// 	return
-	// }
-
-	// filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
-	// dst := filepath.Join(uploadDir, filename)
-
-	// if err := ctx.SaveUploadedFile(file, dst); err != nil {
-	// 	ctx.JSON(500, gin.H{"error": "Failed to save image"})
-	// 	return
-	// }
-
-	// fileUrl := fmt.Sprintf("/uploads/%s", filename)
-	// ctx.JSON(200, gin.H{
-	// 	"message": "Image uploaded successfully",
-	// 	"url":     fileUrl,
-	// })
-}
-
-func ensureDir(dirName string) error {
-	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		return os.MkdirAll(dirName, 0755)
-	}
-	return nil
 }

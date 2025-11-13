@@ -1,9 +1,16 @@
 package services
 
-import "mime/multipart"
+import (
+	"fmt"
+	"mime/multipart"
+	"path/filepath"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+)
 
 type StorageClient interface {
-	UploadFile()
+	UploadFile(fileName string, fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error)
 }
 
 type UploadService struct {
@@ -16,8 +23,14 @@ func NewUploadService(storageClient StorageClient) *UploadService {
 	}
 }
 
-func (s *UploadService) UploadImage(fileHeader *multipart.FileHeader) (string, error) {
-	// Implement the logic to upload the image using the StorageClient
-	// and return the URL of the uploaded image or an error if it fails.
-	return "", nil
+func (s *UploadService) UploadImage(fileHeader *multipart.FileHeader, ctx *gin.Context) (string, error) {
+	// Record that a file is being uploaded in the db
+	// Upload file
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), filepath.Ext(fileHeader.Filename))
+	fileURL, err := s.StorageClient.UploadFile(filename, fileHeader, ctx)
+	if err != nil {
+		return "", err
+	}
+	// Update db record with file URL (or failure if upload failed)
+	return fileURL, nil
 }
