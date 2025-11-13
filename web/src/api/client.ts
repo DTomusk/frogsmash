@@ -22,8 +22,27 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   });
 
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+  const errorText = await response.text();
+  let errorData: any = {};
+
+  try {
+    errorData = JSON.parse(errorText);
+  } catch {
+    // TODO: consider what to do if response is not JSON
   }
+
+  const message =
+    errorData.error ||
+    errorData.message ||
+    `API request failed with status ${response.status}`;
+
+  // Create rich error object
+  const err: any = new Error(message);
+  err.status = response.status;
+  err.data = errorData;
+
+  throw err;
+}
 
   // If the response has text, parse it as JSON
   const text = await response.text();
