@@ -1,19 +1,7 @@
-import { Alert, Button, Paper, Snackbar, styled, Typography } from "@mui/material";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Alert, Paper, Snackbar, Typography } from "@mui/material";
 import { useUpload } from "../../hooks/useUpload";
 import { useState } from "react";
-
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
+import FileUploadButton from "../FileUploadButton";
 
 function UploadPage() {
     const { mutate: upload, data, isPending } = useUpload();
@@ -67,23 +55,11 @@ function UploadPage() {
     >
         <Typography variant="h3" sx={{ mb: 2}}>Submit a contender</Typography>
         <Typography variant="subtitle1" sx={{mb: 2}}>Does your champion have what it takes to take on the mighty frogs?🐸 Submit an image of anything of your choosing for the chance to have them appear alongside the frogs on the battlefield and let the people decide whether they triumph or fall.</Typography>
-        <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-            startIcon={<CloudUploadIcon />}
-            sx={{ mb: 4}}
-            loading={isPending}
-            disabled={isPending || uploadDisabled}
-        >
-            Upload your image
-            <VisuallyHiddenInput
-                type="file"
-                onChange={(event) => handleFileChange(event)}
-                accept=".png, .jpg, .jpeg"
-            />
-        </Button>
+        <FileUploadButton
+            onChange={handleFileChange}
+            isPending={isPending}
+            disabled={uploadDisabled}
+        />
     </Paper>
     <Snackbar open={openSuccess} autoHideDuration={6000} onClose={() => setOpenSuccess(false)}>
         <Alert onClose={() => setOpenSuccess(false)} severity="success" variant="outlined" sx={{ width: '100%', bgcolor: 'background.paper' }}>
