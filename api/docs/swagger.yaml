@@ -7,6 +7,25 @@ definitions:
       winner_id:
         type: string
     type: object
+  dto.UserLoginRequest:
+    description: Request payload for user login
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.UserLoginResponse:
+    description: Response payload for user login
+    properties:
+      jwt:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   dto.UserRegistrationRequest:
     description: Request payload for user registration
     properties:
@@ -74,9 +93,20 @@ paths:
       consumes:
       - application/json
       description: Logs in a user with username and password
+      parameters:
+      - description: User login payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserLoginRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserLoginResponse'
       summary: User login
   /refresh:
     post:

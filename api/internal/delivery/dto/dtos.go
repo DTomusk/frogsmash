@@ -46,3 +46,17 @@ type UserRegistrationRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=12"`
 }
+
+// UserLoginRequest godoc
+// @Description  Request payload for user login
+type UserLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// UserLoginResponse godoc
+// @Description  Response payload for user login
+type UserLoginResponse struct {
+	JWT          string `json:"jwt"`
+	RefreshToken string `json:"refresh_token"`
+}

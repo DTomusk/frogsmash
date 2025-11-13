@@ -31,17 +31,30 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("could not load MAX_FILE_SIZE_MB from environment: %v", err)
 	}
 
+	jwtLifetimeMinutes, err := strconv.Atoi(os.Getenv("JWT_TOKEN_LIFETIME_MINUTES"))
+	if err != nil {
+		return nil, fmt.Errorf("could not load JWT_TOKEN_LIFETIME_MINUTES from environment: %v", err)
+	}
+
+	refreshTokenLifetimeDays, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME_DAYS"))
+	if err != nil {
+		return nil, fmt.Errorf("could not load REFRESH_TOKEN_LIFETIME_DAYS from environment: %v", err)
+	}
+
 	cfg := &Config{
-		DatabaseURL:         os.Getenv("DATABASE_URL"),
-		Port:                os.Getenv("PORT"),
-		AllowedOrigin:       os.Getenv("ALLOWED_ORIGIN"),
-		KFactor:             kFactor,
-		MaxFileSize:         maxFileSzie * 1024 * 1024, // Convert MB to bytes
-		ScoreUpdateInterval: scoreUpdateInterval,
-		StorageAccountID:    os.Getenv("STORAGE_ACCOUNT_ID"),
-		StorageAccessKey:    os.Getenv("STORAGE_ACCESS_KEY"),
-		StorageSecretKey:    os.Getenv("STORAGE_SECRET_KEY"),
-		StorageBucket:       os.Getenv("STORAGE_BUCKET"),
+		DatabaseURL:              os.Getenv("DATABASE_URL"),
+		Port:                     os.Getenv("PORT"),
+		AllowedOrigin:            os.Getenv("ALLOWED_ORIGIN"),
+		KFactor:                  kFactor,
+		MaxFileSize:              maxFileSzie * 1024 * 1024, // Convert MB to bytes
+		ScoreUpdateInterval:      scoreUpdateInterval,
+		StorageAccountID:         os.Getenv("STORAGE_ACCOUNT_ID"),
+		StorageAccessKey:         os.Getenv("STORAGE_ACCESS_KEY"),
+		StorageSecretKey:         os.Getenv("STORAGE_SECRET_KEY"),
+		StorageBucket:            os.Getenv("STORAGE_BUCKET"),
+		JWTSecret:                os.Getenv("JWT_SECRET"),
+		TokenLifetimeMinutes:     jwtLifetimeMinutes,
+		RefreshTokenLifetimeDays: refreshTokenLifetimeDays,
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -55,14 +68,17 @@ func NewConfig() (*Config, error) {
 }
 
 type Config struct {
-	DatabaseURL         string
-	Port                string
-	KFactor             float64
-	ScoreUpdateInterval int
-	MaxFileSize         int64
-	AllowedOrigin       string
-	StorageAccountID    string
-	StorageAccessKey    string
-	StorageSecretKey    string
-	StorageBucket       string
+	DatabaseURL              string
+	Port                     string
+	KFactor                  float64
+	ScoreUpdateInterval      int
+	MaxFileSize              int64
+	AllowedOrigin            string
+	StorageAccountID         string
+	StorageAccessKey         string
+	StorageSecretKey         string
+	StorageBucket            string
+	JWTSecret                string
+	TokenLifetimeMinutes     int
+	RefreshTokenLifetimeDays int
 }

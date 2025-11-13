@@ -1,14 +1,14 @@
-package utils
+package services
 
 import "golang.org/x/crypto/bcrypt"
 
-type Hasher struct{}
+type BCryptHasher struct{}
 
-func NewHasher() *Hasher {
-	return &Hasher{}
+func NewBCryptHasher() *BCryptHasher {
+	return &BCryptHasher{}
 }
 
-func (h *Hasher) HashPassword(password string) (string, error) {
+func (h *BCryptHasher) HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -16,7 +16,7 @@ func (h *Hasher) HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-func (h *Hasher) CheckPasswordHash(password, hash string) bool {
+func (h *BCryptHasher) CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }

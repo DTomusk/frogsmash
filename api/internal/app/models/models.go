@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Item struct {
 	ID       string
 	Name     string
@@ -30,4 +32,12 @@ type User struct {
 	Email        string
 	PasswordHash string
 	CreatedAt    string
+}
+
+type RefreshToken struct {
+	Token     string
+	UserID    string
+	ExpiresAt time.Time
+	CreatedAt time.Time
+	Revoked   bool
 }

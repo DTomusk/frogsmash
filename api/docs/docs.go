@@ -85,7 +85,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "User login",
-                "responses": {}
+                "parameters": [
+                    {
+                        "description": "User login payload",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserLoginResponse"
+                        }
+                    }
+                }
             }
         },
         "/refresh": {
@@ -157,6 +175,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserLoginRequest": {
+            "description": "Request payload for user login",
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserLoginResponse": {
+            "description": "Response payload for user login",
+            "type": "object",
+            "properties": {
+                "jwt": {
+                    "type": "string"
+                },
+                "refresh_token": {
                     "type": "string"
                 }
             }
