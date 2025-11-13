@@ -15,7 +15,7 @@ import (
 type AuthService interface {
 	RegisterUser(username, email, password string, ctx context.Context, db repos.DBTX) error
 	Login(username, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
-	RefreshToken(refreshToken string, ctx context.Context, db repos.DBTX) (string, error)
+	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
 }
 
 type AuthHandler struct {
@@ -83,9 +83,26 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 // RefreshToken godoc
 // @Summary      Refresh JWT token
 // @Description  Refreshes the JWT token using a refresh token
-// @Router       /refresh [post]
+// @Router       /refresh-token [post]
 // @Accept       json
 // @Produce      json
+// @Param        token  body  dto.RefreshTokenRequest  true  "Refresh token payload"
+// @Success      200    {object}  dto.UserLoginResponse
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
-	// Implementation for refreshing JWT token
+	var req dto.RefreshTokenRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	jwt, refreshToken, err := h.AuthService.RefreshToken(req.RefreshToken, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	res := dto.UserLoginResponse{
+		JWT:          jwt,
+		RefreshToken: refreshToken,
+	}
+	ctx.JSON(200, res)
 }

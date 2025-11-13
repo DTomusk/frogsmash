@@ -7,6 +7,14 @@ definitions:
       winner_id:
         type: string
     type: object
+  dto.RefreshTokenRequest:
+    description: Request payload for refreshing JWT token including the refresh token
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   dto.UserLoginRequest:
     description: Request payload for user login
     properties:
@@ -108,14 +116,25 @@ paths:
           schema:
             $ref: '#/definitions/dto.UserLoginResponse'
       summary: User login
-  /refresh:
+  /refresh-token:
     post:
       consumes:
       - application/json
       description: Refreshes the JWT token using a refresh token
+      parameters:
+      - description: Refresh token payload
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserLoginResponse'
       summary: Refresh JWT token
   /register:
     post:

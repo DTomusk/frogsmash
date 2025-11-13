@@ -10,6 +10,7 @@ import (
 )
 
 type UserRepo interface {
+	GetUserByUserID(userID string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	GetUserByUsername(username string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	GetUserByEmail(email string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) error
@@ -18,6 +19,7 @@ type UserRepo interface {
 type RefreshTokenRepo interface {
 	SaveRefreshToken(token string, userID string, expiresAt int64, ctx context.Context, db repos.DBTX) error
 	RevokeTokens(userID string, ctx context.Context, db repos.DBTX) error
+	GetRefreshToken(token string, ctx context.Context, db repos.DBTX) (*models.RefreshToken, error)
 }
 
 type Hasher interface {
@@ -112,9 +114,35 @@ func (s *AuthService) Login(username, password string, ctx context.Context, db r
 	return jwt, refreshToken.Token, nil
 }
 
-func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBTX) (string, error) {
-	// Implementation for refreshing JWT token
-	return "", nil
+func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error) {
+	// Get existing token (the one matching the provided refresh token)
+	token, err := s.RefreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
+	if err != nil {
+		return "", "", err
+	}
+	// Validate the token (check not revoked, check not expired)
+	if token == nil || token.Revoked || token.ExpiresAt.Before(time.Now()) {
+		return "", "", fmt.Errorf("invalid refresh token")
+	}
+	user, err := s.UserRepo.GetUserByUserID(token.UserID, ctx, db)
+	if err != nil {
+		return "", "", err
+	}
+	// Generate JWT token
+	jwt, err := s.TokenService.GenerateToken(user.ID, user.Username)
+	if err != nil {
+		return "", "", err
+	}
+	// Generate refresh token
+	newRefreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
+	if err != nil {
+		return "", "", err
+	}
+	// Save refresh token to database
+	if err := s.rotateRefreshTokens(db, ctx, newRefreshToken); err != nil {
+		return "", "", err
+	}
+	return jwt, newRefreshToken.Token, nil
 }
 
 // TODO: consider where this should live

@@ -106,7 +106,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/refresh": {
+        "/refresh-token": {
             "post": {
                 "description": "Refreshes the JWT token using a refresh token",
                 "consumes": [
@@ -116,7 +116,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "Refresh JWT token",
-                "responses": {}
+                "parameters": [
+                    {
+                        "description": "Refresh token payload",
+                        "name": "token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserLoginResponse"
+                        }
+                    }
+                }
             }
         },
         "/register": {
@@ -175,6 +193,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RefreshTokenRequest": {
+            "description": "Request payload for refreshing JWT token including the refresh token",
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
                     "type": "string"
                 }
             }
