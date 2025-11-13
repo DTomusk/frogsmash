@@ -27,7 +27,13 @@ function UploadPage() {
         if (!file) {
             return;
         }
+        if (!['image/png', 'image/jpeg', "image/jpg"].includes(file.type)) {
+            setErrorMessage("Invalid file type. Please upload a PNG or JPEG image.");
+            setOpenError(true);
+            return;
+        }
         if (file.size > 5 * 1024 * 1024) {
+            setErrorMessage("File size exceeds the 5MB limit.");
             setOpenError(true);
             return;
         }
