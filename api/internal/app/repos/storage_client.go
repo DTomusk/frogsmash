@@ -20,7 +20,9 @@ func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, buck
 	endpoint := "https://" + accountID + ".r2.cloudflarestorage.com"
 
 	cfg, err := config.LoadDefaultConfig(
-		ctx, config.WithCredentialsProvider(
+		ctx,
+		config.WithRegion("auto"),
+		config.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(accessKey, secretKey, ""),
 		),
 	)
