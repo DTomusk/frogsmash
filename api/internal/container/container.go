@@ -10,12 +10,14 @@ import (
 )
 
 // TODO: do we want the allowed origin here?
+// TODO: consider injecting max file size into upload service instead
 type Container struct {
 	DB            *sql.DB
 	ItemsService  *services.ItemService
 	ScoreUpdater  *services.ScoreUpdater
 	UploadService *services.UploadService
 	AllowedOrigin string
+	MaxFileSize   int64
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -43,6 +45,12 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = storageClient.Ping(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	uploadService := services.NewUploadService(storageClient)
 
 	return &Container{
@@ -51,5 +59,6 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		ScoreUpdater:  scoreUpdater,
 		UploadService: uploadService,
 		AllowedOrigin: cfg.AllowedOrigin,
+		MaxFileSize:   cfg.MaxFileSize,
 	}, nil
 }

@@ -1,15 +1,7 @@
 package http
 
 import (
-	"context"
-	"database/sql"
-	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/dto"
-	"frogsmash/internal/delivery/utils"
-	"mime/multipart"
-	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -17,38 +9,6 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
-
-type ItemsService interface {
-	GetComparisonItems(ctx context.Context, dbtx repos.DBTX) (*models.Item, *models.Item, error)
-	CompareItems(winnerId, loserId string, ctx context.Context, dbtx repos.DBTX) error
-	GetLeaderboardPage(limit int, offset int, ctx context.Context, dbtx repos.DBTX) ([]*models.LeaderboardItem, int, error)
-}
-
-type ItemsHandler struct {
-	ItemsService ItemsService
-	db           *sql.DB
-}
-
-func NewItemsHandler(c *container.Container) *ItemsHandler {
-	return &ItemsHandler{
-		ItemsService: c.ItemsService,
-		db:           c.DB,
-	}
-}
-
-type UploadService interface {
-	UploadImage(fileHeader *multipart.FileHeader, ctx context.Context) (string, error)
-}
-
-type UploadHandler struct {
-	UploadService UploadService
-}
-
-func NewUploadHandler(c *container.Container) *UploadHandler {
-	return &UploadHandler{
-		UploadService: c.UploadService,
-	}
-}
 
 func SetupRoutes(c *container.Container) *gin.Engine {
 	r := gin.New()
@@ -63,8 +23,6 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
-	r.Static("/uploads", "./uploads")
 
 	r.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
@@ -84,114 +42,4 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
-}
-
-// GetItems godoc
-// @Summary      Get two items for comparison
-// @Description  Retrieves two distinct items for comparison
-// @Router       /items [get]
-// @Produce      json
-func (h *ItemsHandler) GetItems(ctx *gin.Context) {
-	item1, item2, err := h.ItemsService.GetComparisonItems(ctx.Request.Context(), h.db)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to get items"})
-		return
-	}
-	ctx.JSON(200, gin.H{
-		"items": dto.GetComparisonItemsResponse{
-			LeftItem: dto.ItemDTO{
-				ID:       item1.ID,
-				Name:     item1.Name,
-				ImageURL: item1.ImageURL,
-			},
-			RightItem: dto.ItemDTO{
-				ID:       item2.ID,
-				Name:     item2.Name,
-				ImageURL: item2.ImageURL,
-			},
-		},
-	})
-}
-
-// CompareItems godoc
-// @Summary      Compare two items
-// @Description  Records the result of a comparison between two items
-// @Router       /compare [post]
-// @Accept       json
-// @Produce      json
-// @Param        compareRequest  body      dto.CompareRequest  true  "Comparison Request"
-func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
-	var request dto.CompareRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	err := h.ItemsService.CompareItems(
-		request.WinnerId,
-		request.LoserId,
-		ctx.Request.Context(),
-		h.db,
-	)
-
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(200, gin.H{
-		"status": "comparison recorded",
-	})
-}
-
-// GetLeaderboard godoc
-// @Summary      Get leaderboard
-// @Description  Retrieves a paginated leaderboard of items
-// @Router       /leaderboard [get]
-// @Produce      json
-// @Param        page   query     int  false  "Page number"  default(1)
-// @Param        limit  query     int  false  "Items per page"  default(10)
-func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
-	p := utils.NewPagination(ctx)
-
-	items, total, err := h.ItemsService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard: " + err.Error()})
-		return
-	}
-
-	res := dto.NewPagedResponse(items, total, p.Page, p.Limit)
-
-	ctx.JSON(200, res)
-}
-
-// UploadImage godoc
-// @Summary      Upload an image
-// @Description  Uploads an image to the server
-// @Router       /upload [post]
-// @Accept       multipart/form-data
-// @Produce      json
-// @Param        image  formData  file  true  "Image file to upload"
-func (h *UploadHandler) UploadImage(ctx *gin.Context) {
-	// TODO: Move max size to config
-	const maxImageSize = 5 << 20
-
-	ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, maxImageSize)
-
-	file, err := ctx.FormFile("image")
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": "No image is received"})
-		return
-	}
-
-	fileUrl, err := h.UploadService.UploadImage(file, ctx)
-	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(200, gin.H{
-		"message": "Image uploaded successfully",
-		"url":     fileUrl,
-	})
 }

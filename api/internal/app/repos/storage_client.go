@@ -42,7 +42,6 @@ func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, buck
 	}, nil
 }
 
-// TODO: should this specifically be a gin context?
 func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
@@ -61,4 +60,11 @@ func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHe
 	}
 
 	return s.Endpoint + "/" + filename, nil
+}
+
+func (s *StorageClient) Ping(ctx context.Context) error {
+	_, err := s.S3Client.HeadBucket(ctx, &s3.HeadBucketInput{
+		Bucket: aws.String(s.Bucket),
+	})
+	return err
 }

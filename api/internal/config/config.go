@@ -26,11 +26,17 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("could not load SCORE_UPDATE_INTERVAL_SECONDS from environment: %v", err)
 	}
 
+	maxFileSzie, err := strconv.ParseInt(os.Getenv("MAX_FILE_SIZE_MB"), 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("could not load MAX_FILE_SIZE_MB from environment: %v", err)
+	}
+
 	cfg := &Config{
 		DatabaseURL:         os.Getenv("DATABASE_URL"),
 		Port:                os.Getenv("PORT"),
 		AllowedOrigin:       os.Getenv("ALLOWED_ORIGIN"),
 		KFactor:             kFactor,
+		MaxFileSize:         maxFileSzie * 1024 * 1024, // Convert MB to bytes
 		ScoreUpdateInterval: scoreUpdateInterval,
 		StorageAccountID:    os.Getenv("STORAGE_ACCOUNT_ID"),
 		StorageAccessKey:    os.Getenv("STORAGE_ACCESS_KEY"),
@@ -53,6 +59,7 @@ type Config struct {
 	Port                string
 	KFactor             float64
 	ScoreUpdateInterval int
+	MaxFileSize         int64
 	AllowedOrigin       string
 	StorageAccountID    string
 	StorageAccessKey    string
