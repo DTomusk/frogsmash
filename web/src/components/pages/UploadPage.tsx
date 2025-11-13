@@ -1,7 +1,9 @@
-import { Alert, Paper, Snackbar, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useUpload } from "../../hooks/useUpload";
 import { useState } from "react";
 import FileUploadButton from "../FileUploadButton";
+import AlertSnackbar from "../AlertSnackbar";
+import FormWrapper from "../FormWrapper";
 
 function UploadPage() {
     const { mutate: upload, data, isPending } = useUpload();
@@ -39,20 +41,7 @@ function UploadPage() {
 
   return (
     <>
-    <Paper
-        component="form"
-        onSubmit={() => {}}
-        sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            alignItems: "center",
-            m: 4,
-            p: 4,
-            borderRadius: 2,
-            maxWidth: 600,
-        }}
-    >
+    <FormWrapper onSubmit={(e) => e.preventDefault()}>
         <Typography variant="h3" sx={{ mb: 2}}>Submit a contender</Typography>
         <Typography variant="subtitle1" sx={{mb: 2}}>Does your champion have what it takes to take on the mighty frogs?🐸 Submit an image of anything of your choosing for the chance to have them appear alongside the frogs on the battlefield and let the people decide whether they triumph or fall.</Typography>
         <FileUploadButton
@@ -60,17 +49,19 @@ function UploadPage() {
             isPending={isPending}
             disabled={uploadDisabled}
         />
-    </Paper>
-    <Snackbar open={openSuccess} autoHideDuration={6000} onClose={() => setOpenSuccess(false)}>
-        <Alert onClose={() => setOpenSuccess(false)} severity="success" variant="outlined" sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            {data?.message}
-        </Alert>
-    </Snackbar>
-    <Snackbar open={openError} autoHideDuration={6000} onClose={() => setOpenError(false)}>
-        <Alert onClose={() => setOpenError(false)} severity="error" variant="outlined" sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            {errorMessage || "An error occurred during upload."}
-        </Alert>
-    </Snackbar>
+    </FormWrapper>
+    <AlertSnackbar
+        open={openSuccess}
+        onClose={() => setOpenSuccess(false)}
+        severity="success"
+        message={data?.message || "Upload successful!"}
+    />
+    <AlertSnackbar
+        open={openError}
+        onClose={() => setOpenError(false)}
+        severity="error"
+        message={errorMessage || "An error occurred during upload."}
+    />
     </>
   );
 }
