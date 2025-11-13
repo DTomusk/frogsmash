@@ -14,6 +14,7 @@ function FormWrapper({ children, onSubmit }: { children: React.ReactNode; onSubm
             p: 4,
             borderRadius: 2,
             maxWidth: 600,
+            width: "100%",
         }}
     >
         {children}
