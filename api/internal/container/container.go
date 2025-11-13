@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/app/services"
+	"frogsmash/internal/app/utils"
 	"frogsmash/internal/config"
 	"time"
 )
@@ -54,7 +55,9 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	uploadService := services.NewUploadService(storageClient, cfg.MaxFileSize)
 
-	authService := services.NewAuthService()
+	userRepo := repos.NewUserRepo()
+	hasher := utils.NewHasher()
+	authService := services.NewAuthService(userRepo, hasher)
 
 	return &Container{
 		DB:             db,

@@ -23,3 +23,11 @@ type Event struct {
 	WinnerID string
 	LoserID  string
 }
+
+type User struct {
+	ID           string
+	Username     string
+	Email        string
+	PasswordHash string
+	CreatedAt    string
+}

@@ -7,6 +7,21 @@ definitions:
       winner_id:
         type: string
     type: object
+  dto.UserRegistrationRequest:
+    description: Request payload for user registration
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 12
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
 info:
   contact: {}
   description: The API for comparing frogs and other things
@@ -77,6 +92,13 @@ paths:
       consumes:
       - application/json
       description: Registers a new user with username, email, and password
+      parameters:
+      - description: User registration payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRegistrationRequest'
       produces:
       - application/json
       responses: {}

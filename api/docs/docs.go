@@ -111,6 +111,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User registration payload",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserRegistrationRequest"
+                        }
+                    }
+                ],
                 "responses": {}
             }
         },
@@ -146,6 +157,27 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserRegistrationRequest": {
+            "description": "Request payload for user registration",
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 12
+                },
+                "username": {
                     "type": "string"
                 }
             }

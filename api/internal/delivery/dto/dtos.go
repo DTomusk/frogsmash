@@ -38,3 +38,11 @@ func NewPagedResponse[T any](data []T, total, page, limit int) PagedResponse[T] 
 		TotalPages: totalPages,
 	}
 }
+
+// UserRegistrationRequest godoc
+// @Description  Request payload for user registration
+type UserRegistrationRequest struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=12"`
+}
