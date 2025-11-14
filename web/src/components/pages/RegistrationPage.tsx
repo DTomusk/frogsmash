@@ -7,6 +7,8 @@ import { useState } from "react";
 import StyledLink from "../atoms/StyledLink";
 import EmailField from "../atoms/EmailField";
 import PasswordField from "../atoms/PasswordField";
+import PasswordStrength from "../atoms/PasswordStrength";
+import { checkPasswordStrength } from "../../utils/PasswordStrength";
 
 interface RegistrationData {
     email: string;
@@ -19,11 +21,16 @@ function RegistrationPage() {
         handleSubmit,
         formState: { errors },
         reset,
+        watch,
     } = useForm<RegistrationData>();
     const { mutate, data, isPending } = useRegister();
     const [errorMessage, setErrorMessage] = useState("");
     const [openError, setOpenError] = useState(false);
     const [openSuccess, setOpenSuccess] = useState(false);
+
+    const password = watch("password") || "";
+    const strength = checkPasswordStrength(password);
+    const passwordValid = Object.values(strength).every(Boolean);
 
     const onSubmit = (data: RegistrationData) => {
         mutate(data, {
@@ -53,15 +60,16 @@ function RegistrationPage() {
       <PasswordField
         registration={register("password", { 
             required: "Password is required",
-            minLength: { value: 8, message: "Password must be at least 8 characters" },
-            pattern: {
-                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
-                message: "Password must include upper, lower, number, and special character",
+            validate: (value) => {
+              const result = checkPasswordStrength(value);
+              const allPassed = Object.values(result).every(Boolean);
+              return allPassed || "Password does not meet requirements";
             }
         })}
         fieldError={errors.password}
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
+      <PasswordStrength password={watch("password") || ""} />
+      <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || !passwordValid}>
         Register
       </Button>
     </FormWrapper>
