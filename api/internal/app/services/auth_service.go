@@ -146,7 +146,7 @@ func generateRefreshToken(userID string, tokenLifeTimeDays int) (*models.Refresh
 	return &models.RefreshToken{
 		Token:     fmt.Sprintf("%x", b),
 		UserID:    userID,
-		ExpiresAt: time.Now().Add(time.Duration(tokenLifeTimeDays) * 24 * time.Hour),
+		ExpiresAt: time.Now().UTC().Add(time.Duration(tokenLifeTimeDays) * 24 * time.Hour),
 		MaxAge:    int64(tokenLifeTimeDays * 24 * 60 * 60),
 		Revoked:   false,
 	}, nil
