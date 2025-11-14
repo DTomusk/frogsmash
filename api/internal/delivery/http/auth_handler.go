@@ -65,12 +65,12 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	// Implementation for user login
 	var req dto.UserLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(400, gin.H{"error": "Invalid credentials"})
 		return
 	}
 	jwt, refreshToken, err := h.AuthService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(500, gin.H{"error": "Invalid credentials"})
 		return
 	}
 

@@ -3,7 +3,6 @@ import { apiFetch } from "../api/client";
 
 export interface LoginResponse {
     jwt: string;
-    refresh_token: string;
 }
 
 function useLogin() {

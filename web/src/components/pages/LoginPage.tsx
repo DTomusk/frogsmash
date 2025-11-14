@@ -1,4 +1,4 @@
-import { Button, TextField, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import FormWrapper from "../FormWrapper";
 import { useForm } from "react-hook-form";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
@@ -7,6 +7,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StyledLink from "../StyledLink";
 import { useAuth } from "../../contexts/AuthContext";
+import EmailField from "../EmailField";
+import PasswordField from "../PasswordField";
 
 interface LoginData {
     email: string;
@@ -21,6 +23,7 @@ function LoginPage() {
     } = useForm<LoginData>();
     const [errorMessage, setErrorMessage] = useState("");
     const [openError, setOpenError] = useState(false);
+
 
     const { mutate: login, isPending } = useLogin();
 
@@ -46,36 +49,18 @@ function LoginPage() {
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
             <Typography variant="h3">Login</Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>Don't have an account? Click <StyledLink to="/register" text="here" /> to register.</Typography>
-            <TextField
-                label="Email"
-                variant="outlined"
-                required
-                fullWidth
-                sx={{ mb: 2 }}
-                {...register("email", {
-                required: "Email is required",
-                pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email format" },
+            <EmailField
+                registration={register("email", {
+                    required: "Email is required",
+                    pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email format" },
                 })}
-                error={!!errors.email}
-                helperText={errors.email ? errors.email.message?.toString() : ""}
+                fieldError={errors.email}
             />
-            <TextField
-                label="Password"
-                type="password"
-                variant="outlined"
-                required
-                fullWidth
-                sx={{ mb: 2 }}
-                {...register("password", { 
+            <PasswordField
+                registration={register("password", { 
                     required: "Password is required",
-                    minLength: { value: 8, message: "Password must be at least 8 characters" },
-                    pattern: {
-                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/,
-                        message: "Password must include upper, lower, number, and special character",
-                    }
                 })}
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message?.toString() : ""}
+                fieldError={errors.password}
             />
             <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
                 Login
