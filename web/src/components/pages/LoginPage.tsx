@@ -58,7 +58,7 @@ function LoginPage() {
                 fieldError={errors.password}
             />
             <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
-                Login
+                <Typography variant="h6">Login</Typography>
             </Button>
         </FormWrapper>
     </>;

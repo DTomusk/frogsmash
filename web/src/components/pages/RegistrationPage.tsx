@@ -79,7 +79,7 @@ function RegistrationPage() {
       />
       <PasswordStrength password={watch("password") || ""} />
       <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || !passwordValid}>
-        Register
+        <Typography variant="h6">Register</Typography>
       </Button>
     </FormWrapper>
     </>
