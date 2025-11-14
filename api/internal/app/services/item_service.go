@@ -36,7 +36,7 @@ func (s *ItemService) GetComparisonItems(ctx context.Context, db repos.DBTX) (*m
 	return &items[0], &items[1], nil
 }
 
-func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context, db repos.DBTX) error {
+func (s *ItemService) CompareItems(winnerId, loserId, userId string, ctx context.Context, db repos.DBTX) error {
 	if winnerId == loserId {
 		return fmt.Errorf("winner and loser cannot be the same")
 	}
@@ -49,7 +49,7 @@ func (s *ItemService) CompareItems(winnerId, loserId string, ctx context.Context
 		return fmt.Errorf("one or both items not found")
 	}
 	// Log event to be picked up by worker later
-	return s.EventsService.LogEvent(winnerId, loserId, ctx, db)
+	return s.EventsService.LogEvent(winnerId, loserId, userId, ctx, db)
 }
 
 func (s *ItemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.LeaderboardItem, int, error) {

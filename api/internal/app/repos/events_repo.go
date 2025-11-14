@@ -12,10 +12,10 @@ func NewEventsRepo() *EventsRepo {
 	return &EventsRepo{}
 }
 
-func (r *EventsRepo) LogEvent(winnerId, loserId string, ctx context.Context, db DBTX) error {
+func (r *EventsRepo) LogEvent(winnerId, loserId, userId string, ctx context.Context, db DBTX) error {
 	_, err := db.ExecContext(ctx,
-		"INSERT INTO events (winner_id, loser_id) VALUES ($1, $2)",
-		winnerId, loserId,
+		"INSERT INTO events (winner_id, loser_id, user_id) VALUES ($1, $2, $3)",
+		winnerId, loserId, userId,
 	)
 	return err
 }

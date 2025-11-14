@@ -7,7 +7,7 @@ import (
 )
 
 type EventsRepo interface {
-	LogEvent(winnerId, loserId string, ctx context.Context, db repos.DBTX) error
+	LogEvent(winnerId, loserId, userId string, ctx context.Context, db repos.DBTX) error
 	SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error
 	SetEventFailed(eventID string, ctx context.Context, db repos.DBTX) error
 	GetNextUnprocessedEvent(ctx context.Context, db repos.DBTX) (*models.Event, error)
@@ -21,8 +21,8 @@ func NewEventsService(repo EventsRepo) *EventsService {
 	return &EventsService{Repo: repo}
 }
 
-func (s *EventsService) LogEvent(winnerId, loserId string, ctx context.Context, db repos.DBTX) error {
-	return s.Repo.LogEvent(winnerId, loserId, ctx, db)
+func (s *EventsService) LogEvent(winnerId, loserId, userId string, ctx context.Context, db repos.DBTX) error {
+	return s.Repo.LogEvent(winnerId, loserId, userId, ctx, db)
 }
 
 func (s *EventsService) SetEventProcessed(eventID string, ctx context.Context, db repos.DBTX) error {

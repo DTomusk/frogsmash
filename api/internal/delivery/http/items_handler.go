@@ -13,7 +13,7 @@ import (
 
 type ItemsService interface {
 	GetComparisonItems(ctx context.Context, db repos.DBTX) (*models.Item, *models.Item, error)
-	CompareItems(winnerId, loserId string, ctx context.Context, db repos.DBTX) error
+	CompareItems(winnerId, loserId, userId string, ctx context.Context, db repos.DBTX) error
 	GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
@@ -64,6 +64,11 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 // @Produce      json
 // @Param        compareRequest  body      dto.CompareRequest  true  "Comparison Request"
 func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
+	user_id, ok := utils.GetUserID(ctx)
+	if !ok {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
 	var request dto.CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(400, gin.H{"error": "Invalid request"})
@@ -73,6 +78,7 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	err := h.ItemsService.CompareItems(
 		request.WinnerId,
 		request.LoserId,
+		user_id,
 		ctx.Request.Context(),
 		h.db,
 	)
