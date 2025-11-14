@@ -5,7 +5,7 @@ import (
 )
 
 func GetUserID(c *gin.Context) (string, bool) {
-	userID, ok := c.Get("userID")
+	userID, ok := c.Get("sub")
 	if !ok {
 		return "", false
 	}

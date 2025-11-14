@@ -48,7 +48,7 @@ func AuthMiddleware(s TokenService) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token subject"})
 			return
 		}
-		c.Set("user_id", sub)
+		c.Set("sub", sub)
 
 		c.Next()
 	}
