@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardActions, CardMedia, IconButton, Modal, Tooltip, Typography } from "@mui/material";
-import type { LeaderboardItem } from "../models/items";
+import type { LeaderboardItem } from "../../models/items";
 import { format } from 'date-fns';
 import InfoIcon from '@mui/icons-material/Info';
 import { Image } from 'mui-image'

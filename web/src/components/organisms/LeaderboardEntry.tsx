@@ -1,5 +1,5 @@
 import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from "@mui/material";
-import type { LeaderboardItem } from "../models/items";
+import type { LeaderboardItem } from "../../models/items";
 
 interface LeaderboardEntryProps {
     item: LeaderboardItem;

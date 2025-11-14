@@ -1,14 +1,14 @@
 import { Button, Typography } from "@mui/material";
-import FormWrapper from "../FormWrapper";
+import FormWrapper from "../atoms/FormWrapper";
 import { useForm } from "react-hook-form";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
-import AlertSnackbar from "../AlertSnackbar";
+import AlertSnackbar from "../molecules/AlertSnackbar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import StyledLink from "../StyledLink";
+import StyledLink from "../atoms/StyledLink";
 import { useAuth } from "../../contexts/AuthContext";
-import EmailField from "../EmailField";
-import PasswordField from "../PasswordField";
+import EmailField from "../atoms/EmailField";
+import PasswordField from "../atoms/PasswordField";
 
 interface LoginData {
     email: string;

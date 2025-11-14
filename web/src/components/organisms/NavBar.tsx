@@ -1,9 +1,9 @@
 import { AppBar, Box, Drawer, IconButton, Toolbar } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
-import DrawerContent from "./DrawerContent";
-import LogoLink from "./LogoLink";
-import NavLinks from "./NavLinks";
+import DrawerContent from "../molecules/DrawerContent";
+import LogoLink from "../molecules/LogoLink";
+import NavLinks from "../molecules/NavLinks";
 
 function NavBar() {
     const [open, setOpen] = useState(false);

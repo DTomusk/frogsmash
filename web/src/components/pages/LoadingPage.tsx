@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinner from "../molecules/LoadingSpinner";
 
 function LoadingPage () {
     return (

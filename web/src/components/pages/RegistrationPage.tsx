@@ -1,12 +1,12 @@
 import { Button, Typography } from "@mui/material";
-import FormWrapper from "../FormWrapper";
+import FormWrapper from "../atoms/FormWrapper";
 import { useForm } from "react-hook-form";
 import { useRegister } from "../../hooks/useRegister";
-import AlertSnackbar from "../AlertSnackbar";
+import AlertSnackbar from "../molecules/AlertSnackbar";
 import { useState } from "react";
-import StyledLink from "../StyledLink";
-import EmailField from "../EmailField";
-import PasswordField from "../PasswordField";
+import StyledLink from "../atoms/StyledLink";
+import EmailField from "../atoms/EmailField";
+import PasswordField from "../atoms/PasswordField";
 
 interface RegistrationData {
     email: string;

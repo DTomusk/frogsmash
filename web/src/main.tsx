@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
-import Background from './components/structure/Background.tsx'
+import Background from './components/atoms/Background.tsx'
 import { AppThemeProvider } from './theme/ThemeProvider.tsx'
 
 const queryClient = new QueryClient()

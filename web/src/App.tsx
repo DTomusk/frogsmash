@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Comparison from "./components/pages/Comparison";
+import Comparison from "./components/pages/ComparisonPage";
 import Template from "./components/templates/Template";
 import LoadingPage from "./components/pages/LoadingPage";
 import LeaderboardPage from "./components/pages/LeaderboardPage";
@@ -8,7 +8,7 @@ import UploadPage from "./components/pages/UploadPage";
 import RegistrationPage from "./components/pages/RegistrationPage";
 import LoginPage from "./components/pages/LoginPage";
 import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/atoms/ProtectedRoute";
 
 function App() {
   return (

@@ -1,9 +1,9 @@
 import { Box, Button, Typography } from "@mui/material";
 import { useItems } from "../../hooks/useItems"
-import Contender from "../Contender";
+import Contender from "../organisms/Contender";
 import { useComparison } from "../../hooks/useComparison";
-import LoadingSpinner from "../LoadingSpinner";
-import ErrorMessage from "../ErrorMessage";
+import LoadingSpinner from "../molecules/LoadingSpinner";
+import ErrorMessage from "../atoms/ErrorMessage";
 
 function Comparison() {
   const { isPending, error, data, refetch } = useItems();

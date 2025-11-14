@@ -1,9 +1,9 @@
 import { List, Pagination, Typography } from "@mui/material";
 import { useLeaderboard } from "../../hooks/useLeaderboard";
-import LoadingSpinner from "../LoadingSpinner";
-import LeaderboardEntry from "../LeaderboardEntry";
+import LoadingSpinner from "../molecules/LoadingSpinner";
+import LeaderboardEntry from "../organisms/LeaderboardEntry";
 import { useState } from "react";
-import LeaderboardDetailModal from "../LeaderboardDetailModal";
+import LeaderboardDetailModal from "../organisms/LeaderboardDetailModal";
 import type { LeaderboardItem } from "../../models/items";
 
 function LeaderboardPage() {
