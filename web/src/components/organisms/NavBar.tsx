@@ -22,12 +22,12 @@ function NavBar() {
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <LogoLink />
                 <IconButton onClick={() => handleMenuToggle(true)}
-                    sx={{ display: { xs: "flex", sm: "none" } }} // show on small only
+                    sx={{ display: { xs: "flex", md: "none" } }} // show on small only
                     color="inherit"
                     >
                     <MenuIcon />
                 </IconButton>
-                <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                     <NavLinks />
                 </Box>
             </Toolbar>
