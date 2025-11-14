@@ -38,11 +38,11 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     }
 
     const refreshData = await refreshResponse.json();
-    localStorage.setItem('token', refreshData.token);
+    localStorage.setItem('token', refreshData.jwt);
 
     const retryHeaders = { 
       ...(options.headers || {}),
-      Authorization: `Bearer ${refreshData.token}`,
+      Authorization: `Bearer ${refreshData.jwt}`,
       ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     };
 

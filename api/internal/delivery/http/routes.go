@@ -42,7 +42,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.POST("/refresh-token", authHandler.RefreshToken)
 
 	protected := r.Group("/")
-	protected.Use(middleware.AuthMiddleware())
+	protected.Use(middleware.AuthMiddleware(c.JwtService))
 	{
 		protected.GET("/items", itemsHandler.GetItems)
 		protected.POST("/compare", itemsHandler.CompareItems)

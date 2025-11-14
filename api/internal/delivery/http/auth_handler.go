@@ -33,7 +33,7 @@ func NewAuthHandler(c *container.Container) *AuthHandler {
 
 // Register godoc
 // @Summary      Register a new user
-// @Description  Registers a new user with username, email, and password
+// @Description  Registers a new user with email and password
 // @Router       /register [post]
 // @Accept       json
 // @Produce      json
@@ -55,7 +55,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 
 // Login godoc
 // @Summary      User login
-// @Description  Logs in a user with username and password
+// @Description  Logs in a user with email and password
 // @Router       /login [post]
 // @Accept       json
 // @Produce      json
@@ -88,15 +88,14 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 // @Router       /refresh-token [post]
 // @Accept       json
 // @Produce      json
-// @Param        token  body  dto.RefreshTokenRequest  true  "Refresh token payload"
 // @Success      200    {object}  dto.UserLoginResponse
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
-	var req dto.RefreshTokenRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+	cookie, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		ctx.JSON(400, gin.H{"error": "Refresh token cookie missing"})
 		return
 	}
-	jwt, refreshToken, err := h.AuthService.RefreshToken(req.RefreshToken, ctx.Request.Context(), h.db)
+	jwt, refreshToken, err := h.AuthService.RefreshToken(cookie, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return

@@ -58,9 +58,3 @@ type UserLoginRequest struct {
 type UserLoginResponse struct {
 	JWT string `json:"jwt"`
 }
-
-// RefreshTokenRequest godoc
-// @Description  Request payload for refreshing JWT token including the refresh token
-type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
-}

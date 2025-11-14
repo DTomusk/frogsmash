@@ -17,6 +17,7 @@ type Container struct {
 	ScoreUpdater   *services.ScoreUpdater
 	UploadService  *services.UploadService
 	AuthService    *services.AuthService
+	JwtService     *services.JwtService
 	AllowedOrigin  string
 	MaxRequestSize int64
 }
@@ -66,6 +67,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		ScoreUpdater:   scoreUpdater,
 		UploadService:  uploadService,
 		AuthService:    authService,
+		JwtService:     tokenService,
 		AllowedOrigin:  cfg.AllowedOrigin,
 		MaxRequestSize: cfg.MaxFileSize,
 	}, nil

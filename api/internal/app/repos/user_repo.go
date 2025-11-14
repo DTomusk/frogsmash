@@ -13,7 +13,7 @@ func NewUserRepo() *UserRepo {
 }
 
 func (r *UserRepo) GetUserByUserID(userID string, ctx context.Context, db DBTX) (*models.User, error) {
-	query := "SELECT id, username, email, password_hash, created_at FROM users WHERE id = $1"
+	query := "SELECT id, email, password_hash, created_at FROM users WHERE id = $1"
 	row := db.QueryRowContext(ctx, query, userID)
 	var user models.User
 	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash, &user.CreatedAt); err != nil {
