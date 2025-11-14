@@ -6,6 +6,7 @@ import AlertSnackbar from "../AlertSnackbar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StyledLink from "../StyledLink";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface LoginData {
     email: string;
@@ -23,12 +24,15 @@ function LoginPage() {
 
     const { mutate: login, isPending } = useLogin();
 
+    const { login: authLogin } = useAuth();
+
     const navigate = useNavigate();
 
     const onSubmit = (data: LoginData) => {
         login(data, {
             onSuccess: (response: LoginResponse) => {
-                localStorage.setItem("token", response.jwt);
+                // TODO: add user data to api response and pass it here
+                authLogin(response.jwt);
                 navigate("/");
             },
             onError: (err: any) => {
