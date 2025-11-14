@@ -9,6 +9,9 @@ import EmailField from "../atoms/EmailField";
 import PasswordField from "../atoms/PasswordField";
 import PasswordStrength from "../atoms/PasswordStrength";
 import { checkPasswordStrength } from "../../utils/PasswordStrength";
+import { useLogin, type LoginResponse } from "../../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface RegistrationData {
     email: string;
@@ -20,10 +23,13 @@ function RegistrationPage() {
         register,
         handleSubmit,
         formState: { errors },
-        reset,
         watch,
     } = useForm<RegistrationData>();
     const { mutate, data, isPending } = useRegister();
+    const { mutate: login } = useLogin();
+    const { login: authLogin } = useAuth();
+    const navigate = useNavigate();
+
     const [errorMessage, setErrorMessage] = useState("");
     const [openError, setOpenError] = useState(false);
     const [openSuccess, setOpenSuccess] = useState(false);
@@ -35,8 +41,18 @@ function RegistrationPage() {
     const onSubmit = (data: RegistrationData) => {
         mutate(data, {
             onSuccess: () => {
+              // TODO: add snackbar provider to show snackbar independent of route
                 setOpenSuccess(true);
-                reset();
+                login({ email: data.email, password: data.password }, {
+                    onSuccess: (response: LoginResponse) => {
+                        authLogin(response.jwt);
+                        navigate("/");
+                    },
+                    onError: (err: any) => {
+                        setErrorMessage(err.message || "Login after registration failed");
+                        setOpenError(true);
+                    }
+                });
             },
             onError: (err: any) => {
               setErrorMessage(err.message || "Registration failed");
