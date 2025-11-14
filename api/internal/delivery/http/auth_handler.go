@@ -2,6 +2,7 @@ package http
 
 import (
 	"database/sql"
+	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
@@ -14,8 +15,8 @@ import (
 // TODO: consider how to make this testable, *sql.DB is a concrete type
 type AuthService interface {
 	RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error
-	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
-	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
+	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error)
+	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error)
 }
 
 type AuthHandler struct {
@@ -73,9 +74,10 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
+	setRefreshTokenCookie(ctx, refreshToken)
+
 	res := dto.UserLoginResponse{
-		JWT:          jwt,
-		RefreshToken: refreshToken,
+		JWT: jwt,
 	}
 	ctx.JSON(200, res)
 }
@@ -100,9 +102,23 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
+	setRefreshTokenCookie(ctx, refreshToken)
+
 	res := dto.UserLoginResponse{
-		JWT:          jwt,
-		RefreshToken: refreshToken,
+		JWT: jwt,
 	}
 	ctx.JSON(200, res)
+}
+
+func setRefreshTokenCookie(ctx *gin.Context, refreshToken *models.RefreshToken) {
+	ctx.SetCookie(
+		"refresh_token",
+		refreshToken.Token,
+		int(refreshToken.MaxAge),
+		"/",
+		"",
+		// TODO: move to https in production
+		false,
+		true,
+	)
 }

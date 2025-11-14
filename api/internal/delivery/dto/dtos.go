@@ -56,8 +56,7 @@ type UserLoginRequest struct {
 // UserLoginResponse godoc
 // @Description  Response payload for user login
 type UserLoginResponse struct {
-	JWT          string `json:"jwt"`
-	RefreshToken string `json:"refresh_token"`
+	JWT string `json:"jwt"`
 }
 
 // RefreshTokenRequest godoc

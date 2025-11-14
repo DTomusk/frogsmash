@@ -72,66 +72,66 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 	return s.UserRepo.CreateUser(newUser, ctx, db)
 }
 
-func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error) {
+func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error) {
 	// Get the user by email
 	user, err := s.UserRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	if user == nil {
-		return "", "", fmt.Errorf("user not found")
+		return "", nil, fmt.Errorf("user not found")
 	}
 	// Verify password
 	if !s.Hasher.CheckPasswordHash(password, user.PasswordHash) {
-		return "", "", fmt.Errorf("invalid password")
+		return "", nil, fmt.Errorf("invalid password")
 	}
 	// Generate JWT token
 	jwt, err := s.TokenService.GenerateToken(user.ID)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Generate refresh token
 	refreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Save refresh token to database
 	if err := s.rotateRefreshTokens(db, ctx, refreshToken); err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 
-	return jwt, refreshToken.Token, nil
+	return jwt, refreshToken, nil
 }
 
-func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error) {
+func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error) {
 	// Get existing token (the one matching the provided refresh token)
 	token, err := s.RefreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Validate the token (check not revoked, check not expired)
 	if token == nil || token.Revoked || token.ExpiresAt.Before(time.Now()) {
-		return "", "", fmt.Errorf("invalid refresh token")
+		return "", nil, fmt.Errorf("invalid refresh token")
 	}
 	user, err := s.UserRepo.GetUserByUserID(token.UserID, ctx, db)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Generate JWT token
 	jwt, err := s.TokenService.GenerateToken(user.ID)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Generate refresh token
 	newRefreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
-		return "", "", err
+		return "", nil, err
 	}
 	// Save refresh token to database
 	if err := s.rotateRefreshTokens(db, ctx, newRefreshToken); err != nil {
-		return "", "", err
+		return "", nil, err
 	}
-	return jwt, newRefreshToken.Token, nil
+	return jwt, newRefreshToken, nil
 }
 
 // TODO: consider where this should live
@@ -147,6 +147,7 @@ func generateRefreshToken(userID string, tokenLifeTimeDays int) (*models.Refresh
 		Token:     fmt.Sprintf("%x", b),
 		UserID:    userID,
 		ExpiresAt: time.Now().Add(time.Duration(tokenLifeTimeDays) * 24 * time.Hour),
+		MaxAge:    int64(tokenLifeTimeDays * 24 * 60 * 60),
 		Revoked:   false,
 	}, nil
 }
