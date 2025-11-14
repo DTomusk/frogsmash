@@ -13,8 +13,8 @@ import (
 
 // TODO: consider how to make this testable, *sql.DB is a concrete type
 type AuthService interface {
-	RegisterUser(username, email, password string, ctx context.Context, db repos.DBTX) error
-	Login(username, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
+	RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error
+	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
 	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error)
 }
 
@@ -43,7 +43,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.AuthService.RegisterUser(req.Username, req.Email, req.Password, ctx.Request.Context(), h.db)
+	err := h.AuthService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -67,7 +67,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	jwt, refreshToken, err := h.AuthService.Login(req.Username, req.Password, ctx.Request.Context(), h.db)
+	jwt, refreshToken, err := h.AuthService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return

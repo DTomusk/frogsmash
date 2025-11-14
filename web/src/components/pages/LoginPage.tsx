@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import StyledLink from "../StyledLink";
 
 interface LoginData {
-    username: string;
+    email: string;
     password: string;
 }
 
@@ -28,7 +28,7 @@ function LoginPage() {
     const onSubmit = (data: LoginData) => {
         login(data, {
             onSuccess: (response: LoginResponse) => {
-                localStorage.setItem("token", response.token);
+                localStorage.setItem("token", response.jwt);
                 navigate("/");
             },
             onError: (err: any) => {
@@ -43,18 +43,17 @@ function LoginPage() {
             <Typography variant="h3">Login</Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>Don't have an account? Click <StyledLink to="/register" text="here" /> to register.</Typography>
             <TextField
-                label="Username"
+                label="Email"
                 variant="outlined"
                 required
                 fullWidth
                 sx={{ mb: 2 }}
-                {...register("username", { 
-                    required: "Username is required",
-                    minLength: { value: 3, message: "Username must be at least 3 characters" },
-                    pattern: { value: /^[a-zA-Z0-9_]+$/, message: "Username can only contain letters, numbers, and underscores" },
+                {...register("email", {
+                required: "Email is required",
+                pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email format" },
                 })}
-                error={!!errors.username}
-                helperText={errors.username ? errors.username.message?.toString() : ""}
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message?.toString() : ""}
             />
             <TextField
                 label="Password"

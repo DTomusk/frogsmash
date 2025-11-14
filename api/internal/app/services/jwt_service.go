@@ -18,11 +18,10 @@ func NewJwtService(secret []byte, tokenLifetimeMinutes int) *JwtService {
 	}
 }
 
-func (s *JwtService) GenerateToken(userID string, username string) (string, error) {
+func (s *JwtService) GenerateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id":  userID,
-		"username": username,
-		"exp":      time.Now().Add(time.Minute * time.Duration(s.tokenLifetimeMinutes)).Unix(),
+		"sub": userID,
+		"exp": time.Now().Add(time.Minute * time.Duration(s.tokenLifetimeMinutes)).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.secret)

@@ -8,7 +8,6 @@ import StyledLink from "../StyledLink";
 
 interface RegistrationData {
     email: string;
-    username: string;
     password: string;
 }
 
@@ -54,20 +53,6 @@ function RegistrationPage() {
         })}
         error={!!errors.email}
         helperText={errors.email ? errors.email.message?.toString() : ""}
-      />
-      <TextField
-        label="Username"
-        variant="outlined"
-        required
-        fullWidth
-        sx={{ mb: 2 }}
-        {...register("username", { 
-            required: "Username is required",
-            minLength: { value: 3, message: "Username must be at least 3 characters" },
-            pattern: { value: /^[a-zA-Z0-9_]+$/, message: "Username can only contain letters, numbers, and underscores" },
-        })}
-        error={!!errors.username}
-        helperText={errors.username ? errors.username.message?.toString() : ""}
       />
       <TextField
         label="Password"

@@ -11,7 +11,6 @@ import (
 
 type UserRepo interface {
 	GetUserByUserID(userID string, ctx context.Context, db repos.DBTX) (*models.User, error)
-	GetUserByUsername(username string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	GetUserByEmail(email string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) error
 }
@@ -28,7 +27,7 @@ type Hasher interface {
 }
 
 type TokenService interface {
-	GenerateToken(userID string, username string) (string, error)
+	GenerateToken(userID string) (string, error)
 }
 
 type AuthService struct {
@@ -49,18 +48,9 @@ func NewAuthService(userRepo UserRepo, refreshTokenRepo RefreshTokenRepo, hasher
 	}
 }
 
-func (s *AuthService) RegisterUser(username, email, password string, ctx context.Context, db repos.DBTX) error {
-	// Check username not in use
-	existingUser, err := s.UserRepo.GetUserByUsername(username, ctx, db)
-	if err != nil {
-		return err
-	}
-	if existingUser != nil {
-		return fmt.Errorf("username %s is already taken", username)
-	}
-
+func (s *AuthService) RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error {
 	// Check email not in use
-	existingUser, err = s.UserRepo.GetUserByEmail(email, ctx, db)
+	existingUser, err := s.UserRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -76,16 +66,15 @@ func (s *AuthService) RegisterUser(username, email, password string, ctx context
 
 	// Store user in database
 	newUser := &models.User{
-		Username:     username,
 		Email:        email,
 		PasswordHash: hashedPassword,
 	}
 	return s.UserRepo.CreateUser(newUser, ctx, db)
 }
 
-func (s *AuthService) Login(username, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error) {
-	// Get the user by username
-	user, err := s.UserRepo.GetUserByUsername(username, ctx, db)
+func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, string, error) {
+	// Get the user by email
+	user, err := s.UserRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
 		return "", "", err
 	}
@@ -97,7 +86,7 @@ func (s *AuthService) Login(username, password string, ctx context.Context, db r
 		return "", "", fmt.Errorf("invalid password")
 	}
 	// Generate JWT token
-	jwt, err := s.TokenService.GenerateToken(user.ID, user.Username)
+	jwt, err := s.TokenService.GenerateToken(user.ID)
 	if err != nil {
 		return "", "", err
 	}
@@ -129,7 +118,7 @@ func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db 
 		return "", "", err
 	}
 	// Generate JWT token
-	jwt, err := s.TokenService.GenerateToken(user.ID, user.Username)
+	jwt, err := s.TokenService.GenerateToken(user.ID)
 	if err != nil {
 		return "", "", err
 	}

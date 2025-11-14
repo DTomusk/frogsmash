@@ -4,7 +4,7 @@ import { apiFetch } from "../api/client";
 function useRegister() {
     return useMutation({
         mutationKey: ['register'],
-        mutationFn: async (data: { email: string; username: string; password: string; }) => {
+        mutationFn: async (data: { email: string; password: string; }) => {
             const res = await apiFetch<{ message: string }>('/register', {
                 method: 'POST',
                 body: JSON.stringify(data),
