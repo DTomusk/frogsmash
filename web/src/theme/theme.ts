@@ -38,7 +38,10 @@ export const darkTheme = createTheme({
             main: '#d89504ff',
         },
         background: {
-            default: '#121212',
+            default: '#121212ff',
+        },
+        success: {
+            main: '#257829ff',
         },
     },
 });

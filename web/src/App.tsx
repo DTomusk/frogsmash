@@ -10,6 +10,7 @@ import LoginPage from "./components/pages/LoginPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/atoms/ProtectedRoute";
 import { SnackbarProvider } from "./contexts/SnackbarContext";
+import LandingPage from "./components/pages/LandingPage";
 
 function App() {
   return (
@@ -17,10 +18,11 @@ function App() {
     <SnackbarProvider>
       <Routes>
         <Route element={<Template />}>
+            <Route path='/' element={<LandingPage />} />
             <Route path='/register' element={<RegistrationPage />} />
             <Route path='/login' element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
-              <Route path='/' element={<Comparison />} />
+              <Route path='/smash' element={<Comparison />} />
               <Route path='/loading' element={<LoadingPage />} />
               <Route path='/leaderboard' element={<LeaderboardPage />} />
               <Route path='/upload' element={<UploadPage />} />

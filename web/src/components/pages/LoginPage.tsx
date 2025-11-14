@@ -31,7 +31,8 @@ function LoginPage() {
             onSuccess: (response: LoginResponse) => {
                 // TODO: add user data to api response and pass it here
                 authLogin(response.jwt);
-                navigate("/");
+                showSnackbar({ message: "Login successful, welcome back!🎉", severity: "success" });
+                navigate("/smash");
             },
             onError: (err: any) => {
                 showSnackbar({ message: err.message || "Login failed", severity: "error" });

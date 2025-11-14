@@ -9,8 +9,8 @@ export interface AlertSnackbarProps {
 
 function AlertSnackbar({ severity, message, autoHideDuration = 6000, onClose }: AlertSnackbarProps) {
     return (
-        <Snackbar open autoHideDuration={autoHideDuration} onClose={onClose}>
-            <Alert onClose={onClose} severity={severity} variant="filled" sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <Snackbar open autoHideDuration={autoHideDuration} onClose={onClose} sx={{ boxShadow: 3 }}>
+            <Alert onClose={onClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
                 {message}
             </Alert>
         </Snackbar>

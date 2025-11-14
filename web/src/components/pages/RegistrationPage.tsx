@@ -37,12 +37,11 @@ function RegistrationPage() {
     const onSubmit = (data: RegistrationData) => {
         mutate(data, {
             onSuccess: () => {
-              // TODO: add snackbar provider to show snackbar independent of route
-                showSnackbar({ message: "Registration successful!", severity: "success",  });
+                showSnackbar({ message: "Successfully registered, welcome aboard!🎉", severity: "success",  });
                 login({ email: data.email, password: data.password }, {
                     onSuccess: (response: LoginResponse) => {
                         authLogin(response.jwt);
-                        navigate("/");
+                        navigate("/smash");
                     },
                     onError: (err: any) => {
                         showSnackbar({ message: err.message || "Login failed", severity: "error" });
