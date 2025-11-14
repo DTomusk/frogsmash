@@ -33,18 +33,21 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	})
 
 	itemsHandler := NewItemsHandler(c)
-
-	r.GET("/items", itemsHandler.GetItems)
-	r.POST("/compare", itemsHandler.CompareItems)
-	r.GET("/leaderboard", itemsHandler.GetLeaderboard)
-
 	uploadHandler := NewUploadHandler(c)
-	r.POST("/upload", uploadHandler.UploadImage)
+	authHandler := NewAuthHandler(c)
 
-	AuthHandler := NewAuthHandler(c)
-	r.POST("/register", AuthHandler.Register)
-	r.POST("/login", AuthHandler.Login)
-	r.POST("/refresh-token", AuthHandler.RefreshToken)
+	r.GET("/leaderboard", itemsHandler.GetLeaderboard)
+	r.POST("/register", authHandler.Register)
+	r.POST("/login", authHandler.Login)
+	r.POST("/refresh-token", authHandler.RefreshToken)
+
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/items", itemsHandler.GetItems)
+		protected.POST("/compare", itemsHandler.CompareItems)
+		protected.POST("/upload", uploadHandler.UploadImage)
+	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
