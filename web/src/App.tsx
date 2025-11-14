@@ -9,23 +9,26 @@ import RegistrationPage from "./components/pages/RegistrationPage";
 import LoginPage from "./components/pages/LoginPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/atoms/ProtectedRoute";
+import { SnackbarProvider } from "./contexts/SnackbarContext";
 
 function App() {
   return (
   <AuthProvider>
-    <Routes>
-      <Route element={<Template />}>
-          <Route path='/register' element={<RegistrationPage />} />
-          <Route path='/login' element={<LoginPage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path='/' element={<Comparison />} />
-            <Route path='/loading' element={<LoadingPage />} />
-            <Route path='/leaderboard' element={<LeaderboardPage />} />
-            <Route path='/upload' element={<UploadPage />} />
-          </Route>
-          <Route path='*' element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+    <SnackbarProvider>
+      <Routes>
+        <Route element={<Template />}>
+            <Route path='/register' element={<RegistrationPage />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path='/' element={<Comparison />} />
+              <Route path='/loading' element={<LoadingPage />} />
+              <Route path='/leaderboard' element={<LeaderboardPage />} />
+              <Route path='/upload' element={<UploadPage />} />
+            </Route>
+            <Route path='*' element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </SnackbarProvider>
   </AuthProvider>
   );
 }

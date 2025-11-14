@@ -1,16 +1,16 @@
 import { Alert, Snackbar } from "@mui/material";
 
-interface AlertSnackbarProps {
-    open: boolean;
-    onClose: () => void;
+export interface AlertSnackbarProps {
     severity: "error" | "warning" | "info" | "success";
     message: string;
+    autoHideDuration?: number;
+    onClose?: () => void;
 }
 
-function AlertSnackbar({ open, onClose, severity, message }: AlertSnackbarProps) {
+function AlertSnackbar({ severity, message, autoHideDuration = 6000, onClose }: AlertSnackbarProps) {
     return (
-        <Snackbar open={open} autoHideDuration={6000} onClose={onClose}>
-            <Alert onClose={onClose} severity={severity} variant="outlined" sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <Snackbar open autoHideDuration={autoHideDuration} onClose={onClose}>
+            <Alert onClose={onClose} severity={severity} variant="filled" sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {message}
             </Alert>
         </Snackbar>

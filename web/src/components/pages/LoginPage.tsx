@@ -2,13 +2,12 @@ import { Button, Typography } from "@mui/material";
 import FormWrapper from "../atoms/FormWrapper";
 import { useForm } from "react-hook-form";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
-import AlertSnackbar from "../molecules/AlertSnackbar";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StyledLink from "../atoms/StyledLink";
 import { useAuth } from "../../contexts/AuthContext";
 import EmailField from "../atoms/EmailField";
 import PasswordField from "../atoms/PasswordField";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface LoginData {
     email: string;
@@ -21,14 +20,10 @@ function LoginPage() {
         handleSubmit,
         formState: { errors },
     } = useForm<LoginData>();
-    const [errorMessage, setErrorMessage] = useState("");
-    const [openError, setOpenError] = useState(false);
-
 
     const { mutate: login, isPending } = useLogin();
-
     const { login: authLogin } = useAuth();
-
+    const { showSnackbar } = useSnackbar();
     const navigate = useNavigate();
 
     const onSubmit = (data: LoginData) => {
@@ -39,8 +34,7 @@ function LoginPage() {
                 navigate("/");
             },
             onError: (err: any) => {
-                setErrorMessage(err.message || "Login failed");
-                setOpenError(true);
+                showSnackbar({ message: err.message || "Login failed", severity: "error" });
             }
         });
     };
@@ -66,12 +60,6 @@ function LoginPage() {
                 Login
             </Button>
         </FormWrapper>
-        <AlertSnackbar
-            open={openError}
-            message={errorMessage}
-            severity="error"
-            onClose={() => setOpenError(false)}
-        />
     </>;
 }
 

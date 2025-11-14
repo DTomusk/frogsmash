@@ -2,8 +2,6 @@ import { Button, Typography } from "@mui/material";
 import FormWrapper from "../atoms/FormWrapper";
 import { useForm } from "react-hook-form";
 import { useRegister } from "../../hooks/useRegister";
-import AlertSnackbar from "../molecules/AlertSnackbar";
-import { useState } from "react";
 import StyledLink from "../atoms/StyledLink";
 import EmailField from "../atoms/EmailField";
 import PasswordField from "../atoms/PasswordField";
@@ -12,6 +10,7 @@ import { checkPasswordStrength } from "../../utils/PasswordStrength";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface RegistrationData {
     email: string;
@@ -25,14 +24,11 @@ function RegistrationPage() {
         formState: { errors },
         watch,
     } = useForm<RegistrationData>();
-    const { mutate, data, isPending } = useRegister();
+    const { mutate, isPending } = useRegister();
     const { mutate: login } = useLogin();
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
-
-    const [errorMessage, setErrorMessage] = useState("");
-    const [openError, setOpenError] = useState(false);
-    const [openSuccess, setOpenSuccess] = useState(false);
+    const { showSnackbar } = useSnackbar();
 
     const password = watch("password") || "";
     const strength = checkPasswordStrength(password);
@@ -42,21 +38,19 @@ function RegistrationPage() {
         mutate(data, {
             onSuccess: () => {
               // TODO: add snackbar provider to show snackbar independent of route
-                setOpenSuccess(true);
+                showSnackbar({ message: "Registration successful!", severity: "success",  });
                 login({ email: data.email, password: data.password }, {
                     onSuccess: (response: LoginResponse) => {
                         authLogin(response.jwt);
                         navigate("/");
                     },
                     onError: (err: any) => {
-                        setErrorMessage(err.message || "Login after registration failed");
-                        setOpenError(true);
+                        showSnackbar({ message: err.message || "Login failed", severity: "error" });
                     }
                 });
             },
             onError: (err: any) => {
-              setErrorMessage(err.message || "Registration failed");
-              setOpenError(true);
+              showSnackbar({ message: err.message || "Registration failed", severity: "error" });
             },
         });
     }
@@ -89,18 +83,6 @@ function RegistrationPage() {
         Register
       </Button>
     </FormWrapper>
-    <AlertSnackbar
-      open={openError}
-      message={errorMessage}
-      severity="error"
-      onClose={() => setOpenError(false)}
-    />
-    <AlertSnackbar
-      open={openSuccess}
-      message={data?.message || "Registration successful!"}
-      severity="success"
-      onClose={() => setOpenSuccess(false)}
-    />
     </>
   );
 }
