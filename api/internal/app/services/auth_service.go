@@ -27,7 +27,7 @@ type Hasher interface {
 }
 
 type TokenService interface {
-	GenerateToken(userID string) (string, error)
+	GenerateToken(userID string, isVerified bool) (string, error)
 }
 
 type AuthService struct {
@@ -86,7 +86,7 @@ func (s *AuthService) Login(email, password string, ctx context.Context, db repo
 		return "", nil, fmt.Errorf("invalid password")
 	}
 	// Generate JWT token
-	jwt, err := s.TokenService.GenerateToken(user.ID)
+	jwt, err := s.TokenService.GenerateToken(user.ID, user.IsVerified)
 	if err != nil {
 		return "", nil, err
 	}
@@ -118,7 +118,7 @@ func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db 
 		return "", nil, err
 	}
 	// Generate JWT token
-	jwt, err := s.TokenService.GenerateToken(user.ID)
+	jwt, err := s.TokenService.GenerateToken(user.ID, user.IsVerified)
 	if err != nil {
 		return "", nil, err
 	}

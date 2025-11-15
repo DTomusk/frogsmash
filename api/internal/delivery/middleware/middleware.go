@@ -49,6 +49,12 @@ func AuthMiddleware(s TokenService) gin.HandlerFunc {
 			return
 		}
 		c.Set("sub", sub)
+		isVerified, ok := claims["is_verified"].(bool)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token is_verified claim"})
+			return
+		}
+		c.Set("is_verified", isVerified)
 
 		c.Next()
 	}

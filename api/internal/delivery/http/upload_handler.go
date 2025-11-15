@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"frogsmash/internal/container"
+	"frogsmash/internal/delivery/utils"
 	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,11 @@ func NewUploadHandler(c *container.Container) *UploadHandler {
 // @Produce      json
 // @Param        image  formData  file  true  "Image file to upload"
 func (h *UploadHandler) UploadImage(ctx *gin.Context) {
+	isVerified, ok := utils.IsUserVerified(ctx)
+	if !ok || !isVerified {
+		ctx.JSON(403, gin.H{"error": "User is not verified"})
+		return
+	}
 	file, err := ctx.FormFile("image")
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": "No image is received"})

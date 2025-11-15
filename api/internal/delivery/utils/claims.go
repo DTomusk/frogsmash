@@ -13,3 +13,13 @@ func GetUserID(c *gin.Context) (string, bool) {
 	idStr, ok := userID.(string)
 	return idStr, ok
 }
+
+func IsUserVerified(c *gin.Context) (bool, bool) {
+	isVerified, ok := c.Get("is_verified")
+	if !ok {
+		return false, false
+	}
+
+	verifiedBool, ok := isVerified.(bool)
+	return verifiedBool, ok
+}

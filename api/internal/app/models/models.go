@@ -31,6 +31,7 @@ type User struct {
 	Email        string
 	PasswordHash string
 	CreatedAt    string
+	IsVerified   bool
 }
 
 // TODO: it might be silly having both ExpiresAt and MaxAge, but for now it's convenient
