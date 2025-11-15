@@ -56,5 +56,14 @@ type UserLoginRequest struct {
 // UserLoginResponse godoc
 // @Description  Response payload for user login
 type UserLoginResponse struct {
-	JWT string `json:"jwt"`
+	JWT  string       `json:"jwt"`
+	User UserResponse `json:"user"`
+}
+
+// UserResponse godoc
+// @Description  User data returned with login response
+type UserResponse struct {
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	IsVerified bool   `json:"is_verified"`
 }

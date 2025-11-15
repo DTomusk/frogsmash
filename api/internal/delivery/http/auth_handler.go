@@ -15,8 +15,8 @@ import (
 // TODO: consider how to make this testable, *sql.DB is a concrete type
 type AuthService interface {
 	RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error
-	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error)
-	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error)
+	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 }
 
 type AuthHandler struct {
@@ -68,7 +68,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	jwt, refreshToken, err := h.AuthService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.AuthService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": "Invalid credentials"})
 		return
@@ -78,6 +78,11 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 
 	res := dto.UserLoginResponse{
 		JWT: jwt,
+		User: dto.UserResponse{
+			ID:         user.ID,
+			Email:      user.Email,
+			IsVerified: user.IsVerified,
+		},
 	}
 	ctx.JSON(200, res)
 }
@@ -95,7 +100,7 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "Refresh token cookie missing"})
 		return
 	}
-	jwt, refreshToken, err := h.AuthService.RefreshToken(cookie, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.AuthService.RefreshToken(cookie, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -105,6 +110,11 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 
 	res := dto.UserLoginResponse{
 		JWT: jwt,
+		User: dto.UserResponse{
+			ID:         user.ID,
+			Email:      user.Email,
+			IsVerified: user.IsVerified,
+		},
 	}
 	ctx.JSON(200, res)
 }

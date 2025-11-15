@@ -72,66 +72,66 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 	return s.UserRepo.CreateUser(newUser, ctx, db)
 }
 
-func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error) {
+func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
 	// Get the user by email
 	user, err := s.UserRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	if user == nil {
-		return "", nil, fmt.Errorf("user not found")
+		return "", nil, nil, fmt.Errorf("user not found")
 	}
 	// Verify password
 	if !s.Hasher.CheckPasswordHash(password, user.PasswordHash) {
-		return "", nil, fmt.Errorf("invalid password")
+		return "", nil, nil, fmt.Errorf("invalid password")
 	}
 	// Generate JWT token
 	jwt, err := s.TokenService.GenerateToken(user.ID, user.IsVerified)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Generate refresh token
 	refreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Save refresh token to database
 	if err := s.rotateRefreshTokens(db, ctx, refreshToken); err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 
-	return jwt, refreshToken, nil
+	return jwt, refreshToken, user, nil
 }
 
-func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, error) {
+func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
 	// Get existing token (the one matching the provided refresh token)
 	token, err := s.RefreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Validate the token (check not revoked, check not expired)
 	if token == nil || token.Revoked || token.ExpiresAt.Before(time.Now()) {
-		return "", nil, fmt.Errorf("invalid refresh token")
+		return "", nil, nil, fmt.Errorf("invalid refresh token")
 	}
 	user, err := s.UserRepo.GetUserByUserID(token.UserID, ctx, db)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Generate JWT token
 	jwt, err := s.TokenService.GenerateToken(user.ID, user.IsVerified)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Generate refresh token
 	newRefreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	// Save refresh token to database
 	if err := s.rotateRefreshTokens(db, ctx, newRefreshToken); err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
-	return jwt, newRefreshToken, nil
+	return jwt, newRefreshToken, user, nil
 }
 
 // TODO: consider where this should live
