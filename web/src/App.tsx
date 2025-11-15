@@ -25,6 +25,8 @@ function App() {
               <Route path='/smash' element={<Comparison />} />
               <Route path='/loading' element={<LoadingPage />} />
               <Route path='/leaderboard' element={<LeaderboardPage />} />
+            </Route>
+            <Route element={<ProtectedRoute requireVerified={true} />}>
               <Route path='/upload' element={<UploadPage />} />
             </Route>
             <Route path='*' element={<NotFoundPage />} />

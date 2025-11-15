@@ -40,7 +40,7 @@ function RegistrationPage() {
                 showSnackbar({ message: "Successfully registered, welcome aboard!🎉", severity: "success",  });
                 login({ email: data.email, password: data.password }, {
                     onSuccess: (response: LoginResponse) => {
-                        authLogin(response.jwt);
+                        authLogin(response.jwt, response.user);
                         navigate("/smash");
                     },
                     onError: (err: any) => {
