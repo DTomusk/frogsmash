@@ -1,7 +1,7 @@
 package email
 
 type EmailClient interface {
-	SendEmail(toEmail, subject, body string) error
+	SendEmail(toEmail, subject, htmlBody, textBody string) error
 }
 
 type EmailService struct {
@@ -22,13 +22,20 @@ func (s *EmailService) SendVerificationEmail(toEmail, verificationCode string) e
 	link := s.appUrl + "/verify?code=" + verificationCode
 	subject := "FrogSmash - Verify your email"
 
-	body, err := s.templateRenderer.RenderTemplate("verification_email", map[string]string{
+	data := map[string]string{
 		"Subject": subject,
 		"Link":    link,
-	})
+	}
+
+	htmlBody, err := s.templateRenderer.RenderTemplate("verification_email.html", data)
 	if err != nil {
 		return err
 	}
 
-	return s.emailClient.SendEmail(toEmail, subject, body)
+	textBody, err := s.templateRenderer.RenderTemplate("verification_email.txt", data)
+	if err != nil {
+		return err
+	}
+
+	return s.emailClient.SendEmail(toEmail, subject, htmlBody, textBody)
 }

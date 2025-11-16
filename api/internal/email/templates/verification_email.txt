@@ -1,0 +1,5 @@
+Hi there, welcome to FrogSmash!
+
+Before you can start using our premium features, verify your account by clicking the link below:
+
+{{.Link}}

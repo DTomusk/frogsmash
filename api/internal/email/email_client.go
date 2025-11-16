@@ -16,7 +16,7 @@ func NewMailjetClient(apiKey, secretKey, sender string) *MailjetClient {
 	}
 }
 
-func (c *MailjetClient) SendEmail(toEmail, subject, body string) error {
+func (c *MailjetClient) SendEmail(toEmail, subject, htmlBody, textBody string) error {
 	messagesInfo := []mj.InfoMessagesV31{
 		{
 			From: &mj.RecipientV31{
@@ -29,7 +29,8 @@ func (c *MailjetClient) SendEmail(toEmail, subject, body string) error {
 				},
 			},
 			Subject:  subject,
-			TextPart: body,
+			HTMLPart: htmlBody,
+			TextPart: textBody,
 		},
 	}
 

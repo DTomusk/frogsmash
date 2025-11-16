@@ -58,19 +58,28 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	uploadService := services.NewUploadService(storageClient, cfg.MaxFileSize)
 
-	userRepo := repos.NewUserRepo()
-	refreshTokenRepo := repos.NewRefreshTokenRepo()
-	verificationRepo := repos.NewVerificationRepo()
-	hasher := services.NewBCryptHasher()
-	tokenService := services.NewJwtService([]byte(cfg.JWTSecret), cfg.TokenLifetimeMinutes)
-	authService := services.NewAuthService(userRepo, refreshTokenRepo, hasher, tokenService, verificationRepo, cfg.RefreshTokenLifetimeDays, cfg.VerificationCodeLength, cfg.VerificationCodeLifetimeMinutes)
-
 	emailClient := email.NewMailjetClient(cfg.MailjetAPIKey, cfg.MailjetSecretKey, cfg.SenderEmail)
 	templateRenderer, err := email.NewTemplateRenderer(cfg.TemplateGlobPattern)
 	if err != nil {
 		return nil, err
 	}
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppURL)
+
+	userRepo := repos.NewUserRepo()
+	refreshTokenRepo := repos.NewRefreshTokenRepo()
+	verificationRepo := repos.NewVerificationRepo()
+	hasher := services.NewBCryptHasher()
+	tokenService := services.NewJwtService([]byte(cfg.JWTSecret), cfg.TokenLifetimeMinutes)
+	authService := services.NewAuthService(
+		userRepo,
+		refreshTokenRepo,
+		hasher,
+		tokenService,
+		emailService,
+		verificationRepo,
+		cfg.RefreshTokenLifetimeDays,
+		cfg.VerificationCodeLength,
+		cfg.VerificationCodeLifetimeMinutes)
 
 	return &Container{
 		DB:             db,

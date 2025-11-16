@@ -34,11 +34,16 @@ type TokenService interface {
 	GenerateToken(userID string, isVerified bool) (string, error)
 }
 
+type EmailService interface {
+	SendVerificationEmail(toEmail, verificationCode string) error
+}
+
 type AuthService struct {
 	UserRepo                        UserRepo
 	RefreshTokenRepo                RefreshTokenRepo
 	Hasher                          Hasher
 	TokenService                    TokenService
+	EmailService                    EmailService
 	VerificationRepo                VerificationRepo
 	RefreshTokenLifetimeDays        int
 	VerificationCodeLength          int
@@ -50,6 +55,7 @@ func NewAuthService(
 	refreshTokenRepo RefreshTokenRepo,
 	hasher Hasher,
 	tokenService TokenService,
+	emailService EmailService,
 	verificationRepo VerificationRepo,
 	refreshTokenLifetimeDays int,
 	verificationCodeLength int,
@@ -59,6 +65,7 @@ func NewAuthService(
 		RefreshTokenRepo:                refreshTokenRepo,
 		Hasher:                          hasher,
 		TokenService:                    tokenService,
+		EmailService:                    emailService,
 		VerificationRepo:                verificationRepo,
 		VerificationCodeLength:          verificationCodeLength,
 		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
@@ -107,8 +114,10 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 	}
 	// TODO: Save verification code to database and send email
 	// For now, send email directly
-	// Later, queue email to be sent by background worker
-	// So we need an email service
+	err = s.EmailService.SendVerificationEmail(email, verificationCode.Code)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
