@@ -20,13 +20,15 @@ func NewEmailService(emailClient EmailClient, templateRenderer *TemplateRenderer
 
 func (s *EmailService) SendVerificationEmail(toEmail, verificationCode string) error {
 	link := s.appUrl + "/verify?code=" + verificationCode
+	subject := "FrogSmash - Verify your email"
 
 	body, err := s.templateRenderer.RenderTemplate("verification_email", map[string]string{
-		"Link": link,
+		"Subject": subject,
+		"Link":    link,
 	})
 	if err != nil {
 		return err
 	}
 
-	return s.emailClient.SendEmail(toEmail, "FrogSmash - Verify your email", body)
+	return s.emailClient.SendEmail(toEmail, subject, body)
 }
