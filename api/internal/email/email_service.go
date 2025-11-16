@@ -28,5 +28,5 @@ func (s *EmailService) SendVerificationEmail(toEmail, verificationCode string) e
 		return err
 	}
 
-	return s.emailClient.SendEmail(toEmail, "Verify your email", body)
+	return s.emailClient.SendEmail(toEmail, "FrogSmash - Verify your email", body)
 }
