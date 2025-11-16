@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
+	"frogsmash/internal/app/factories"
 	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
 	"time"
@@ -96,7 +95,7 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 	}
 
 	// Create verification code and send verification email
-	verificationCode, err := generateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
+	verificationCode, err := factories.GenerateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
 	if err != nil {
 		return err
 	}
@@ -133,7 +132,7 @@ func (s *AuthService) Login(email, password string, ctx context.Context, db repo
 		return "", nil, nil, err
 	}
 	// Generate refresh token
-	refreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
+	refreshToken, err := factories.GenerateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -165,7 +164,7 @@ func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db 
 		return "", nil, nil, err
 	}
 	// Generate refresh token
-	newRefreshToken, err := generateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
+	newRefreshToken, err := factories.GenerateRefreshToken(user.ID, s.RefreshTokenLifetimeDays)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -174,37 +173,6 @@ func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db 
 		return "", nil, nil, err
 	}
 	return jwt, newRefreshToken, user, nil
-}
-
-// TODO: consider where this should live
-// IT's a small utility function that doesn't get used elsewhere and has no state, so it's fine here for now as a private function
-// We probably don't need a service for it
-func generateRefreshToken(userID string, tokenLifeTimeDays int) (*models.RefreshToken, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return &models.RefreshToken{
-		Token:     fmt.Sprintf("%x", b),
-		UserID:    userID,
-		ExpiresAt: time.Now().UTC().Add(time.Duration(tokenLifeTimeDays) * 24 * time.Hour),
-		MaxAge:    int64(tokenLifeTimeDays * 24 * 60 * 60),
-		Revoked:   false,
-	}, nil
-}
-
-func generateVerificationCode(userId string, codeLength, codeLifeTimeMinutes int) (*models.VerificationCode, error) {
-	b := make([]byte, codeLength)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-	return &models.VerificationCode{
-		UserID:    userId,
-		Code:      base64.StdEncoding.EncodeToString(b),
-		ExpiresAt: time.Now().UTC().Add(time.Duration(codeLifeTimeMinutes) * time.Minute),
-	}, nil
 }
 
 func (s *AuthService) rotateRefreshTokens(db repos.TxStarter, ctx context.Context, token *models.RefreshToken) error {
