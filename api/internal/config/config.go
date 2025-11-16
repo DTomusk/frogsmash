@@ -41,20 +41,32 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("could not load REFRESH_TOKEN_LIFETIME_DAYS from environment: %v", err)
 	}
 
+	verificationCodeLength, err := strconv.Atoi(os.Getenv("VERIFICATION_CODE_LENGTH"))
+	if err != nil {
+		return nil, fmt.Errorf("could not load VERIFICATION_CODE_LENGTH from environment: %v", err)
+	}
+
+	verificationCodeLifetimeMinutes, err := strconv.Atoi(os.Getenv("VERIFICATION_CODE_LIFETIME_MINUTES"))
+	if err != nil {
+		return nil, fmt.Errorf("could not load VERIFICATION_CODE_LIFETIME_MINUTES from environment: %v", err)
+	}
+
 	cfg := &Config{
-		DatabaseURL:              os.Getenv("DATABASE_URL"),
-		Port:                     os.Getenv("PORT"),
-		AllowedOrigin:            os.Getenv("ALLOWED_ORIGIN"),
-		KFactor:                  kFactor,
-		MaxFileSize:              maxFileSzie * 1024 * 1024, // Convert MB to bytes
-		ScoreUpdateInterval:      scoreUpdateInterval,
-		StorageAccountID:         os.Getenv("STORAGE_ACCOUNT_ID"),
-		StorageAccessKey:         os.Getenv("STORAGE_ACCESS_KEY"),
-		StorageSecretKey:         os.Getenv("STORAGE_SECRET_KEY"),
-		StorageBucket:            os.Getenv("STORAGE_BUCKET"),
-		JWTSecret:                os.Getenv("JWT_SECRET"),
-		TokenLifetimeMinutes:     jwtLifetimeMinutes,
-		RefreshTokenLifetimeDays: refreshTokenLifetimeDays,
+		DatabaseURL:                     os.Getenv("DATABASE_URL"),
+		Port:                            os.Getenv("PORT"),
+		AllowedOrigin:                   os.Getenv("ALLOWED_ORIGIN"),
+		KFactor:                         kFactor,
+		MaxFileSize:                     maxFileSzie * 1024 * 1024, // Convert MB to bytes
+		ScoreUpdateInterval:             scoreUpdateInterval,
+		StorageAccountID:                os.Getenv("STORAGE_ACCOUNT_ID"),
+		StorageAccessKey:                os.Getenv("STORAGE_ACCESS_KEY"),
+		StorageSecretKey:                os.Getenv("STORAGE_SECRET_KEY"),
+		StorageBucket:                   os.Getenv("STORAGE_BUCKET"),
+		JWTSecret:                       os.Getenv("JWT_SECRET"),
+		TokenLifetimeMinutes:            jwtLifetimeMinutes,
+		RefreshTokenLifetimeDays:        refreshTokenLifetimeDays,
+		VerificationCodeLength:          verificationCodeLength,
+		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -68,17 +80,19 @@ func NewConfig() (*Config, error) {
 }
 
 type Config struct {
-	DatabaseURL              string
-	Port                     string
-	KFactor                  float64
-	ScoreUpdateInterval      int
-	MaxFileSize              int64
-	AllowedOrigin            string
-	StorageAccountID         string
-	StorageAccessKey         string
-	StorageSecretKey         string
-	StorageBucket            string
-	JWTSecret                string
-	TokenLifetimeMinutes     int
-	RefreshTokenLifetimeDays int
+	DatabaseURL                     string
+	Port                            string
+	KFactor                         float64
+	ScoreUpdateInterval             int
+	MaxFileSize                     int64
+	AllowedOrigin                   string
+	StorageAccountID                string
+	StorageAccessKey                string
+	StorageSecretKey                string
+	StorageBucket                   string
+	JWTSecret                       string
+	TokenLifetimeMinutes            int
+	RefreshTokenLifetimeDays        int
+	VerificationCodeLength          int
+	VerificationCodeLifetimeMinutes int
 }

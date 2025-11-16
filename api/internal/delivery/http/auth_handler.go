@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: consider how to make this testable, *sql.DB is a concrete type
 type AuthService interface {
 	RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error
 	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)

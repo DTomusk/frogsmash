@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"frogsmash/internal/app/models"
 	"frogsmash/internal/app/repos"
@@ -21,6 +22,10 @@ type RefreshTokenRepo interface {
 	GetRefreshToken(token string, ctx context.Context, db repos.DBTX) (*models.RefreshToken, error)
 }
 
+type VerificationRepo interface {
+	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db repos.DBTX) error
+}
+
 type Hasher interface {
 	HashPassword(password string) (string, error)
 	CheckPasswordHash(password, hash string) bool
@@ -31,20 +36,34 @@ type TokenService interface {
 }
 
 type AuthService struct {
-	UserRepo                 UserRepo
-	RefreshTokenRepo         RefreshTokenRepo
-	Hasher                   Hasher
-	TokenService             TokenService
-	RefreshTokenLifetimeDays int
+	UserRepo                        UserRepo
+	RefreshTokenRepo                RefreshTokenRepo
+	Hasher                          Hasher
+	TokenService                    TokenService
+	VerificationRepo                VerificationRepo
+	RefreshTokenLifetimeDays        int
+	VerificationCodeLength          int
+	VerificationCodeLifetimeMinutes int
 }
 
-func NewAuthService(userRepo UserRepo, refreshTokenRepo RefreshTokenRepo, hasher Hasher, tokenService TokenService, refreshTokenLifetimeDays int) *AuthService {
+func NewAuthService(
+	userRepo UserRepo,
+	refreshTokenRepo RefreshTokenRepo,
+	hasher Hasher,
+	tokenService TokenService,
+	verificationRepo VerificationRepo,
+	refreshTokenLifetimeDays int,
+	verificationCodeLength int,
+	verificationCodeLifetimeMinutes int) *AuthService {
 	return &AuthService{
-		UserRepo:                 userRepo,
-		RefreshTokenRepo:         refreshTokenRepo,
-		Hasher:                   hasher,
-		TokenService:             tokenService,
-		RefreshTokenLifetimeDays: refreshTokenLifetimeDays,
+		UserRepo:                        userRepo,
+		RefreshTokenRepo:                refreshTokenRepo,
+		Hasher:                          hasher,
+		TokenService:                    tokenService,
+		VerificationRepo:                verificationRepo,
+		VerificationCodeLength:          verificationCodeLength,
+		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
+		RefreshTokenLifetimeDays:        refreshTokenLifetimeDays,
 	}
 }
 
@@ -69,7 +88,30 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 		Email:        email,
 		PasswordHash: hashedPassword,
 	}
-	return s.UserRepo.CreateUser(newUser, ctx, db)
+
+	// TODO: wrap in transaction
+	err = s.UserRepo.CreateUser(newUser, ctx, db)
+	if err != nil {
+		return err
+	}
+
+	// Create verification code and send verification email
+	verificationCode, err := generateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
+	if err != nil {
+		return err
+	}
+
+	// TODO: when we save a verification code, we should delete any existing unexpired codes for that user first
+	err = s.VerificationRepo.SaveVerificationCode(verificationCode, ctx, db)
+	if err != nil {
+		return err
+	}
+	// TODO: Save verification code to database and send email
+	// For now, send email directly
+	// Later, queue email to be sent by background worker
+	// So we need an email service
+
+	return nil
 }
 
 func (s *AuthService) Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
@@ -149,6 +191,19 @@ func generateRefreshToken(userID string, tokenLifeTimeDays int) (*models.Refresh
 		ExpiresAt: time.Now().UTC().Add(time.Duration(tokenLifeTimeDays) * 24 * time.Hour),
 		MaxAge:    int64(tokenLifeTimeDays * 24 * 60 * 60),
 		Revoked:   false,
+	}, nil
+}
+
+func generateVerificationCode(userId string, codeLength, codeLifeTimeMinutes int) (*models.VerificationCode, error) {
+	b := make([]byte, codeLength)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, err
+	}
+	return &models.VerificationCode{
+		UserID:    userId,
+		Code:      base64.StdEncoding.EncodeToString(b),
+		ExpiresAt: time.Now().UTC().Add(time.Duration(codeLifeTimeMinutes) * time.Minute),
 	}, nil
 }
 

@@ -57,9 +57,10 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	userRepo := repos.NewUserRepo()
 	refreshTokenRepo := repos.NewRefreshTokenRepo()
+	verificationRepo := repos.NewVerificationRepo()
 	hasher := services.NewBCryptHasher()
 	tokenService := services.NewJwtService([]byte(cfg.JWTSecret), cfg.TokenLifetimeMinutes)
-	authService := services.NewAuthService(userRepo, refreshTokenRepo, hasher, tokenService, cfg.RefreshTokenLifetimeDays)
+	authService := services.NewAuthService(userRepo, refreshTokenRepo, hasher, tokenService, verificationRepo, cfg.RefreshTokenLifetimeDays, cfg.VerificationCodeLength, cfg.VerificationCodeLifetimeMinutes)
 
 	return &Container{
 		DB:             db,

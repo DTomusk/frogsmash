@@ -43,3 +43,9 @@ type RefreshToken struct {
 	CreatedAt time.Time
 	Revoked   bool
 }
+
+type VerificationCode struct {
+	Code      string
+	UserID    string
+	ExpiresAt time.Time
+}
