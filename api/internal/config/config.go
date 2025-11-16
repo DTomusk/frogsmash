@@ -8,6 +8,29 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Config struct {
+	AppURL                          string
+	DatabaseURL                     string
+	Port                            string
+	KFactor                         float64
+	ScoreUpdateInterval             int
+	MaxFileSize                     int64
+	AllowedOrigin                   string
+	StorageAccountID                string
+	StorageAccessKey                string
+	StorageSecretKey                string
+	StorageBucket                   string
+	JWTSecret                       string
+	TokenLifetimeMinutes            int
+	RefreshTokenLifetimeDays        int
+	VerificationCodeLength          int
+	VerificationCodeLifetimeMinutes int
+	MailjetAPIKey                   string
+	MailjetSecretKey                string
+	SenderEmail                     string
+	TemplateGlobPattern             string
+}
+
 func NewConfig() (*Config, error) {
 	if os.Getenv("ENV") != "production" {
 		// Load .env file in non-production environments (not running in docker)
@@ -52,6 +75,7 @@ func NewConfig() (*Config, error) {
 	}
 
 	cfg := &Config{
+		AppURL:                          os.Getenv("APP_URL"),
 		DatabaseURL:                     os.Getenv("DATABASE_URL"),
 		Port:                            os.Getenv("PORT"),
 		AllowedOrigin:                   os.Getenv("ALLOWED_ORIGIN"),
@@ -67,6 +91,10 @@ func NewConfig() (*Config, error) {
 		RefreshTokenLifetimeDays:        refreshTokenLifetimeDays,
 		VerificationCodeLength:          verificationCodeLength,
 		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
+		MailjetAPIKey:                   os.Getenv("MAILJET_API_KEY"),
+		MailjetSecretKey:                os.Getenv("MAILJET_SECRET_KEY"),
+		SenderEmail:                     os.Getenv("SENDER_EMAIL"),
+		TemplateGlobPattern:             os.Getenv("TEMPLATE_GLOB_PATTERN"),
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -77,22 +105,4 @@ func NewConfig() (*Config, error) {
 	}
 
 	return cfg, nil
-}
-
-type Config struct {
-	DatabaseURL                     string
-	Port                            string
-	KFactor                         float64
-	ScoreUpdateInterval             int
-	MaxFileSize                     int64
-	AllowedOrigin                   string
-	StorageAccountID                string
-	StorageAccessKey                string
-	StorageSecretKey                string
-	StorageBucket                   string
-	JWTSecret                       string
-	TokenLifetimeMinutes            int
-	RefreshTokenLifetimeDays        int
-	VerificationCodeLength          int
-	VerificationCodeLifetimeMinutes int
 }

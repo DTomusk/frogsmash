@@ -1,4 +1,4 @@
-package repos
+package clients
 
 import (
 	"context"

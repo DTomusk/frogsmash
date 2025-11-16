@@ -3,9 +3,11 @@ package container
 import (
 	"context"
 	"database/sql"
+	"frogsmash/internal/app/clients"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/app/services"
 	"frogsmash/internal/config"
+	"frogsmash/internal/email"
 	"time"
 )
 
@@ -20,6 +22,7 @@ type Container struct {
 	JwtService     *services.JwtService
 	AllowedOrigin  string
 	MaxRequestSize int64
+	EmailService   *email.EmailService
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -43,7 +46,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
 
-	storageClient, err := repos.NewStorageClient(ctx, cfg.StorageAccountID, cfg.StorageAccessKey, cfg.StorageSecretKey, cfg.StorageBucket)
+	storageClient, err := clients.NewStorageClient(ctx, cfg.StorageAccountID, cfg.StorageAccessKey, cfg.StorageSecretKey, cfg.StorageBucket)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +65,13 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	tokenService := services.NewJwtService([]byte(cfg.JWTSecret), cfg.TokenLifetimeMinutes)
 	authService := services.NewAuthService(userRepo, refreshTokenRepo, hasher, tokenService, verificationRepo, cfg.RefreshTokenLifetimeDays, cfg.VerificationCodeLength, cfg.VerificationCodeLifetimeMinutes)
 
+	emailClient := email.NewMailjetClient(cfg.MailjetAPIKey, cfg.MailjetSecretKey, cfg.SenderEmail)
+	templateRenderer, err := email.NewTemplateRenderer(cfg.TemplateGlobPattern)
+	if err != nil {
+		return nil, err
+	}
+	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppURL)
+
 	return &Container{
 		DB:             db,
 		ItemsService:   itemsService,
@@ -71,5 +81,6 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		JwtService:     tokenService,
 		AllowedOrigin:  cfg.AllowedOrigin,
 		MaxRequestSize: cfg.MaxFileSize,
+		EmailService:   emailService,
 	}, nil
 }
