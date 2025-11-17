@@ -37,7 +37,7 @@ func main() {
 	}
 
 	// TODO: this introduces a dependency from scoreupdater to server, consider running separately
-	m, err := migrate.New("file://db/migrations", cfg.DatabaseURL)
+	m, err := migrate.New("file://db/migrations", cfg.DatabaseConfig.DatabaseURL)
 	if err != nil {
 		log.Fatalf("failed to create migrate instance: %v", err)
 	}
@@ -57,13 +57,13 @@ func main() {
 	r := appHttp.SetupRoutes(c)
 
 	srv := &http.Server{
-		Addr:    ":" + cfg.Port,
+		Addr:    ":" + cfg.AppConfig.Port,
 		Handler: r,
 	}
 
 	// Server runs in a goroutine
 	go func() {
-		log.Printf("Starting server on port %s\n", cfg.Port)
+		log.Printf("Starting server on port %s\n", cfg.AppConfig.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}

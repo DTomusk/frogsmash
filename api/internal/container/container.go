@@ -27,7 +27,7 @@ type Container struct {
 
 func NewContainer(cfg *config.Config) (*Container, error) {
 	ctx := context.Background()
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	db, err := sql.Open("postgres", cfg.DatabaseConfig.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -42,11 +42,11 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	itemsRepo := repos.NewItemsRepo()
 	itemsService := services.NewItemService(itemsRepo, eventsService)
 
-	updateInterval := time.Duration(cfg.ScoreUpdateInterval) * time.Second
+	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 
-	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.KFactor, updateInterval)
+	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.AppConfig.KFactor, updateInterval)
 
-	storageClient, err := clients.NewStorageClient(ctx, cfg.StorageAccountID, cfg.StorageAccessKey, cfg.StorageSecretKey, cfg.StorageBucket)
+	storageClient, err := clients.NewStorageClient(ctx, cfg.StorageConfig.StorageAccountID, cfg.StorageConfig.StorageAccessKey, cfg.StorageConfig.StorageSecretKey, cfg.StorageConfig.StorageBucket)
 	if err != nil {
 		return nil, err
 	}
@@ -56,20 +56,20 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		return nil, err
 	}
 
-	uploadService := services.NewUploadService(storageClient, cfg.MaxFileSize)
+	uploadService := services.NewUploadService(storageClient, cfg.AppConfig.MaxFileSize)
 
-	emailClient := email.NewMailjetClient(cfg.MailjetAPIKey, cfg.MailjetSecretKey, cfg.SenderEmail)
-	templateRenderer, err := email.NewTemplateRenderer(cfg.TemplateGlobPattern)
+	emailClient := email.NewMailjetClient(cfg.MailConfig.MailjetAPIKey, cfg.MailConfig.MailjetSecretKey, cfg.MailConfig.SenderEmail)
+	templateRenderer, err := email.NewTemplateRenderer(cfg.MailConfig.TemplateGlobPattern)
 	if err != nil {
 		return nil, err
 	}
-	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppURL)
+	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
 	userRepo := repos.NewUserRepo()
 	refreshTokenRepo := repos.NewRefreshTokenRepo()
 	verificationRepo := repos.NewVerificationRepo()
 	hasher := services.NewBCryptHasher()
-	tokenService := services.NewJwtService([]byte(cfg.JWTSecret), cfg.TokenLifetimeMinutes)
+	tokenService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)
 	authService := services.NewAuthService(
 		userRepo,
 		refreshTokenRepo,
@@ -77,9 +77,9 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		tokenService,
 		emailService,
 		verificationRepo,
-		cfg.RefreshTokenLifetimeDays,
-		cfg.VerificationCodeLength,
-		cfg.VerificationCodeLifetimeMinutes)
+		cfg.TokenConfig.RefreshTokenLifetimeDays,
+		cfg.TokenConfig.VerificationCodeLength,
+		cfg.TokenConfig.VerificationCodeLifetimeMinutes)
 
 	return &Container{
 		DB:             db,
@@ -88,8 +88,8 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		UploadService:  uploadService,
 		AuthService:    authService,
 		JwtService:     tokenService,
-		AllowedOrigin:  cfg.AllowedOrigin,
-		MaxRequestSize: cfg.MaxFileSize,
+		AllowedOrigin:  cfg.AppConfig.AllowedOrigin,
+		MaxRequestSize: cfg.AppConfig.MaxFileSize,
 		EmailService:   emailService,
 	}, nil
 }
