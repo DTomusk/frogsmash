@@ -13,7 +13,7 @@ import (
 )
 
 type AuthService interface {
-	RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error
+	RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error
 	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 }

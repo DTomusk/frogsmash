@@ -15,3 +15,8 @@ func (r *VerificationRepo) SaveVerificationCode(code *models.VerificationCode, c
 	// Implementation here
 	return nil
 }
+
+func (r *VerificationRepo) DeleteVerificationCodesForUser(userID string, ctx context.Context, db DBTX) error {
+	// Implementation here
+	return nil
+}

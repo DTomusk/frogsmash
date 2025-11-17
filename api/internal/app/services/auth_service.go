@@ -23,6 +23,7 @@ type RefreshTokenRepo interface {
 
 type VerificationRepo interface {
 	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db repos.DBTX) error
+	DeleteVerificationCodesForUser(userID string, ctx context.Context, db repos.DBTX) error
 }
 
 type Hasher interface {
@@ -73,7 +74,7 @@ func NewAuthService(
 	}
 }
 
-func (s *AuthService) RegisterUser(email, password string, ctx context.Context, db repos.DBTX) error {
+func (s *AuthService) RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error {
 	// Check email not in use
 	existingUser, err := s.UserRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
@@ -95,8 +96,14 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 		PasswordHash: hashedPassword,
 	}
 
-	// TODO: wrap in transaction
-	err = s.UserRepo.CreateUser(newUser, ctx, db)
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	err = s.UserRepo.CreateUser(newUser, ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -107,8 +114,12 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 		return err
 	}
 
-	// TODO: when we save a verification code, we should delete any existing unexpired codes for that user first
-	err = s.VerificationRepo.SaveVerificationCode(verificationCode, ctx, db)
+	err = s.VerificationRepo.DeleteVerificationCodesForUser(newUser.ID, ctx, tx)
+	if err != nil {
+		return err
+	}
+
+	err = s.VerificationRepo.SaveVerificationCode(verificationCode, ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -116,6 +127,10 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 	// For now, send email directly
 	err = s.EmailService.SendVerificationEmail(email, verificationCode.Code)
 	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 
