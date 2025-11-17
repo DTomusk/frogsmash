@@ -12,7 +12,7 @@ import (
 type UserRepo interface {
 	GetUserByUserID(userID string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	GetUserByEmail(email string, ctx context.Context, db repos.DBTX) (*models.User, error)
-	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) error
+	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) (string, error)
 }
 
 type RefreshTokenRepo interface {
@@ -103,18 +103,18 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 
 	defer tx.Rollback()
 
-	err = s.UserRepo.CreateUser(newUser, ctx, tx)
+	userID, err := s.UserRepo.CreateUser(newUser, ctx, tx)
 	if err != nil {
 		return err
 	}
 
 	// Create verification code and send verification email
-	verificationCode, err := factories.GenerateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
+	verificationCode, err := factories.GenerateVerificationCode(userID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
 	if err != nil {
 		return err
 	}
 
-	err = s.VerificationRepo.DeleteVerificationCodesForUser(newUser.ID, ctx, tx)
+	err = s.VerificationRepo.DeleteVerificationCodesForUser(userID, ctx, tx)
 	if err != nil {
 		return err
 	}

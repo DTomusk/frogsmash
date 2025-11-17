@@ -38,10 +38,18 @@ func (r *UserRepo) GetUserByEmail(email string, ctx context.Context, db DBTX) (*
 	return &user, nil
 }
 
-func (r *UserRepo) CreateUser(user *models.User, ctx context.Context, db DBTX) error {
-	_, err := db.ExecContext(ctx,
-		"INSERT INTO users (email, password_hash, created_at) VALUES ($1, $2, NOW())",
+func (r *UserRepo) CreateUser(user *models.User, ctx context.Context, db DBTX) (string, error) {
+	var id string
+	err := db.QueryRowContext(ctx,
+		`INSERT INTO users (email, password_hash, created_at)
+		 VALUES ($1, $2, NOW())
+		 RETURNING id`,
 		user.Email, user.PasswordHash,
-	)
-	return err
+	).Scan(&id)
+
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
