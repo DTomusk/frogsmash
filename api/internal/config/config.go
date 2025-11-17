@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -39,62 +38,27 @@ func NewConfig() (*Config, error) {
 		}
 	}
 
-	kFactor, err := strconv.ParseFloat(os.Getenv("KFACTOR"), 64)
-	if err != nil {
-		return nil, fmt.Errorf("could not load KFACTOR from environment: %v", err)
-	}
-
-	scoreUpdateInterval, err := strconv.Atoi(os.Getenv("SCORE_UPDATE_INTERVAL_SECONDS"))
-	if err != nil {
-		return nil, fmt.Errorf("could not load SCORE_UPDATE_INTERVAL_SECONDS from environment: %v", err)
-	}
-
-	maxFileSzie, err := strconv.ParseInt(os.Getenv("MAX_FILE_SIZE_MB"), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("could not load MAX_FILE_SIZE_MB from environment: %v", err)
-	}
-
-	jwtLifetimeMinutes, err := strconv.Atoi(os.Getenv("JWT_TOKEN_LIFETIME_MINUTES"))
-	if err != nil {
-		return nil, fmt.Errorf("could not load JWT_TOKEN_LIFETIME_MINUTES from environment: %v", err)
-	}
-
-	refreshTokenLifetimeDays, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_LIFETIME_DAYS"))
-	if err != nil {
-		return nil, fmt.Errorf("could not load REFRESH_TOKEN_LIFETIME_DAYS from environment: %v", err)
-	}
-
-	verificationCodeLength, err := strconv.Atoi(os.Getenv("VERIFICATION_CODE_LENGTH"))
-	if err != nil {
-		return nil, fmt.Errorf("could not load VERIFICATION_CODE_LENGTH from environment: %v", err)
-	}
-
-	verificationCodeLifetimeMinutes, err := strconv.Atoi(os.Getenv("VERIFICATION_CODE_LIFETIME_MINUTES"))
-	if err != nil {
-		return nil, fmt.Errorf("could not load VERIFICATION_CODE_LIFETIME_MINUTES from environment: %v", err)
-	}
-
 	cfg := &Config{
-		AppURL:                          os.Getenv("APP_URL"),
-		DatabaseURL:                     os.Getenv("DATABASE_URL"),
-		Port:                            os.Getenv("PORT"),
-		AllowedOrigin:                   os.Getenv("ALLOWED_ORIGIN"),
-		KFactor:                         kFactor,
-		MaxFileSize:                     maxFileSzie * 1024 * 1024, // Convert MB to bytes
-		ScoreUpdateInterval:             scoreUpdateInterval,
-		StorageAccountID:                os.Getenv("STORAGE_ACCOUNT_ID"),
-		StorageAccessKey:                os.Getenv("STORAGE_ACCESS_KEY"),
-		StorageSecretKey:                os.Getenv("STORAGE_SECRET_KEY"),
-		StorageBucket:                   os.Getenv("STORAGE_BUCKET"),
-		JWTSecret:                       os.Getenv("JWT_SECRET"),
-		TokenLifetimeMinutes:            jwtLifetimeMinutes,
-		RefreshTokenLifetimeDays:        refreshTokenLifetimeDays,
-		VerificationCodeLength:          verificationCodeLength,
-		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
-		MailjetAPIKey:                   os.Getenv("MAILJET_API_KEY"),
-		MailjetSecretKey:                os.Getenv("MAILJET_SECRET_KEY"),
-		SenderEmail:                     os.Getenv("SENDER_EMAIL"),
-		TemplateGlobPattern:             os.Getenv("TEMPLATE_GLOB_PATTERN"),
+		AppURL:                          getEnv("APP_URL"),
+		DatabaseURL:                     getEnv("DATABASE_URL"),
+		Port:                            getEnv("PORT"),
+		AllowedOrigin:                   getEnv("ALLOWED_ORIGIN"),
+		KFactor:                         getFloat("KFACTOR"),
+		MaxFileSize:                     getInt64("MAX_FILE_SIZE_MB") * 1024 * 1024, // Convert MB to bytes
+		ScoreUpdateInterval:             getInt("SCORE_UPDATE_INTERVAL_SECONDS"),
+		StorageAccountID:                getEnv("STORAGE_ACCOUNT_ID"),
+		StorageAccessKey:                getEnv("STORAGE_ACCESS_KEY"),
+		StorageSecretKey:                getEnv("STORAGE_SECRET_KEY"),
+		StorageBucket:                   getEnv("STORAGE_BUCKET"),
+		JWTSecret:                       getEnv("JWT_SECRET"),
+		TokenLifetimeMinutes:            getInt("JWT_TOKEN_LIFETIME_MINUTES"),
+		RefreshTokenLifetimeDays:        getInt("REFRESH_TOKEN_LIFETIME_DAYS"),
+		VerificationCodeLength:          getInt("VERIFICATION_CODE_LENGTH"),
+		VerificationCodeLifetimeMinutes: getInt("VERIFICATION_CODE_LIFETIME_MINUTES"),
+		MailjetAPIKey:                   getEnv("MAILJET_API_KEY"),
+		MailjetSecretKey:                getEnv("MAILJET_SECRET_KEY"),
+		SenderEmail:                     getEnv("SENDER_EMAIL"),
+		TemplateGlobPattern:             getEnv("TEMPLATE_GLOB_PATTERN"),
 	}
 
 	if cfg.DatabaseURL == "" {
