@@ -6,6 +6,7 @@ import (
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
+	"frogsmash/internal/delivery/utils"
 
 	"context"
 
@@ -16,6 +17,7 @@ type AuthService interface {
 	RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error
 	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	ResendVerificationEmail(userID string, ctx context.Context, db repos.DBWithTxStarter) error
 }
 
 type AuthHandler struct {
@@ -129,4 +131,25 @@ func setRefreshTokenCookie(ctx *gin.Context, refreshToken *models.RefreshToken) 
 		false,
 		true,
 	)
+}
+
+// ResendVerificationEmail godoc
+// @Summary      Resend verification email
+// @Description  Resends the verification email to the user
+// @Router       /resend-verification [post]
+// @Accept       json
+// @Produce      json
+func (h *AuthHandler) ResendVerificationEmail(ctx *gin.Context) {
+	user_id, ok := utils.GetUserID(ctx)
+	if !ok {
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	err := h.AuthService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(200, gin.H{"message": "Verification email resent successfully"})
 }

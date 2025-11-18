@@ -40,6 +40,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
 	r.POST("/refresh-token", authHandler.RefreshToken)
+	r.POST("/resend-verification", authHandler.ResendVerificationEmail)
 
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware(c.JwtService))

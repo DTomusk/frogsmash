@@ -108,24 +108,7 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 		return err
 	}
 
-	// Create verification code and send verification email
-	verificationCode, err := factories.GenerateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
-	if err != nil {
-		return err
-	}
-
-	err = s.VerificationRepo.DeleteVerificationCodesForUser(newUser.ID, ctx, tx)
-	if err != nil {
-		return err
-	}
-
-	err = s.VerificationRepo.SaveVerificationCode(verificationCode, ctx, tx)
-	if err != nil {
-		return err
-	}
-	// TODO: Save verification code to database and send email
-	// For now, send email directly
-	err = s.EmailService.SendVerificationEmail(email, verificationCode.Code)
+	err = s.sendVerificationEmail(newUser, ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -217,4 +200,47 @@ func (s *AuthService) rotateRefreshTokens(db repos.TxStarter, ctx context.Contex
 		return err
 	}
 	return nil
+}
+
+func (s *AuthService) ResendVerificationEmail(userID string, ctx context.Context, db repos.DBWithTxStarter) error {
+	user, err := s.UserRepo.GetUserByUserID(userID, ctx, db)
+	if err != nil {
+		return err
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	err = s.sendVerificationEmail(user, ctx, tx)
+	if err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *AuthService) sendVerificationEmail(user *models.User, ctx context.Context, db repos.DBTX) error {
+	// Create verification code and send verification email
+	verificationCode, err := factories.GenerateVerificationCode(user.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
+	if err != nil {
+		return err
+	}
+
+	err = s.VerificationRepo.DeleteVerificationCodesForUser(user.ID, ctx, db)
+	if err != nil {
+		return err
+	}
+
+	err = s.VerificationRepo.SaveVerificationCode(verificationCode, ctx, db)
+	if err != nil {
+		return err
+	}
+	// TODO: Save verification code to database and send email
+	// For now, send email directly
+	err = s.EmailService.SendVerificationEmail(user.Email, verificationCode.Code)
+	return err
 }
