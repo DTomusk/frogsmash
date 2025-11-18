@@ -10,7 +10,7 @@ function ProtectedRoute({requireVerified = false}: {requireVerified?: boolean}) 
 
     // TODO: add verification page to resend verification email
     if (requireVerified && !user?.isVerified) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/verify/required" replace />;
     }
 
     return <Outlet />;

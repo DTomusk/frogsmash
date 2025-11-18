@@ -11,6 +11,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/atoms/ProtectedRoute";
 import { SnackbarProvider } from "./contexts/SnackbarContext";
 import LandingPage from "./components/pages/LandingPage";
+import VerificationPage from "./components/pages/VerificationPage";
+import VerificationRequiredPage from "./components/pages/VerificationRequiredPage";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
               <Route path='/smash' element={<Comparison />} />
               <Route path='/loading' element={<LoadingPage />} />
               <Route path='/leaderboard' element={<LeaderboardPage />} />
+              <Route path='/verify/required' element={<VerificationRequiredPage />} />
+              <Route path='/verify' element={<VerificationPage />} />
             </Route>
             <Route element={<ProtectedRoute requireVerified={true} />}>
               <Route path='/upload' element={<UploadPage />} />

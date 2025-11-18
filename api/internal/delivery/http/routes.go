@@ -40,7 +40,6 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
 	r.POST("/refresh-token", authHandler.RefreshToken)
-	r.POST("/resend-verification", authHandler.ResendVerificationEmail)
 
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware(c.JwtService))
@@ -48,6 +47,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		protected.GET("/items", itemsHandler.GetItems)
 		protected.POST("/compare", itemsHandler.CompareItems)
 		protected.POST("/upload", uploadHandler.UploadImage)
+		protected.POST("/resend-verification", authHandler.ResendVerificationEmail)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
