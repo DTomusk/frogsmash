@@ -12,7 +12,7 @@ import (
 type UserRepo interface {
 	GetUserByUserID(userID string, ctx context.Context, db repos.DBTX) (*models.User, error)
 	GetUserByEmail(email string, ctx context.Context, db repos.DBTX) (*models.User, error)
-	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) (string, error)
+	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) error
 }
 
 type RefreshTokenRepo interface {
@@ -39,6 +39,10 @@ type EmailService interface {
 	SendVerificationEmail(toEmail, verificationCode string) error
 }
 
+type UserFactory interface {
+	CreateNewUser(email, password string) (*models.User, error)
+}
+
 type AuthService struct {
 	UserRepo                        UserRepo
 	RefreshTokenRepo                RefreshTokenRepo
@@ -46,6 +50,7 @@ type AuthService struct {
 	TokenService                    TokenService
 	EmailService                    EmailService
 	VerificationRepo                VerificationRepo
+	UserFactory                     UserFactory
 	RefreshTokenLifetimeDays        int
 	VerificationCodeLength          int
 	VerificationCodeLifetimeMinutes int
@@ -58,6 +63,7 @@ func NewAuthService(
 	tokenService TokenService,
 	emailService EmailService,
 	verificationRepo VerificationRepo,
+	userFactory UserFactory,
 	refreshTokenLifetimeDays int,
 	verificationCodeLength int,
 	verificationCodeLifetimeMinutes int) *AuthService {
@@ -68,6 +74,7 @@ func NewAuthService(
 		TokenService:                    tokenService,
 		EmailService:                    emailService,
 		VerificationRepo:                verificationRepo,
+		UserFactory:                     userFactory,
 		VerificationCodeLength:          verificationCodeLength,
 		VerificationCodeLifetimeMinutes: verificationCodeLifetimeMinutes,
 		RefreshTokenLifetimeDays:        refreshTokenLifetimeDays,
@@ -84,16 +91,9 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 		return fmt.Errorf("email %s is already taken", email)
 	}
 
-	// Hash password
-	hashedPassword, err := s.Hasher.HashPassword(password)
+	newUser, err := s.UserFactory.CreateNewUser(email, password)
 	if err != nil {
 		return err
-	}
-
-	// Store user in database
-	newUser := &models.User{
-		Email:        email,
-		PasswordHash: hashedPassword,
 	}
 
 	tx, err := db.BeginTx(ctx, nil)
@@ -103,18 +103,18 @@ func (s *AuthService) RegisterUser(email, password string, ctx context.Context, 
 
 	defer tx.Rollback()
 
-	userID, err := s.UserRepo.CreateUser(newUser, ctx, tx)
+	err = s.UserRepo.CreateUser(newUser, ctx, tx)
 	if err != nil {
 		return err
 	}
 
 	// Create verification code and send verification email
-	verificationCode, err := factories.GenerateVerificationCode(userID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
+	verificationCode, err := factories.GenerateVerificationCode(newUser.ID, s.VerificationCodeLength, s.VerificationCodeLifetimeMinutes)
 	if err != nil {
 		return err
 	}
 
-	err = s.VerificationRepo.DeleteVerificationCodesForUser(userID, ctx, tx)
+	err = s.VerificationRepo.DeleteVerificationCodesForUser(newUser.ID, ctx, tx)
 	if err != nil {
 		return err
 	}

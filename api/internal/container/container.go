@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"frogsmash/internal/app/clients"
+	"frogsmash/internal/app/factories"
 	"frogsmash/internal/app/repos"
 	"frogsmash/internal/app/services"
 	"frogsmash/internal/config"
@@ -70,6 +71,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	verificationRepo := repos.NewVerificationRepo()
 	hasher := services.NewBCryptHasher()
 	tokenService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)
+	userFactory := factories.NewUserFactory(hasher)
 	authService := services.NewAuthService(
 		userRepo,
 		refreshTokenRepo,
@@ -77,6 +79,7 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 		tokenService,
 		emailService,
 		verificationRepo,
+		userFactory,
 		cfg.TokenConfig.RefreshTokenLifetimeDays,
 		cfg.TokenConfig.VerificationCodeLength,
 		cfg.TokenConfig.VerificationCodeLifetimeMinutes)
