@@ -20,11 +20,12 @@ type Hasher interface {
 	CheckPasswordHash(password, hash string) bool
 }
 
-type TokenService interface {
-	GenerateToken(userID string, isVerified bool) (string, error)
+type AuthService interface {
+	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 }
 
-type AuthService struct {
+type authService struct {
 	userRepo                 UserRepo
 	refreshTokenRepo         RefreshTokenRepo
 	hasher                   Hasher
@@ -37,8 +38,8 @@ func NewAuthService(
 	refreshTokenRepo RefreshTokenRepo,
 	hasher Hasher,
 	tokenService TokenService,
-	refreshTokenLifetimeDays int) *AuthService {
-	return &AuthService{
+	refreshTokenLifetimeDays int) AuthService {
+	return &authService{
 		userRepo:                 userRepo,
 		refreshTokenRepo:         refreshTokenRepo,
 		hasher:                   hasher,
@@ -47,7 +48,7 @@ func NewAuthService(
 	}
 }
 
-func (s *AuthService) Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
+func (s *authService) Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
 	// Get the user by email
 	user, err := s.userRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {
@@ -78,7 +79,7 @@ func (s *AuthService) Login(email, password string, ctx context.Context, db shar
 	return jwt, refreshToken, user, nil
 }
 
-func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
+func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
 	// Get existing token (the one matching the provided refresh token)
 	token, err := s.refreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
 	if err != nil {
@@ -109,7 +110,7 @@ func (s *AuthService) RefreshToken(refreshToken string, ctx context.Context, db 
 	return jwt, newRefreshToken, user, nil
 }
 
-func (s *AuthService) rotateRefreshTokens(db shared.TxStarter, ctx context.Context, token *models.RefreshToken) error {
+func (s *authService) rotateRefreshTokens(db shared.TxStarter, ctx context.Context, token *models.RefreshToken) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

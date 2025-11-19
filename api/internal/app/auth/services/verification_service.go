@@ -16,7 +16,12 @@ type EmailService interface {
 	SendVerificationEmail(toEmail, verificationCode string) error
 }
 
-type VerificationService struct {
+type VerificationService interface {
+	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
+	GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error
+}
+
+type verificationService struct {
 	userRepo                        UserRepo
 	verificationRepo                VerificationRepo
 	emailService                    EmailService
@@ -24,8 +29,8 @@ type VerificationService struct {
 	verificationCodeLifetimeMinutes int
 }
 
-func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo, emailService EmailService, verificationCodeLength int, verificationCodeLifetimeMinutes int) *VerificationService {
-	return &VerificationService{
+func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo, emailService EmailService, verificationCodeLength int, verificationCodeLifetimeMinutes int) VerificationService {
+	return &verificationService{
 		userRepo:                        userRepo,
 		verificationRepo:                verificationRepo,
 		emailService:                    emailService,
@@ -34,7 +39,7 @@ func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo
 	}
 }
 
-func (s *VerificationService) ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	user, err := s.userRepo.GetUserByUserID(userID, ctx, db)
 	if err != nil {
 		return err
@@ -55,7 +60,7 @@ func (s *VerificationService) ResendVerificationEmail(userID string, ctx context
 	return nil
 }
 
-func (s *VerificationService) GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error {
+func (s *verificationService) GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error {
 	// Create verification code and send verification email
 	verificationCode, err := factories.GenerateVerificationCode(user.ID, s.verificationCodeLength, s.verificationCodeLifetimeMinutes)
 	if err != nil {

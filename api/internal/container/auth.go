@@ -8,10 +8,10 @@ import (
 )
 
 type Auth struct {
-	AuthService         *services.AuthService
-	JwtService          *services.JwtService
-	UserService         *services.UserService
-	VerificationService *services.VerificationService
+	AuthService         services.AuthService
+	JwtService          services.TokenService
+	UserService         services.UserService
+	VerificationService services.VerificationService
 }
 
 func NewAuth(cfg *config.Config, emailService services.EmailService) *Auth {

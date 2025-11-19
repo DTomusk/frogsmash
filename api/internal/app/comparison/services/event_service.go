@@ -13,18 +13,23 @@ type EventsRepo interface {
 	GetNextUnprocessedEvent(ctx context.Context, db shared.DBTX) (*models.Event, error)
 }
 
-type EventsService struct {
+type EventsService interface {
+	LogEvent(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
+	SetEventProcessed(eventID string, ctx context.Context, db shared.DBTX) error
+}
+
+type eventsService struct {
 	Repo EventsRepo
 }
 
-func NewEventsService(repo EventsRepo) *EventsService {
-	return &EventsService{Repo: repo}
+func NewEventsService(repo EventsRepo) EventsService {
+	return &eventsService{Repo: repo}
 }
 
-func (s *EventsService) LogEvent(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error {
+func (s *eventsService) LogEvent(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error {
 	return s.Repo.LogEvent(winnerId, loserId, userId, ctx, db)
 }
 
-func (s *EventsService) SetEventProcessed(eventID string, ctx context.Context, db shared.DBTX) error {
+func (s *eventsService) SetEventProcessed(eventID string, ctx context.Context, db shared.DBTX) error {
 	return s.Repo.SetEventProcessed(eventID, ctx, db)
 }

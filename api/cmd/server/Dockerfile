@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 COPY db/migrations ./db/migrations
-COPY internal/email/templates ./internal/email/templates
+COPY internal/infrastructure/email/templates ./internal/infrastructure/email/templates
 
 # Build the application
 RUN go build -o /bin/frogsmash-api ./cmd/server
@@ -25,7 +25,7 @@ RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /bin/frogsmash-api /usr/local/bin/
 COPY --from=builder /app/db/migrations ./db/migrations
-COPY --from=builder /app/internal/email/templates ./internal/email/templates
+COPY --from=builder /app/internal/infrastructure/email/templates ./internal/infrastructure/email/templates
 
 
 CMD ["/usr/local/bin/frogsmash-api"]

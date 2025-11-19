@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-type ScoreUpdater struct {
+type ScoreUpdater interface {
+	Run(ctx context.Context)
+	GetWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error)
+}
+
+type scoreUpdater struct {
 	db             *sql.DB
 	EventRepo      EventsRepo
 	ItemsRepo      ItemsRepo
@@ -18,11 +23,11 @@ type ScoreUpdater struct {
 	updateInterval time.Duration
 }
 
-func NewScoreUpdater(db *sql.DB, er EventsRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) *ScoreUpdater {
-	return &ScoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor, updateInterval: updateInterval}
+func NewScoreUpdater(db *sql.DB, er EventsRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) ScoreUpdater {
+	return &scoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor, updateInterval: updateInterval}
 }
 
-func (su *ScoreUpdater) Run(ctx context.Context) {
+func (su *scoreUpdater) Run(ctx context.Context) {
 	log.Println("ScoreUpdater is running...")
 	for {
 		select {
@@ -37,7 +42,7 @@ func (su *ScoreUpdater) Run(ctx context.Context) {
 	}
 }
 
-func (su *ScoreUpdater) handleEvent(ctx context.Context) {
+func (su *scoreUpdater) handleEvent(ctx context.Context) {
 	event, err := su.EventRepo.GetNextUnprocessedEvent(ctx, su.db)
 	if err != nil {
 		log.Printf("Error fetching event: %v", err)
@@ -92,7 +97,7 @@ func (su *ScoreUpdater) handleEvent(ctx context.Context) {
 	log.Printf("Event ID %s processed successfully.", event.ID)
 }
 
-func (su *ScoreUpdater) GetWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error) {
+func (su *scoreUpdater) GetWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error) {
 	winner, err := su.ItemsRepo.GetItemById(winnerId, ctx, su.db)
 	if err != nil {
 		log.Printf("Error fetching winner item: %v", err)
@@ -115,7 +120,7 @@ func (su *ScoreUpdater) GetWinnerAndLoser(winnerId, loserId string, ctx context.
 	return winner, loser, nil
 }
 
-func (su *ScoreUpdater) updateEloScores(winner, loser *models.Item) {
+func (su *scoreUpdater) updateEloScores(winner, loser *models.Item) {
 	expectedWinner := 1 / (1 + math.Pow(10, (loser.Score-winner.Score)/400))
 	expectedLoser := 1 / (1 + math.Pow(10, (winner.Score-loser.Score)/400))
 	winner.Score += su.kFactor * (1 - expectedWinner)

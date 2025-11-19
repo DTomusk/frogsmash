@@ -17,21 +17,25 @@ type UserRepo interface {
 	CreateUser(user *models.User, ctx context.Context, db shared.DBTX) error
 }
 
-type UserService struct {
-	userFactory         UserFactory
-	userRepo            UserRepo
-	verificationService *VerificationService
+type UserService interface {
+	RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
-func NewUserService(userFactory UserFactory, userRepo UserRepo, verificationService *VerificationService) *UserService {
-	return &UserService{
+type userService struct {
+	userFactory         UserFactory
+	userRepo            UserRepo
+	verificationService VerificationService
+}
+
+func NewUserService(userFactory UserFactory, userRepo UserRepo, verificationService VerificationService) UserService {
+	return &userService{
 		userFactory:         userFactory,
 		userRepo:            userRepo,
 		verificationService: verificationService,
 	}
 }
 
-func (s *UserService) RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *userService) RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {
 	// Check email not in use
 	existingUser, err := s.userRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {

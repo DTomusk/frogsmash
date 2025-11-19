@@ -6,19 +6,24 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JwtService struct {
+type TokenService interface {
+	GenerateToken(userID string, isVerified bool) (string, error)
+	ValidateToken(tokenString string) (*jwt.Token, error)
+}
+
+type jwtService struct {
 	secret               []byte
 	tokenLifetimeMinutes int
 }
 
-func NewJwtService(secret []byte, tokenLifetimeMinutes int) *JwtService {
-	return &JwtService{
+func NewJwtService(secret []byte, tokenLifetimeMinutes int) TokenService {
+	return &jwtService{
 		secret:               secret,
 		tokenLifetimeMinutes: tokenLifetimeMinutes,
 	}
 }
 
-func (s *JwtService) GenerateToken(userID string, isVerified bool) (string, error) {
+func (s *jwtService) GenerateToken(userID string, isVerified bool) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":         userID,
 		"exp":         time.Now().UTC().Add(time.Minute * time.Duration(s.tokenLifetimeMinutes)).Unix(),
@@ -28,7 +33,7 @@ func (s *JwtService) GenerateToken(userID string, isVerified bool) (string, erro
 	return token.SignedString(s.secret)
 }
 
-func (s *JwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
+func (s *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid

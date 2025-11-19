@@ -9,8 +9,8 @@ import (
 )
 
 type Comparison struct {
-	ItemsService *services.ItemService
-	ScoreUpdater *services.ScoreUpdater
+	ItemsService services.ItemService
+	ScoreUpdater services.ScoreUpdater
 }
 
 func NewComparison(cfg *config.Config, db *sql.DB) *Comparison {
