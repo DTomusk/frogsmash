@@ -14,21 +14,31 @@ import (
 )
 
 type AuthService interface {
-	RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error
 	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+}
+
+type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db repos.DBWithTxStarter) error
 }
 
+type UserService interface {
+	RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error
+}
+
 type AuthHandler struct {
-	AuthService AuthService
-	db          *sql.DB
+	authService         AuthService
+	userService         UserService
+	verificationService VerificationService
+	db                  *sql.DB
 }
 
 func NewAuthHandler(c *container.Container) *AuthHandler {
 	return &AuthHandler{
-		AuthService: c.AuthService,
-		db:          c.DB,
+		authService:         c.AuthService,
+		userService:         c.UserService,
+		verificationService: c.VerificationService,
+		db:                  c.DB,
 	}
 }
 
@@ -45,7 +55,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.AuthService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
+	err := h.userService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -69,7 +79,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "Invalid credentials"})
 		return
 	}
-	jwt, refreshToken, user, err := h.AuthService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.authService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": "Invalid credentials"})
 		return
@@ -101,7 +111,7 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "Refresh token cookie missing"})
 		return
 	}
-	jwt, refreshToken, user, err := h.AuthService.RefreshToken(cookie, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.authService.RefreshToken(cookie, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -146,7 +156,7 @@ func (h *AuthHandler) ResendVerificationEmail(ctx *gin.Context) {
 		return
 	}
 
-	err := h.AuthService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
+	err := h.verificationService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, gin.H{"error": err.Error()})
 		return

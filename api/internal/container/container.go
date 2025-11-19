@@ -15,15 +15,17 @@ import (
 // TODO: do we want the allowed origin here?
 // TODO: consider injecting max file size into upload service instead
 type Container struct {
-	DB             *sql.DB
-	ItemsService   *services.ItemService
-	ScoreUpdater   *services.ScoreUpdater
-	UploadService  *services.UploadService
-	AuthService    *services.AuthService
-	JwtService     *services.JwtService
-	AllowedOrigin  string
-	MaxRequestSize int64
-	EmailService   *email.EmailService
+	DB                  *sql.DB
+	ItemsService        *services.ItemService
+	ScoreUpdater        *services.ScoreUpdater
+	UploadService       *services.UploadService
+	AuthService         *services.AuthService
+	JwtService          *services.JwtService
+	AllowedOrigin       string
+	MaxRequestSize      int64
+	EmailService        *email.EmailService
+	UserService         *services.UserService
+	VerificationService *services.VerificationService
 }
 
 func NewContainer(cfg *config.Config) (*Container, error) {
@@ -72,27 +74,33 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	hasher := services.NewBCryptHasher()
 	tokenService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)
 	userFactory := factories.NewUserFactory(hasher)
+	verificationService := services.NewVerificationService(
+		userRepo,
+		verificationRepo,
+		emailService,
+		cfg.TokenConfig.VerificationCodeLength,
+		cfg.TokenConfig.VerificationCodeLifetimeMinutes,
+	)
+	userService := services.NewUserService(userFactory, userRepo, verificationService)
 	authService := services.NewAuthService(
 		userRepo,
 		refreshTokenRepo,
 		hasher,
 		tokenService,
-		emailService,
-		verificationRepo,
-		userFactory,
 		cfg.TokenConfig.RefreshTokenLifetimeDays,
-		cfg.TokenConfig.VerificationCodeLength,
-		cfg.TokenConfig.VerificationCodeLifetimeMinutes)
+	)
 
 	return &Container{
-		DB:             db,
-		ItemsService:   itemsService,
-		ScoreUpdater:   scoreUpdater,
-		UploadService:  uploadService,
-		AuthService:    authService,
-		JwtService:     tokenService,
-		AllowedOrigin:  cfg.AppConfig.AllowedOrigin,
-		MaxRequestSize: cfg.AppConfig.MaxFileSize,
-		EmailService:   emailService,
+		DB:                  db,
+		ItemsService:        itemsService,
+		ScoreUpdater:        scoreUpdater,
+		UploadService:       uploadService,
+		AuthService:         authService,
+		JwtService:          tokenService,
+		AllowedOrigin:       cfg.AppConfig.AllowedOrigin,
+		MaxRequestSize:      cfg.AppConfig.MaxFileSize,
+		EmailService:        emailService,
+		UserService:         userService,
+		VerificationService: verificationService,
 	}, nil
 }

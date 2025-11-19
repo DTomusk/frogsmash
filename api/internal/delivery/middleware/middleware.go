@@ -37,7 +37,6 @@ func AuthMiddleware(s TokenService) gin.HandlerFunc {
 			return
 		}
 
-		// TODO: save claims to context
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
