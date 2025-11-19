@@ -19,7 +19,7 @@ type UploadHandler struct {
 
 func NewUploadHandler(c *container.Container) *UploadHandler {
 	return &UploadHandler{
-		UploadService: c.UploadService,
+		UploadService: c.InfraServices.UploadService,
 	}
 }
 

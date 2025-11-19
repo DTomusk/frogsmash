@@ -1,4 +1,4 @@
-package clients
+package storage
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type StorageClient struct {
-	S3Client *s3.Client
-	Bucket   string
-	Endpoint string
+type S3StorageClient struct {
+	s3Client *s3.Client
+	bucket   string
+	endpoint string
 }
 
-func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, bucket string) (*StorageClient, error) {
+func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, bucket string) (*S3StorageClient, error) {
 	endpoint := "https://" + accountID + ".r2.cloudflarestorage.com"
 
 	cfg, err := config.LoadDefaultConfig(
@@ -35,22 +35,22 @@ func NewStorageClient(ctx context.Context, accountID, accessKey, secretKey, buck
 		o.BaseEndpoint = aws.String(endpoint)
 	})
 
-	return &StorageClient{
-		S3Client: client,
-		Bucket:   bucket,
-		Endpoint: endpoint,
+	return &S3StorageClient{
+		s3Client: client,
+		bucket:   bucket,
+		endpoint: endpoint,
 	}, nil
 }
 
-func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
+func (s *S3StorageClient) UploadFile(filename string, fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	_, err = s.S3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.Bucket),
+	_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucket),
 		Key:    aws.String(filename),
 		Body:   file,
 	})
@@ -59,12 +59,12 @@ func (s *StorageClient) UploadFile(filename string, fileHeader *multipart.FileHe
 		return "", err
 	}
 
-	return s.Endpoint + "/" + filename, nil
+	return s.endpoint + "/" + filename, nil
 }
 
-func (s *StorageClient) Ping(ctx context.Context) error {
-	_, err := s.S3Client.HeadBucket(ctx, &s3.HeadBucketInput{
-		Bucket: aws.String(s.Bucket),
+func (s *S3StorageClient) Ping(ctx context.Context) error {
+	_, err := s.s3Client.HeadBucket(ctx, &s3.HeadBucketInput{
+		Bucket: aws.String(s.bucket),
 	})
 	return err
 }

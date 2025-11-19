@@ -1,7 +1,7 @@
 package factories
 
 import (
-	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/auth/models"
 
 	"github.com/google/uuid"
 )

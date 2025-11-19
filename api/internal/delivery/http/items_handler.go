@@ -2,8 +2,8 @@ package http
 
 import (
 	"context"
-	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
+	"frogsmash/internal/app/comparison/models"
+	"frogsmash/internal/app/shared"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
 	"frogsmash/internal/delivery/utils"
@@ -12,20 +12,20 @@ import (
 )
 
 type ItemsService interface {
-	GetComparisonItems(ctx context.Context, db repos.DBTX) (*models.Item, *models.Item, error)
-	CompareItems(winnerId, loserId, userId string, ctx context.Context, db repos.DBTX) error
-	GetLeaderboardPage(limit int, offset int, ctx context.Context, db repos.DBTX) ([]*models.LeaderboardItem, int, error)
+	GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error)
+	CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
+	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
 type ItemsHandler struct {
 	ItemsService ItemsService
-	db           repos.DBTX
+	db           shared.DBTX
 }
 
 func NewItemsHandler(c *container.Container) *ItemsHandler {
 	return &ItemsHandler{
-		ItemsService: c.ItemsService,
-		db:           c.DB,
+		ItemsService: c.Comparison.ItemsService,
+		db:           c.InfraServices.DB,
 	}
 }
 

@@ -2,8 +2,8 @@ package http
 
 import (
 	"database/sql"
-	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
+	"frogsmash/internal/app/auth/models"
+	"frogsmash/internal/app/shared"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
 	"frogsmash/internal/delivery/utils"
@@ -14,16 +14,16 @@ import (
 )
 
 type AuthService interface {
-	Login(email, password string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
-	RefreshToken(refreshToken string, ctx context.Context, db repos.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
 }
 
 type VerificationService interface {
-	ResendVerificationEmail(userID string, ctx context.Context, db repos.DBWithTxStarter) error
+	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type UserService interface {
-	RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error
+	RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type AuthHandler struct {
@@ -35,10 +35,10 @@ type AuthHandler struct {
 
 func NewAuthHandler(c *container.Container) *AuthHandler {
 	return &AuthHandler{
-		authService:         c.AuthService,
-		userService:         c.UserService,
-		verificationService: c.VerificationService,
-		db:                  c.DB,
+		authService:         c.Auth.AuthService,
+		userService:         c.Auth.UserService,
+		verificationService: c.Auth.VerificationService,
+		db:                  c.InfraServices.DB,
 	}
 }
 

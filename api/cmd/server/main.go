@@ -46,13 +46,13 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
-	c, err := container.NewContainer(cfg)
+	appCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	c, err := container.NewContainer(cfg, appCtx)
 	if err != nil {
 		log.Fatalf("Failed to create container: %v", err)
 	}
-
-	_, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	r := appHttp.SetupRoutes(c)
 

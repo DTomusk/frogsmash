@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Item struct {
 	ID       string
 	Name     string
@@ -24,28 +22,4 @@ type Event struct {
 	ID       string
 	WinnerID string
 	LoserID  string
-}
-
-type User struct {
-	ID           string
-	Email        string
-	PasswordHash string
-	CreatedAt    string
-	IsVerified   bool
-}
-
-// TODO: it might be silly having both ExpiresAt and MaxAge, but for now it's convenient
-type RefreshToken struct {
-	Token     string
-	UserID    string
-	MaxAge    int64
-	ExpiresAt time.Time
-	CreatedAt time.Time
-	Revoked   bool
-}
-
-type VerificationCode struct {
-	Code      string
-	UserID    string
-	ExpiresAt time.Time
 }

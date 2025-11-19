@@ -3,7 +3,8 @@ package repos
 import (
 	"context"
 	"database/sql"
-	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/auth/models"
+	"frogsmash/internal/app/shared"
 )
 
 type UserRepo struct{}
@@ -12,7 +13,7 @@ func NewUserRepo() *UserRepo {
 	return &UserRepo{}
 }
 
-func (r *UserRepo) GetUserByUserID(userID string, ctx context.Context, db DBTX) (*models.User, error) {
+func (r *UserRepo) GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error) {
 	query := "SELECT id, email, password_hash, created_at FROM users WHERE id = $1"
 	row := db.QueryRowContext(ctx, query, userID)
 	var user models.User
@@ -25,7 +26,7 @@ func (r *UserRepo) GetUserByUserID(userID string, ctx context.Context, db DBTX) 
 	return &user, nil
 }
 
-func (r *UserRepo) GetUserByEmail(email string, ctx context.Context, db DBTX) (*models.User, error) {
+func (r *UserRepo) GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error) {
 	query := "SELECT id, email, password_hash, created_at FROM users WHERE email = $1"
 	row := db.QueryRowContext(ctx, query, email)
 	var user models.User
@@ -38,7 +39,7 @@ func (r *UserRepo) GetUserByEmail(email string, ctx context.Context, db DBTX) (*
 	return &user, nil
 }
 
-func (r *UserRepo) CreateUser(user *models.User, ctx context.Context, db DBTX) error {
+func (r *UserRepo) CreateUser(user *models.User, ctx context.Context, db shared.DBTX) error {
 	_, err := db.ExecContext(ctx,
 		"INSERT INTO users (id, email, password_hash, created_at) VALUES ($1, $2, $3, NOW())",
 		user.ID, user.Email, user.PasswordHash,

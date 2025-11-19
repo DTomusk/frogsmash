@@ -2,14 +2,14 @@ package services
 
 import (
 	"context"
-	"frogsmash/internal/app/factories"
-	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
+	"frogsmash/internal/app/auth/factories"
+	"frogsmash/internal/app/auth/models"
+	"frogsmash/internal/app/shared"
 )
 
 type VerificationRepo interface {
-	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db repos.DBTX) error
-	DeleteVerificationCodesForUser(userID string, ctx context.Context, db repos.DBTX) error
+	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db shared.DBTX) error
+	DeleteVerificationCodesForUser(userID string, ctx context.Context, db shared.DBTX) error
 }
 
 type EmailService interface {
@@ -34,7 +34,7 @@ func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo
 	}
 }
 
-func (s *VerificationService) ResendVerificationEmail(userID string, ctx context.Context, db repos.DBWithTxStarter) error {
+func (s *VerificationService) ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	user, err := s.userRepo.GetUserByUserID(userID, ctx, db)
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (s *VerificationService) ResendVerificationEmail(userID string, ctx context
 	return nil
 }
 
-func (s *VerificationService) GenerateAndSend(user *models.User, ctx context.Context, db repos.DBTX) error {
+func (s *VerificationService) GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error {
 	// Create verification code and send verification email
 	verificationCode, err := factories.GenerateVerificationCode(user.ID, s.verificationCodeLength, s.verificationCodeLifetimeMinutes)
 	if err != nil {

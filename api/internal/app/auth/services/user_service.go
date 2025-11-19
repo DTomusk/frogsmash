@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 	"fmt"
-	"frogsmash/internal/app/models"
-	"frogsmash/internal/app/repos"
+	"frogsmash/internal/app/auth/models"
+	"frogsmash/internal/app/shared"
 )
 
 type UserFactory interface {
@@ -12,9 +12,9 @@ type UserFactory interface {
 }
 
 type UserRepo interface {
-	GetUserByUserID(userID string, ctx context.Context, db repos.DBTX) (*models.User, error)
-	GetUserByEmail(email string, ctx context.Context, db repos.DBTX) (*models.User, error)
-	CreateUser(user *models.User, ctx context.Context, db repos.DBTX) error
+	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	CreateUser(user *models.User, ctx context.Context, db shared.DBTX) error
 }
 
 type UserService struct {
@@ -31,7 +31,7 @@ func NewUserService(userFactory UserFactory, userRepo UserRepo, verificationServ
 	}
 }
 
-func (s *UserService) RegisterUser(email, password string, ctx context.Context, db repos.DBWithTxStarter) error {
+func (s *UserService) RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {
 	// Check email not in use
 	existingUser, err := s.userRepo.GetUserByEmail(email, ctx, db)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/auth/models"
 	"time"
 )
 

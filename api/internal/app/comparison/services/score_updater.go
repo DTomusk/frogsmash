@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"frogsmash/internal/app/models"
+	"frogsmash/internal/app/comparison/models"
 	"log"
 	"math"
 	"time"

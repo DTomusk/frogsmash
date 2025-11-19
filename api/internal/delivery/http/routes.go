@@ -15,10 +15,10 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(middleware.MaxBodySize(c.MaxRequestSize + 1<<20))
+	r.Use(middleware.MaxBodySize(c.Config.AppConfig.MaxFileSize + 1<<20))
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{c.AllowedOrigin},
+		AllowOrigins:     []string{c.Config.AppConfig.AllowedOrigin},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -42,7 +42,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 	r.POST("/refresh-token", authHandler.RefreshToken)
 
 	protected := r.Group("/")
-	protected.Use(middleware.AuthMiddleware(c.JwtService))
+	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
 	{
 		protected.GET("/items", itemsHandler.GetItems)
 		protected.POST("/compare", itemsHandler.CompareItems)
