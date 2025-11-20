@@ -15,16 +15,16 @@ function DrawerContent({ onClick }: DrawerContentProps) {
             <List>
                 {token ? (
                     <>
-                <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <ListItem disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <Home />
-                            </ListItemIcon>
-                            <ListItemText primary="Home" />
-                        </ListItemButton>
-                    </ListItem>
-                </Link>
+                    <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <ListItem disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <Home />
+                                </ListItemIcon>
+                                <ListItemText primary="Home" />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
                 
                     <Link to='/leaderboard' style={{ textDecoration: 'none', color: 'inherit' }}>
                         <ListItem disablePadding>
@@ -36,6 +36,18 @@ function DrawerContent({ onClick }: DrawerContentProps) {
                             </ListItemButton>
                         </ListItem>
                     </Link>
+
+                    <Link to='/upload' style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <ListItem disablePadding>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <Home />
+                                </ListItemIcon>
+                                <ListItemText primary="Upload" />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
+
                     <ListItem disablePadding>
                         <ListItemButton onClick={logout}>
                             <ListItemIcon>
