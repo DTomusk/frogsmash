@@ -3,11 +3,15 @@ import ContentWrapper from "../atoms/ContentWrapper";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
+import { useVerifyCode } from "../../hooks/useVerify";
+import LoadingSpinner from "../molecules/LoadingSpinner";
 
 function VerificationPage() {
     const [params] = useSearchParams();
     const code = params.get("code");
     const navigate = useNavigate();
+
+    const { mutate: verifyCode, isPending: isVerifying } = useVerifyCode();
 
     const [status, setStatus] = useState<"pending" | "success" | "error">(code ? "pending" : "error");
 
@@ -17,22 +21,23 @@ function VerificationPage() {
         }
 
         console.log("Verifying code:", code);
-        // Simulate API call
-        setTimeout(() => {
-            // For demonstration, assume success if code is "valid", else error
-            if (code === "valid") {
+        
+        verifyCode(code, {
+            onSuccess: () => {
                 setStatus("success");
-            } else {
+
+            },
+            onError: () => {
                 setStatus("error");
             }
-        }, 2000);
+        });
     }, [code]);
 
     return (<>
         {status === "pending" && (<><ContentWrapper>
             <Typography variant="h3" sx={{ mb: 2}}>Verify your account🐸</Typography>
             <Typography variant="subtitle1" sx={{mb: 2}}>We've sent a verification email to your registered email address. It might take a few minutes to show up. Please check your inbox and click on the verification link to activate your account. If you still haven't received an email, please check your spam folder or request a new verification email by clicking the magical button below.</Typography>
-            <ResendVerificationButton />
+            {isVerifying ? <LoadingSpinner /> : <ResendVerificationButton />}
         </ContentWrapper></>)}
 
         {status === "success" && (<><ContentWrapper>

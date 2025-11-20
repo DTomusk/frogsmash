@@ -1,11 +1,11 @@
 import Button from "@mui/material/Button";
-import { useVerify } from "../../hooks/useVerify";
+import { useResendVerification } from "../../hooks/useVerify";
 import { Alert, Typography } from "@mui/material";
 import { useState } from "react";
 
 function ResendVerificationButton() {
     const [state, setState] = useState<"idle" | "success" | "error">("idle");
-    const { mutate, isPending } = useVerify();
+    const { mutate, isPending } = useResendVerification();
 
     const handleClick = () => {
         mutate(undefined, {
