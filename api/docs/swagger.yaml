@@ -7,32 +7,24 @@ definitions:
       winner_id:
         type: string
     type: object
-  dto.RefreshTokenRequest:
-    description: Request payload for refreshing JWT token including the refresh token
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
   dto.UserLoginRequest:
     description: Request payload for user login
     properties:
+      email:
+        type: string
       password:
         type: string
-      username:
-        type: string
     required:
+    - email
     - password
-    - username
     type: object
   dto.UserLoginResponse:
     description: Response payload for user login
     properties:
       jwt:
         type: string
-      refresh_token:
-        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
     type: object
   dto.UserRegistrationRequest:
     description: Request payload for user registration
@@ -42,12 +34,27 @@ definitions:
       password:
         minLength: 12
         type: string
-      username:
-        type: string
     required:
     - email
     - password
-    - username
+    type: object
+  dto.UserResponse:
+    description: User data returned with login response
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      is_verified:
+        type: boolean
+    type: object
+  dto.VerificationRequest:
+    description: Request payload for user verification
+    properties:
+      code:
+        type: string
+    required:
+    - code
     type: object
 info:
   contact: {}
@@ -100,7 +107,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Logs in a user with username and password
+      description: Logs in a user with email and password
       parameters:
       - description: User login payload
         in: body
@@ -121,13 +128,6 @@ paths:
       consumes:
       - application/json
       description: Refreshes the JWT token using a refresh token
-      parameters:
-      - description: Refresh token payload
-        in: body
-        name: token
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RefreshTokenRequest'
       produces:
       - application/json
       responses:
@@ -140,7 +140,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Registers a new user with username, email, and password
+      description: Registers a new user with email and password
       parameters:
       - description: User registration payload
         in: body
@@ -152,6 +152,15 @@ paths:
       - application/json
       responses: {}
       summary: Register a new user
+  /resend-verification:
+    post:
+      consumes:
+      - application/json
+      description: Resends the verification email to the user
+      produces:
+      - application/json
+      responses: {}
+      summary: Resend verification email
   /upload:
     post:
       consumes:
@@ -167,4 +176,20 @@ paths:
       - application/json
       responses: {}
       summary: Upload an image
+  /verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies the user's email using a verification code
+      parameters:
+      - description: Verification code payload
+        in: body
+        name: code
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerificationRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Verify user email
 swagger: "2.0"

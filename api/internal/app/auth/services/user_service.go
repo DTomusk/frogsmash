@@ -15,6 +15,7 @@ type UserRepo interface {
 	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error)
 	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error)
 	CreateUser(user *models.User, ctx context.Context, db shared.DBTX) error
+	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type UserService interface {

@@ -11,3 +11,6 @@ There are two web services, a prod one that uses npm build and nginx, and a dev 
 # Migration scripts: 
 
 `migrate create -ext sql -dir db/migrations <migration_name>` creates empty migration scripts. Migration automatically gets run at API startup. This might be something we change in the future. 
+
+# Swagger: 
+Run `swag init -g .\cmd\server\main.go` to update swagger docs. Make sure to annotate endpoints and dtos so they show up correctly. Running this may cause some invalid delims to appear in the docs file, just delete those. I don't know what to do about that yet. 

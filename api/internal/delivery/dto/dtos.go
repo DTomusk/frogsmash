@@ -65,9 +65,11 @@ type UserLoginResponse struct {
 type UserResponse struct {
 	ID         string `json:"id"`
 	Email      string `json:"email"`
-	IsVerified bool   `json:"is_verified"`
+	IsVerified bool   `json:"isVerified"`
 }
 
+// VerificationRequest godoc
+// @Description  Request payload for user verification
 type VerificationRequest struct {
 	Code string `json:"code" binding:"required"`
 }

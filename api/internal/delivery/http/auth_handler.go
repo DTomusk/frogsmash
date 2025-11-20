@@ -20,7 +20,7 @@ type AuthService interface {
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
-	VerifyUser(code string, ctx context.Context, db shared.DBTX) error
+	VerifyUser(code string, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type UserService interface {
@@ -171,6 +171,7 @@ func (h *AuthHandler) ResendVerificationEmail(ctx *gin.Context) {
 // @Router       /verify [post]
 // @Accept       json
 // @Produce      json
+// @Param        code  body  dto.VerificationRequest  true  "Verification code payload"
 func (h *AuthHandler) VerifyUser(ctx *gin.Context) {
 	var req dto.VerificationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

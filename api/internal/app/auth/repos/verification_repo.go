@@ -27,3 +27,16 @@ func (r *VerificationRepo) DeleteVerificationCodesForUser(userID string, ctx con
 	)
 	return err
 }
+
+func (r *VerificationRepo) GetVerificationCode(code string, ctx context.Context, db shared.DBTX) (*models.VerificationCode, error) {
+	row := db.QueryRowContext(ctx,
+		"SELECT user_id, code, expires_at FROM verification_codes WHERE code = $1",
+		code,
+	)
+	var vc models.VerificationCode
+	err := row.Scan(&vc.UserID, &vc.Code, &vc.ExpiresAt)
+	if err != nil {
+		return nil, err
+	}
+	return &vc, nil
+}

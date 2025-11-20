@@ -77,7 +77,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Logs in a user with username and password",
+                "description": "Logs in a user with email and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -116,17 +116,6 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "Refresh JWT token",
-                "parameters": [
-                    {
-                        "description": "Refresh token payload",
-                        "name": "token",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RefreshTokenRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -139,7 +128,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Registers a new user with username, email, and password",
+                "description": "Registers a new user with email and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -158,6 +147,19 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/resend-verification": {
+            "post": {
+                "description": "Resends the verification email to the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Resend verification email",
                 "responses": {}
             }
         },
@@ -182,6 +184,30 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/verify": {
+            "post": {
+                "description": "Verifies the user's email using a verification code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Verify user email",
+                "parameters": [
+                    {
+                        "description": "Verification code payload",
+                        "name": "code",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.VerificationRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
         }
     },
     "definitions": {
@@ -197,30 +223,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RefreshTokenRequest": {
-            "description": "Request payload for refreshing JWT token including the refresh token",
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.UserLoginRequest": {
             "description": "Request payload for user login",
             "type": "object",
             "required": [
-                "password",
-                "username"
+                "email",
+                "password"
             ],
             "properties": {
-                "password": {
+                "email": {
                     "type": "string"
                 },
-                "username": {
+                "password": {
                     "type": "string"
                 }
             }
@@ -232,8 +246,8 @@ const docTemplate = `{
                 "jwt": {
                     "type": "string"
                 },
-                "refresh_token": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/dto.UserResponse"
                 }
             }
         },
@@ -242,8 +256,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "password",
-                "username"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -252,8 +265,32 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 12
+                }
+            }
+        },
+        "dto.UserResponse": {
+            "description": "User data returned with login response",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
                 },
-                "username": {
+                "id": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.VerificationRequest": {
+            "description": "Request payload for user verification",
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
                     "type": "string"
                 }
             }
