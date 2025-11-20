@@ -23,12 +23,12 @@ function App() {
             <Route path='/' element={<LandingPage />} />
             <Route path='/register' element={<RegistrationPage />} />
             <Route path='/login' element={<LoginPage />} />
+            <Route path='/verify' element={<VerificationPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path='/smash' element={<Comparison />} />
               <Route path='/loading' element={<LoadingPage />} />
               <Route path='/leaderboard' element={<LeaderboardPage />} />
               <Route path='/verify/required' element={<VerificationRequiredPage />} />
-              <Route path='/verify' element={<VerificationPage />} />
             </Route>
             <Route element={<ProtectedRoute requireVerified={true} />}>
               <Route path='/upload' element={<UploadPage />} />

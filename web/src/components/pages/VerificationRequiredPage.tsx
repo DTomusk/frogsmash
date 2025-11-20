@@ -1,8 +1,21 @@
 import { Typography } from "@mui/material";
 import ContentWrapper from "../atoms/ContentWrapper";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
+import { useAuth } from "../../contexts/AuthContext";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function VerificationRequiredPage() {
+    const { user } = useAuth();
+    const navigate = useNavigate(); 
+
+    useEffect(() => {
+        console.log("User in VerificationRequiredPage:", user);
+        if (user && user.isVerified) {
+            navigate("/smash");
+        }
+    }, [user, navigate]);
+
     return (
         <ContentWrapper>
             <Typography variant="h3" sx={{ mb: 2}}>Verification Required🐸</Typography>

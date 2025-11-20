@@ -15,9 +15,7 @@ function ResendVerificationButton() {
             onError: () => {
                 setState("error");
             }
-        });
-
-        
+        });  
     };
 
     return (<>
