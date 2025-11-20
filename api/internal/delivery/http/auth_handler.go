@@ -20,6 +20,7 @@ type AuthService interface {
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
+	VerifyUser(code string, ctx context.Context, db shared.DBTX) error
 }
 
 type UserService interface {
@@ -162,4 +163,26 @@ func (h *AuthHandler) ResendVerificationEmail(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, gin.H{"message": "Verification email resent successfully"})
+}
+
+// VerifyUser godoc
+// @Summary      Verify user email
+// @Description  Verifies the user's email using a verification code
+// @Router       /verify [post]
+// @Accept       json
+// @Produce      json
+func (h *AuthHandler) VerifyUser(ctx *gin.Context) {
+	var req dto.VerificationRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(400, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	err := h.verificationService.VerifyUser(req.Code, ctx.Request.Context(), h.db)
+	// Obscure error messages for security
+	if err != nil {
+		ctx.JSON(500, gin.H{"error": "Failed to verify user"})
+		return
+	}
+	ctx.JSON(200, gin.H{"message": "User verified successfully"})
 }

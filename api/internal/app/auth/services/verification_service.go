@@ -19,6 +19,7 @@ type EmailService interface {
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
 	GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error
+	VerifyUser(code string, ctx context.Context, db shared.DBTX) error
 }
 
 type verificationService struct {
@@ -80,4 +81,8 @@ func (s *verificationService) GenerateAndSend(user *models.User, ctx context.Con
 	// For now, send email directly
 	err = s.emailService.SendVerificationEmail(user.Email, verificationCode.Code)
 	return err
+}
+
+func (s *verificationService) VerifyUser(code string, ctx context.Context, db shared.DBTX) error {
+	return nil
 }

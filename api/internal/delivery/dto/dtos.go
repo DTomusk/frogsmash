@@ -67,3 +67,7 @@ type UserResponse struct {
 	Email      string `json:"email"`
 	IsVerified bool   `json:"is_verified"`
 }
+
+type VerificationRequest struct {
+	Code string `json:"code" binding:"required"`
+}

@@ -21,7 +21,6 @@ func (r *VerificationRepo) SaveVerificationCode(code *models.VerificationCode, c
 }
 
 func (r *VerificationRepo) DeleteVerificationCodesForUser(userID string, ctx context.Context, db shared.DBTX) error {
-	// Implementation here
 	_, err := db.ExecContext(ctx,
 		"DELETE FROM verification_codes WHERE user_id = $1",
 		userID,
