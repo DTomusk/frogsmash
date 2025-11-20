@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -33,7 +34,7 @@ func (s *UploadService) UploadImage(fileHeader *multipart.FileHeader, ctx contex
 		".png":  true,
 	}
 
-	ext := filepath.Ext(fileHeader.Filename)
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
 	if !allowedExtensions[ext] {
 		return "", fmt.Errorf("invalid file type: %s", ext)
 	}
