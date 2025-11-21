@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "../api/client";
 import type { ItemsResponse } from "../models/items";
+import { apiFetch } from "../../shared/api/client";
 
 export function useItems() {
     return useQuery({

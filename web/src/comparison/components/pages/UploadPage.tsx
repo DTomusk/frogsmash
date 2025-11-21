@@ -1,9 +1,9 @@
 import { Typography } from "@mui/material";
 import { useUpload } from "../../hooks/useUpload";
 import { useState } from "react";
+import { useSnackbar } from "../../../shared/contexts/SnackbarContext";
+import FormWrapper from "../../../shared/components/atoms/FormWrapper";
 import FileUploadButton from "../molecules/FileUploadButton";
-import FormWrapper from "../atoms/FormWrapper";
-import { useSnackbar } from "../../contexts/SnackbarContext";
 
 function UploadPage() {
     const { mutate: upload, isPending } = useUpload();

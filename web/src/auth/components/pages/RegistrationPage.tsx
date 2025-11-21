@@ -1,16 +1,16 @@
 import { Button, Typography } from "@mui/material";
-import FormWrapper from "../atoms/FormWrapper";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { useRegister } from "../../hooks/useRegister";
-import StyledLink from "../atoms/StyledLink";
-import EmailField from "../atoms/EmailField";
+import { useLogin, type LoginResponse } from "../../hooks/useLogin";
+import { useAuth } from "../../contexts/AuthContext";
+import { useSnackbar } from "../../../shared/contexts/SnackbarContext";
+import { checkPasswordStrength } from "../../utils/PasswordStrength";
+import FormWrapper from "../../../shared/components/atoms/FormWrapper";
+import EmailField from "../../../shared/components/atoms/EmailField";
+import StyledLink from "../../../shared/components/atoms/StyledLink";
 import PasswordField from "../atoms/PasswordField";
 import PasswordStrength from "../atoms/PasswordStrength";
-import { checkPasswordStrength } from "../../utils/PasswordStrength";
-import { useLogin, type LoginResponse } from "../../hooks/useLogin";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useSnackbar } from "../../contexts/SnackbarContext";
 
 interface RegistrationData {
     email: string;

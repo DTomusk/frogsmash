@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import NavBar from "../organisms/NavBar";
-import Footer from "../organisms/Footer";
+import NavBar from "../../../navigation/components/organisms/NavBar";
+import Footer from "../../../navigation/components/organisms/Footer";
 
 function Template() {
     return (

@@ -2,7 +2,7 @@ import { Home } from "@mui/icons-material";
 import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
 import ThemeSwitch from "./ThemeSwitch";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../auth/contexts/AuthContext";
 
 interface DrawerContentProps {
     onClick: () => void;

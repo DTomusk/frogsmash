@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import ContentWrapper from "../atoms/ContentWrapper";
+import ContentWrapper from "../../../shared/components/atoms/ContentWrapper";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { useEffect } from "react";
