@@ -28,7 +28,6 @@ function LeaderboardDetailModal({ open, setOpen, item }: LeaderboardDetailModalP
           }}
         >
           <Card sx={{ width: 400 }}>
-            {/* <CardMedia component='img' image={item.image_url} alt={item.name} /> */}
             <CardMedia>
                 <Image
                     src={item.image_url}

@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import ThemeSwitch from "./ThemeSwitch";
-import { useAuth } from "../../../shared/contexts/AuthContext";
+import { useAuth } from "../../../../app/providers/AuthContext";
 
 function NavLinks() {
     const { token, logout } = useAuth();
