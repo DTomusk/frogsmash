@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../auth/contexts/AuthContext";
 
 function ProtectedRoute({requireVerified = false}: {requireVerified?: boolean}) {
     const { token, user } = useAuth();
