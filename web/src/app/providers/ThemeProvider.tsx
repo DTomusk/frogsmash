@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { createContext, useContext, useEffect, useMemo, useState, type FC, type ReactNode } from "react";
-import { darkTheme, lightTheme } from "./theme";
+import { darkTheme, lightTheme } from "@/shared";
 
 type ColorMode = 'light' | 'dark';
 
