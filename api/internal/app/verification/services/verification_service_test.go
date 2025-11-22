@@ -74,10 +74,11 @@ func TestVerifyLoggedIn_NotVerified_ExpiredCode(t *testing.T) {
 
 func TestVerifyLoggedIn_NotVerified_ValidCode_Success(t *testing.T) {
 	// Arrange
+	userId := "user-id"
 	now := time.Now()
 	validCode := &models.VerificationCode{
 		Code:      "valid-code",
-		UserID:    "user-id",
+		UserID:    userId,
 		ExpiresAt: now.Add(10 * time.Minute),
 	}
 
@@ -118,10 +119,66 @@ func TestVerifyLoggedIn_NotVerified_ValidCode_Success(t *testing.T) {
 	svc := NewVerificationService(mockUserService, mockVerificationRepo, mockEmailService, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("valid-code", "user-id", false, nil, mockDB)
+	err := svc.VerifyLoggedIn("valid-code", userId, false, nil, mockDB)
 
 	// Assert
 	if err != nil {
 		t.Errorf("Expected no error for valid verification code, got %v", err)
+	}
+}
+
+func TestVerifyLoggedIn_NotVerified_ValidCode_DifferentUser_Error(t *testing.T) {
+	// Arrange
+	loggedInUserID := "logged-in-user-id"
+	codeUserId := "code-user-id"
+	now := time.Now()
+	validCode := &models.VerificationCode{
+		Code:      "valid-code",
+		UserID:    codeUserId,
+		ExpiresAt: now.Add(10 * time.Minute),
+	}
+
+	mockVerificationRepo := &mocks.MockVerificationRepo{
+		GetVerificationCodeFunc: func(code string, ctx context.Context, db shared.DBTX) (*models.VerificationCode, error) {
+			return validCode, nil
+		},
+		DeleteVerificationCodesForUserFunc: func(userID string, ctx context.Context, db shared.DBTX) error {
+			return nil
+		},
+	}
+
+	mockEmailService := &emailMocks.MockEmailService{
+		SendVerificationEmailFunc: func(toEmail, verificationCode string) error {
+			return nil
+		},
+	}
+
+	mockUserService := &userMocks.MockUserService{
+		SetUserIsVerifiedFunc: func(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error {
+			return nil
+		},
+	}
+
+	mockDB := &sharedMocks.MockDBWithTxStarter{
+		BeginTxFunc: func(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error) {
+			return &sharedMocks.MockTx{
+				CommitFunc: func() error {
+					return nil
+				},
+				RollbackFunc: func() error {
+					return nil
+				},
+			}, nil
+		},
+	}
+
+	svc := NewVerificationService(mockUserService, mockVerificationRepo, mockEmailService, 6, 15)
+
+	// Act
+	err := svc.VerifyLoggedIn("valid-code", loggedInUserID, false, nil, mockDB)
+
+	// Assert
+	if errors.Is(err, ErrInvalidVerificationCode) == false {
+		t.Errorf("Expected invalid code error for different user, got %v", err)
 	}
 }
