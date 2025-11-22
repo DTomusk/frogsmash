@@ -20,41 +20,68 @@ type TokenService interface {
 	ValidateToken(tokenString string) (*jwt.Token, error)
 }
 
+// AuthMiddleware verifies the JWT token from the Authorization header. Used for endpoints that require a logged in user.
 func AuthMiddleware(s TokenService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
-			return
-		}
-
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-		token, err := s.ValidateToken(tokenString)
-
-		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
+		claims, ok := parseTokenFromHeader(c, s)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
 			return
 		}
+
 		sub, ok := claims["sub"].(string)
 		if !ok {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token subject"})
 			return
 		}
 		c.Set("sub", sub)
+
 		isVerified, ok := claims["is_verified"].(bool)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token is_verified claim"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token verification status"})
 			return
 		}
 		c.Set("is_verified", isVerified)
 
 		c.Next()
 	}
+}
+
+// OptionalAuthMiddleware attempts to verify the JWT token from the Authorization header.
+// If valid, it sets the user info in the context. If missing or invalid, it allows the request to proceed without user info.
+func OptionalAuthMiddleware(s TokenService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claims, ok := parseTokenFromHeader(c, s)
+		if ok {
+			if sub, ok := claims["sub"].(string); ok {
+				c.Set("sub", sub)
+			}
+			if isVerified, ok := claims["is_verified"].(bool); ok {
+				c.Set("is_verified", isVerified)
+			}
+		}
+
+		c.Next()
+	}
+}
+
+func parseTokenFromHeader(c *gin.Context, s TokenService) (jwt.MapClaims, bool) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		return nil, false
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+	token, err := s.ValidateToken(tokenString)
+	if err != nil || !token.Valid {
+		return nil, false
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, false
+	}
+
+	return claims, true
 }

@@ -25,3 +25,9 @@ type VerificationCode struct {
 	UserID    string
 	ExpiresAt time.Time
 }
+
+// TODO: consider moving
+type Claims struct {
+	Sub        string `json:"sub"`
+	IsVerified bool   `json:"is_verified"`
+}

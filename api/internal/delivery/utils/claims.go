@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"frogsmash/internal/app/auth/models"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,4 +24,14 @@ func IsUserVerified(c *gin.Context) (bool, bool) {
 
 	verifiedBool, ok := isVerified.(bool)
 	return verifiedBool, ok
+}
+
+func GetClaims(c *gin.Context) (*models.Claims, bool) {
+	v, ok := c.Get("claims")
+	if !ok {
+		return &models.Claims{}, false
+	}
+
+	claims, ok := v.(*models.Claims)
+	return claims, ok
 }
