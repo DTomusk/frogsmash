@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import { LoginPage, RegistrationPage, VerificationPage, VerificationRequiredPage } from "@/features/auth";
+import { LoginPage, RegistrationPage } from "@/features/auth";
 import { ComparisonPage, LeaderboardPage, UploadPage } from "@/features/comparison";
+import { VerificationPage, VerificationRequiredPage } from "@/features/verification";
 import { LandingPage, LoadingPage, NotFoundPage, Template } from "@/shared";
 
 export function AppRoutes() {
