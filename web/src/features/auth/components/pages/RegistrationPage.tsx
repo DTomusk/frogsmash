@@ -5,9 +5,7 @@ import { useRegister } from "../../hooks/useRegister";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
 import { useAuth, useSnackbar } from "@/app/providers";
 import { checkPasswordStrength } from "../../utils/PasswordStrength";
-import FormWrapper from "../../../../shared/components/atoms/FormWrapper";
-import EmailField from "../../../../shared/components/atoms/EmailField";
-import StyledLink from "../../../../shared/components/atoms/StyledLink";
+import { FormWrapper, StyledLink, EmailField } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 import PasswordStrength from "../atoms/PasswordStrength";
 

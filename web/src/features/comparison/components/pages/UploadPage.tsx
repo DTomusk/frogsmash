@@ -2,7 +2,7 @@ import { Typography } from "@mui/material";
 import { useUpload } from "../../hooks/useUpload";
 import { useState } from "react";
 import { useSnackbar } from "@/app/providers";
-import FormWrapper from "../../../../shared/components/atoms/FormWrapper";
+import { FormWrapper } from "@/shared";
 import FileUploadButton from "../molecules/FileUploadButton";
 
 function UploadPage() {

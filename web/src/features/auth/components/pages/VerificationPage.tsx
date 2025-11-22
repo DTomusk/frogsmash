@@ -1,10 +1,9 @@
 import { Button, Typography } from "@mui/material";
-import ContentWrapper from "../../../../shared/components/atoms/ContentWrapper";
+import { ContentWrapper, LoadingSpinner } from "@/shared";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
 import { useVerifyCode } from "../../hooks/useVerify";
-import LoadingSpinner from "../../../../shared/components/molecules/LoadingSpinner";
 
 function VerificationPage() {
     const [params] = useSearchParams();

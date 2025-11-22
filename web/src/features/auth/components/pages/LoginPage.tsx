@@ -3,9 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useLogin, type LoginResponse } from "../../hooks/useLogin";
 import { useAuth, useSnackbar } from "@/app/providers";
-import FormWrapper from "../../../../shared/components/atoms/FormWrapper";
-import EmailField from "../../../../shared/components/atoms/EmailField";
-import StyledLink from "../../../../shared/components/atoms/StyledLink";
+import { FormWrapper, EmailField, StyledLink } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 
 interface LoginData {

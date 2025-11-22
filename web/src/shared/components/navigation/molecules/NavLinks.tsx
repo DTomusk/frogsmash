@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import ThemeSwitch from "./ThemeSwitch";
-import { useAuth } from "../../../../app/providers/AuthContext";
+import { useAuth } from "@/app/providers";
 import { NavLink, NavButton }from "../atoms/NavLink";
 
 function NavLinks() {

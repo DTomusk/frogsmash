@@ -1,6 +1,6 @@
 import { List, Pagination, Typography } from "@mui/material";
 import { useLeaderboard } from "../../hooks/useLeaderboard";
-import LoadingSpinner from "../../../../shared/components/molecules/LoadingSpinner";
+import { LoadingSpinner } from "@/shared";
 import LeaderboardEntry from "../organisms/LeaderboardEntry";
 import { useState } from "react";
 import LeaderboardDetailModal from "../organisms/LeaderboardDetailModal";
