@@ -1,8 +1,7 @@
-import { Home } from "@mui/icons-material";
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Box, List } from "@mui/material";
 import ThemeSwitch from "./ThemeSwitch";
 import { useAuth } from "../../../../app/providers/AuthContext";
+import { DrawerLink, DrawerButton } from "../atoms/DrawerLink";
 
 interface DrawerContentProps {
     onClick: () => void;
@@ -15,58 +14,12 @@ function DrawerContent({ onClick }: DrawerContentProps) {
             <List>
                 {token ? (
                     <>
-                    <Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <ListItem disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <Home />
-                                </ListItemIcon>
-                                <ListItemText primary="Home" />
-                            </ListItemButton>
-                        </ListItem>
-                    </Link>
-                
-                    <Link to='/leaderboard' style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <ListItem disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <Home />
-                                </ListItemIcon>
-                                <ListItemText primary="Leaderboard" />
-                            </ListItemButton>
-                        </ListItem>
-                    </Link>
-
-                    <Link to='/upload' style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <ListItem disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    <Home />
-                                </ListItemIcon>
-                                <ListItemText primary="Upload" />
-                            </ListItemButton>
-                        </ListItem>
-                    </Link>
-
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={logout}>
-                            <ListItemIcon>
-                                <Home />
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" />
-                        </ListItemButton>
-                    </ListItem>
+                    <DrawerLink to='/' label='Home' />
+                    <DrawerLink to='/leaderboard' label='Leaderboard' />
+                    <DrawerLink to='/upload' label='Upload' />
+                    <DrawerButton onClick={logout} label='Logout' />
                 </>) : <>
-                <Link to='/login' style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <ListItem disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <Home />
-                            </ListItemIcon>
-                            <ListItemText primary="Login" />
-                        </ListItemButton>
-                    </ListItem>
-                </Link>
+                    <DrawerLink to='/login' label='Login' />
                 </>}
                 <ThemeSwitch />
             </List>
