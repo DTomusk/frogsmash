@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"frogsmash/internal/app/auth/factories"
 	"frogsmash/internal/app/auth/models"
+	user "frogsmash/internal/app/user/models"
+
 	"frogsmash/internal/app/shared"
 	"time"
 )
@@ -20,37 +22,51 @@ type Hasher interface {
 	CheckPasswordHash(password, hash string) bool
 }
 
+type UserService interface {
+	CreateNewUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
+	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+}
+
+type VerificationService interface {
+	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
+}
+
 type AuthService interface {
-	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
-	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error)
+	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
+	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
 
 type authService struct {
-	userRepo                 UserRepo
 	refreshTokenRepo         RefreshTokenRepo
 	hasher                   Hasher
 	tokenService             TokenService
+	userService              UserService
+	verificationService      VerificationService
 	refreshTokenLifetimeDays int
 }
 
 func NewAuthService(
-	userRepo UserRepo,
 	refreshTokenRepo RefreshTokenRepo,
 	hasher Hasher,
 	tokenService TokenService,
+	userService UserService,
+	verificationService VerificationService,
 	refreshTokenLifetimeDays int) AuthService {
 	return &authService{
-		userRepo:                 userRepo,
 		refreshTokenRepo:         refreshTokenRepo,
 		hasher:                   hasher,
 		tokenService:             tokenService,
+		userService:              userService,
+		verificationService:      verificationService,
 		refreshTokenLifetimeDays: refreshTokenLifetimeDays,
 	}
 }
 
-func (s *authService) Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
+func (s *authService) Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
 	// Get the user by email
-	user, err := s.userRepo.GetUserByEmail(email, ctx, db)
+	user, err := s.userService.GetUserByEmail(email, ctx, db)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -79,7 +95,24 @@ func (s *authService) Login(email, password string, ctx context.Context, db shar
 	return jwt, refreshToken, user, nil
 }
 
-func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *models.User, error) {
+func (s *authService) Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {
+	hashedPassword, err := s.hasher.HashPassword(password)
+	if err != nil {
+		return err
+	}
+	id, err := s.userService.CreateNewUser(email, hashedPassword, ctx, db)
+	if err != nil {
+		return err
+	}
+	// TODO: send verification email
+	err = s.verificationService.GenerateAndSend(id, email, ctx, db)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
 	// Get existing token (the one matching the provided refresh token)
 	token, err := s.refreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
 	if err != nil {
@@ -89,7 +122,7 @@ func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db 
 	if token == nil || token.Revoked || token.ExpiresAt.Before(time.Now()) {
 		return "", nil, nil, fmt.Errorf("invalid refresh token")
 	}
-	user, err := s.userRepo.GetUserByUserID(token.UserID, ctx, db)
+	user, err := s.userService.GetUserByUserID(token.UserID, ctx, db)
 	if err != nil {
 		return "", nil, nil, err
 	}

@@ -3,8 +3,8 @@ package repos
 import (
 	"context"
 	"database/sql"
-	"frogsmash/internal/app/auth/models"
 	"frogsmash/internal/app/shared"
+	"frogsmash/internal/app/user/models"
 )
 
 type UserRepo struct{}
@@ -53,4 +53,15 @@ func (r *UserRepo) SetUserIsVerified(userID string, isVerified bool, ctx context
 		isVerified, userID,
 	)
 	return err
+}
+
+func (r *UserRepo) GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error) {
+	row := db.QueryRowContext(ctx,
+		"SELECT email FROM users WHERE id = $1", userID)
+	var email string
+	err := row.Scan(&email)
+	if err != nil {
+		return "", err
+	}
+	return email, nil
 }

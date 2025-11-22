@@ -2,8 +2,8 @@ package repos
 
 import (
 	"context"
-	"frogsmash/internal/app/auth/models"
 	"frogsmash/internal/app/shared"
+	"frogsmash/internal/app/verification/models"
 )
 
 type VerificationRepo struct{}

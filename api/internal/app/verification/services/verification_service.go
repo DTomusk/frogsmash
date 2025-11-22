@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 	"errors"
-	"frogsmash/internal/app/auth/factories"
-	"frogsmash/internal/app/auth/models"
 	"frogsmash/internal/app/shared"
+	"frogsmash/internal/app/verification/factories"
+	"frogsmash/internal/app/verification/models"
 	"time"
 )
 
@@ -13,6 +13,11 @@ var (
 	ErrInvalidVerificationCode = errors.New("invalid verification code")
 	ErrAlreadyVerified         = errors.New("user is already verified")
 )
+
+type UserService interface {
+	GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error)
+	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
+}
 
 type VerificationRepo interface {
 	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db shared.DBTX) error
@@ -26,22 +31,22 @@ type EmailService interface {
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
-	GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error
+	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
 	VerifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error
 	VerifyLoggedIn(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type verificationService struct {
-	userRepo                        UserRepo
+	userService                     UserService
 	verificationRepo                VerificationRepo
 	emailService                    EmailService
 	verificationCodeLength          int
 	verificationCodeLifetimeMinutes int
 }
 
-func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo, emailService EmailService, verificationCodeLength int, verificationCodeLifetimeMinutes int) VerificationService {
+func NewVerificationService(userService UserService, verificationRepo VerificationRepo, emailService EmailService, verificationCodeLength int, verificationCodeLifetimeMinutes int) VerificationService {
 	return &verificationService{
-		userRepo:                        userRepo,
+		userService:                     userService,
 		verificationRepo:                verificationRepo,
 		emailService:                    emailService,
 		verificationCodeLength:          verificationCodeLength,
@@ -50,7 +55,7 @@ func NewVerificationService(userRepo UserRepo, verificationRepo VerificationRepo
 }
 
 func (s *verificationService) ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
-	user, err := s.userRepo.GetUserByUserID(userID, ctx, db)
+	email, err := s.userService.GetUserEmail(userID, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -60,7 +65,7 @@ func (s *verificationService) ResendVerificationEmail(userID string, ctx context
 	}
 
 	defer tx.Rollback()
-	err = s.GenerateAndSend(user, ctx, tx)
+	err = s.GenerateAndSend(userID, email, ctx, tx)
 	if err != nil {
 		return err
 	}
@@ -70,14 +75,14 @@ func (s *verificationService) ResendVerificationEmail(userID string, ctx context
 	return nil
 }
 
-func (s *verificationService) GenerateAndSend(user *models.User, ctx context.Context, db shared.DBTX) error {
+func (s *verificationService) GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error {
 	// Create verification code and send verification email
-	verificationCode, err := factories.GenerateVerificationCode(user.ID, s.verificationCodeLength, s.verificationCodeLifetimeMinutes)
+	verificationCode, err := factories.GenerateVerificationCode(userID, s.verificationCodeLength, s.verificationCodeLifetimeMinutes)
 	if err != nil {
 		return err
 	}
 
-	err = s.verificationRepo.DeleteVerificationCodesForUser(user.ID, ctx, db)
+	err = s.verificationRepo.DeleteVerificationCodesForUser(userID, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -88,7 +93,7 @@ func (s *verificationService) GenerateAndSend(user *models.User, ctx context.Con
 	}
 	// TODO: Save verification code to database and send email
 	// For now, send email directly
-	err = s.emailService.SendVerificationEmail(user.Email, verificationCode.Code)
+	err = s.emailService.SendVerificationEmail(email, verificationCode.Code)
 	return err
 }
 
@@ -101,12 +106,7 @@ func (s *verificationService) VerifyAnonymous(code string, ctx context.Context, 
 		return ErrInvalidVerificationCode
 	}
 
-	user, err := s.userRepo.GetUserByUserID(codeModel.UserID, ctx, db)
-	if err != nil {
-		return err
-	}
-
-	return s.verifyUser(user.ID, ctx, db)
+	return s.verifyUser(codeModel.UserID, ctx, db)
 }
 
 func (s *verificationService) VerifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
@@ -118,23 +118,18 @@ func (s *verificationService) VerifyLoggedIn(code, loggedInUserID string, isVeri
 		return ErrInvalidVerificationCode
 	}
 
-	codeUser, err := s.userRepo.GetUserByUserID(codeModel.UserID, ctx, db)
-	if err != nil {
-		return err
-	}
-
 	// Do nothing if the calling user is verified already
 	if isVerified {
 		return ErrAlreadyVerified
 	}
 
 	// If the logged-in user is the same as the code user, verify directly and expose any errors
-	if loggedInUserID == codeUser.ID {
-		return s.verifyUser(codeUser.ID, ctx, db)
+	if loggedInUserID == codeModel.UserID {
+		return s.verifyUser(codeModel.UserID, ctx, db)
 	}
 
 	// If the logged-in user is different, just verify the code user without exposing errors
-	_ = s.verifyUser(codeUser.ID, ctx, db)
+	_ = s.verifyUser(codeModel.UserID, ctx, db)
 
 	// In the case that the logged in user is different, always return invalid code to avoid information leakage
 	return ErrInvalidVerificationCode
@@ -147,7 +142,7 @@ func (s *verificationService) verifyUser(userID string, ctx context.Context, db 
 	}
 	defer tx.Rollback()
 
-	err = s.userRepo.SetUserIsVerified(userID, true, ctx, tx)
+	err = s.userService.SetUserIsVerified(userID, true, ctx, tx)
 	if err != nil {
 		return err
 	}

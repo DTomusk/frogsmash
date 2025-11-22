@@ -5,6 +5,20 @@ import { useEffect, useState } from "react";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
 import { useVerifyCode } from "../../hooks/useVerify";
 
+// This page should just show components based on the user state and the presence of the code param
+// 1. if code, verify
+// 1.a. success
+// 1.a.i user not logged in -> show success and prompt to log in
+// 1.a.ii user logged in to same account as code -> show success and prompt to continue to app
+// 1.a.iii user logged in to different account -> show success and prompt to log out and log in with correct account
+// 1.b. error -> show error and prompt to resend verification email
+// 1.b.i user not logged in -> show error and prompt to resend verification email
+// 1.b.ii user logged in and not verified -> show error and prompt to resend verification email
+// 1.b.iii user logged in and verified -> show already verified message and prompt to continue to app
+// 2. if no code
+// 2.a user not logged in -> show email entry to resend verification email
+// 2.b user logged in and not verified -> show button to resend verification email
+// 2.c user logged in and verified -> show already verified message and prompt to continue to app
 function VerificationPage() {
     const [params] = useSearchParams();
     const code = params.get("code");
