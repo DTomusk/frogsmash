@@ -1,5 +1,5 @@
 import { Box, Switch, useTheme, styled } from "@mui/material";
-import { useThemeMode } from "../../../../app/providers/ThemeProvider";
+import { useThemeMode } from "@/app/providers";
 
 const StyledSwitch = styled(Switch)(() => ({
     width: 56,

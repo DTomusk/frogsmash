@@ -1,6 +1,6 @@
 import { Box, List } from "@mui/material";
 import ThemeSwitch from "./ThemeSwitch";
-import { useAuth } from "../../../../app/providers/AuthContext";
+import { useAuth } from "@/app/providers";
 import { DrawerLink, DrawerButton } from "../atoms/DrawerLink";
 
 interface DrawerContentProps {

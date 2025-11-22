@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import ContentWrapper from "../../../../shared/components/atoms/ContentWrapper";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
-import { useAuth } from "../../../../app/providers/AuthContext";
+import { useAuth } from "@/app/providers";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
