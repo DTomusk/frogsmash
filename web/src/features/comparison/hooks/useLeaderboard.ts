@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "../../../shared/api/client";
+import { apiFetch } from "@/shared";
 import type { LeaderboardResponse } from "../models/items";
 
 export function useLeaderboard(page: number, limit: number) {

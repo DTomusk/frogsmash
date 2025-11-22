@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "../../../shared/api/client";
+import { apiFetch } from "@/shared";
 
 function useResendVerification() {
     return useMutation({
