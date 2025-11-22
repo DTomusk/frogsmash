@@ -31,3 +31,26 @@ type MockTxStarter struct {
 func (m *MockTxStarter) BeginTx(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error) {
 	return m.BeginTxFunc(ctx, opts)
 }
+
+type MockDBWithTxStarter struct {
+	shared.DBWithTxStarter
+	BeginTxFunc func(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error)
+}
+
+func (m *MockDBWithTxStarter) BeginTx(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error) {
+	return m.BeginTxFunc(ctx, opts)
+}
+
+type MockTx struct {
+	shared.Tx
+	CommitFunc   func() error
+	RollbackFunc func() error
+}
+
+func (m *MockTx) Commit() error {
+	return m.CommitFunc()
+}
+
+func (m *MockTx) Rollback() error {
+	return m.RollbackFunc()
+}
