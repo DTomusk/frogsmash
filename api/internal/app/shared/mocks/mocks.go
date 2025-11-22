@@ -3,6 +3,7 @@ package mocks
 import (
 	"context"
 	"database/sql"
+	"frogsmash/internal/app/shared"
 )
 
 type MockDBTX struct {
@@ -24,9 +25,9 @@ func (m *MockDBTX) QueryRowContext(ctx context.Context, query string, args ...an
 }
 
 type MockTxStarter struct {
-	BeginTxFunc func(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
+	BeginTxFunc func(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error)
 }
 
-func (m *MockTxStarter) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error) {
+func (m *MockTxStarter) BeginTx(ctx context.Context, opts *sql.TxOptions) (shared.Tx, error) {
 	return m.BeginTxFunc(ctx, opts)
 }

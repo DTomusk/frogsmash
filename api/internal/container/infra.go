@@ -25,6 +25,8 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 		return nil, err
 	}
 
+	dbWithTxStarter := shared.NewPostgresDB(db)
+
 	storageClient, err := storage.NewStorageClient(
 		ctx,
 		cfg.StorageConfig.StorageAccountID,
@@ -55,6 +57,6 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 	return &InfraServices{
 		UploadService: uploadService,
 		EmailService:  emailService,
-		DB:            db,
+		DB:            dbWithTxStarter,
 	}, nil
 }
