@@ -1,15 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import Template from "../../shared/components/templates/Template";
-import LandingPage from "../../shared/components/pages/LandingPage";
-import RegistrationPage from "../../features/auth/components/pages/RegistrationPage";
-import LoginPage from "../../features/auth/components/pages/LoginPage";
-import VerificationPage from "../../features/auth/components/pages/VerificationPage";
 import ProtectedRoute from "./ProtectedRoute";
-import ComparisonPage from "../../features/comparison/components/pages/ComparisonPage";
-import LeaderboardPage from "../../features/comparison/components/pages/LeaderboardPage";
-import VerificationRequiredPage from "../../features/auth/components/pages/VerificationRequiredPage";
-import UploadPage from "../../features/comparison/components/pages/UploadPage";
-import NotFoundPage from "../../shared/components/pages/NotFoundPage";
+import { LoginPage, RegistrationPage, VerificationPage, VerificationRequiredPage } from "@/features/auth";
+import { ComparisonPage, LeaderboardPage, UploadPage } from "@/features/comparison";
+import { LandingPage, LoadingPage, NotFoundPage, Template } from "@/shared";
 
 export function AppRoutes() {
   return (
@@ -19,6 +12,7 @@ export function AppRoutes() {
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/loading" element={<LoadingPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/smash" element={<ComparisonPage />} />
