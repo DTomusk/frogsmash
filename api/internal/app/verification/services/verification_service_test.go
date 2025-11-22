@@ -10,7 +10,20 @@ import (
 	"time"
 )
 
-func TestVerifyLoggedIn_InvalidCode(t *testing.T) {
+func TestVerifyLoggedIn_AlreadyVerified(t *testing.T) {
+	// Arrange
+	svc := NewVerificationService(nil, nil, nil, 6, 15)
+
+	// Act
+	err := svc.VerifyLoggedIn("some-code", "user-id", true, nil, nil)
+
+	// Assert
+	if errors.Is(err, ErrAlreadyVerified) == false {
+		t.Errorf("Expected error for already verified user, got %v", err)
+	}
+}
+
+func TestVerifyLoggedIn_NotVerified_InvalidCode(t *testing.T) {
 	// Arrange
 	mockVerificationRepo := &mocks.MockVerificationRepo{
 		GetVerificationCodeFunc: func(code string, ctx context.Context, db shared.DBTX) (*models.VerificationCode, error) {
@@ -29,7 +42,7 @@ func TestVerifyLoggedIn_InvalidCode(t *testing.T) {
 	}
 }
 
-func TestVerifyLoggedIn_ExpiredCode(t *testing.T) {
+func TestVerifyLoggedIn_NotVerified_ExpiredCode(t *testing.T) {
 	// Arrange
 	now := time.Now()
 	expiredCode := &models.VerificationCode{

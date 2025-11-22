@@ -1,7 +1,6 @@
 package http
 
 import (
-	"database/sql"
 	"frogsmash/internal/app/auth/models"
 	"frogsmash/internal/app/shared"
 	user "frogsmash/internal/app/user/models"
@@ -25,7 +24,7 @@ type UserService interface {
 type AuthHandler struct {
 	authService AuthService
 	userService UserService
-	db          *sql.DB
+	db          shared.DBWithTxStarter
 }
 
 func NewAuthHandler(c *container.Container) *AuthHandler {

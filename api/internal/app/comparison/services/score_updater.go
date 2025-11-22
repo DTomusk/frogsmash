@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"frogsmash/internal/app/comparison/models"
+	"frogsmash/internal/app/shared"
 	"log"
 	"math"
 	"time"
@@ -16,14 +16,14 @@ type ScoreUpdater interface {
 }
 
 type scoreUpdater struct {
-	db             *sql.DB
+	db             shared.DBWithTxStarter
 	EventRepo      EventsRepo
 	ItemsRepo      ItemsRepo
 	kFactor        float64
 	updateInterval time.Duration
 }
 
-func NewScoreUpdater(db *sql.DB, er EventsRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) ScoreUpdater {
+func NewScoreUpdater(db shared.DBWithTxStarter, er EventsRepo, ir ItemsRepo, kFactor float64, updateInterval time.Duration) ScoreUpdater {
 	return &scoreUpdater{db: db, EventRepo: er, ItemsRepo: ir, kFactor: kFactor, updateInterval: updateInterval}
 }
 

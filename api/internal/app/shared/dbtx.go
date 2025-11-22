@@ -11,6 +11,12 @@ type DBTX interface {
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
+type Tx interface {
+	DBTX
+	Commit() error
+	Rollback() error
+}
+
 type TxStarter interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
 }

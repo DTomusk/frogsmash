@@ -3,15 +3,16 @@ package container
 import (
 	"context"
 	"database/sql"
+	"frogsmash/internal/app/shared"
 	"frogsmash/internal/config"
 	"frogsmash/internal/infrastructure/email"
 	"frogsmash/internal/infrastructure/storage"
 )
 
 type InfraServices struct {
-	DB            *sql.DB
-	UploadService *storage.UploadService
-	EmailService  *email.EmailService
+	DB            shared.DBWithTxStarter
+	UploadService storage.UploadService
+	EmailService  email.EmailService
 }
 
 func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, error) {

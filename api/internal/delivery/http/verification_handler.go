@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/app/verification/services"
@@ -21,7 +20,7 @@ type VerificationService interface {
 
 type VerificationHandler struct {
 	verificationService VerificationService
-	db                  *sql.DB
+	db                  shared.DBWithTxStarter
 }
 
 func NewVerificationHandler(c *container.Container) *VerificationHandler {

@@ -14,19 +14,23 @@ type StorageClient interface {
 	UploadFile(fileName string, fileHeader *multipart.FileHeader, ctx context.Context) (string, error)
 }
 
-type UploadService struct {
+type UploadService interface {
+	UploadImage(fileHeader *multipart.FileHeader, ctx context.Context) (string, error)
+}
+
+type uploadService struct {
 	StorageClient StorageClient
 	MaxFileSize   int64
 }
 
-func NewUploadService(storageClient StorageClient, maxFileSize int64) *UploadService {
-	return &UploadService{
+func NewUploadService(storageClient StorageClient, maxFileSize int64) *uploadService {
+	return &uploadService{
 		StorageClient: storageClient,
 		MaxFileSize:   maxFileSize,
 	}
 }
 
-func (s *UploadService) UploadImage(fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
+func (s *uploadService) UploadImage(fileHeader *multipart.FileHeader, ctx context.Context) (string, error) {
 	// TODO: pull this out
 	allowedExtensions := map[string]bool{
 		".jpg":  true,

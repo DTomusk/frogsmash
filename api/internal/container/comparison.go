@@ -1,9 +1,9 @@
 package container
 
 import (
-	"database/sql"
 	"frogsmash/internal/app/comparison/repos"
 	"frogsmash/internal/app/comparison/services"
+	"frogsmash/internal/app/shared"
 	"frogsmash/internal/config"
 	"time"
 )
@@ -13,7 +13,7 @@ type Comparison struct {
 	ScoreUpdater services.ScoreUpdater
 }
 
-func NewComparison(cfg *config.Config, db *sql.DB) *Comparison {
+func NewComparison(cfg *config.Config, db shared.DBWithTxStarter) *Comparison {
 	eventsRepo := repos.NewEventsRepo()
 	eventsService := services.NewEventsService(eventsRepo)
 

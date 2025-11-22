@@ -4,21 +4,25 @@ type EmailClient interface {
 	SendEmail(toEmail, subject, htmlBody, textBody string) error
 }
 
-type EmailService struct {
+type EmailService interface {
+	SendVerificationEmail(toEmail, verificationCode string) error
+}
+
+type emailService struct {
 	emailClient      EmailClient
 	templateRenderer *TemplateRenderer
 	appUrl           string
 }
 
-func NewEmailService(emailClient EmailClient, templateRenderer *TemplateRenderer, appUrl string) *EmailService {
-	return &EmailService{
+func NewEmailService(emailClient EmailClient, templateRenderer *TemplateRenderer, appUrl string) *emailService {
+	return &emailService{
 		emailClient:      emailClient,
 		templateRenderer: templateRenderer,
 		appUrl:           appUrl,
 	}
 }
 
-func (s *EmailService) SendVerificationEmail(toEmail, verificationCode string) error {
+func (s *emailService) SendVerificationEmail(toEmail, verificationCode string) error {
 	link := s.appUrl + "/verify?code=" + verificationCode
 	subject := "FrogSmash - Verify your email"
 

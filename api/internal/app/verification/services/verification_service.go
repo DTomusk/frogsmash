@@ -110,17 +110,17 @@ func (s *verificationService) VerifyAnonymous(code string, ctx context.Context, 
 }
 
 func (s *verificationService) VerifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
+	// Do nothing if the calling user is verified already
+	if isVerified {
+		return ErrAlreadyVerified
+	}
+
 	codeModel, err := s.verificationRepo.GetVerificationCode(code, ctx, db)
 	if err != nil {
 		return err
 	}
 	if codeModel == nil || codeModel.ExpiresAt.Before(time.Now()) {
 		return ErrInvalidVerificationCode
-	}
-
-	// Do nothing if the calling user is verified already
-	if isVerified {
-		return ErrAlreadyVerified
 	}
 
 	// If the logged-in user is the same as the code user, verify directly and expose any errors
