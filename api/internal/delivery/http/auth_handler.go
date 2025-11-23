@@ -44,16 +44,24 @@ func NewAuthHandler(c *container.Container) *AuthHandler {
 func (h *AuthHandler) Register(ctx *gin.Context) {
 	var req dto.UserRegistrationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		ctx.JSON(400, dto.Response{
+			Error: "Invalid request payload",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 	err := h.userService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(500, dto.Response{
+			Error: err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 
-	ctx.JSON(201, gin.H{"message": "User registered successfully"})
+	ctx.JSON(201, dto.Response{
+		Message: "User registered successfully",
+	})
 }
 
 // Login godoc
@@ -68,12 +76,18 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	// Implementation for user login
 	var req dto.UserLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid credentials"})
+		ctx.JSON(400, dto.Response{
+			Error: "Invalid credentials",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 	jwt, refreshToken, user, err := h.authService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Invalid credentials"})
+		ctx.JSON(500, dto.Response{
+			Error: "Invalid credentials",
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 
@@ -100,12 +114,18 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 	cookie, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "Refresh token cookie missing"})
+		ctx.JSON(400, dto.Response{
+			Error: "Refresh token not provided",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 	jwt, refreshToken, user, err := h.authService.RefreshToken(cookie, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(500, dto.Response{
+			Error: err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 

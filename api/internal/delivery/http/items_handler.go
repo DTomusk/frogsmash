@@ -37,7 +37,10 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 	item1, item2, err := h.ItemsService.GetComparisonItems(ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to get items"})
+		ctx.JSON(500, dto.Response{
+			Error: "Failed to get items: " + err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 	ctx.JSON(200, gin.H{
@@ -66,12 +69,18 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 	user_id, ok := utils.GetUserID(ctx)
 	if !ok {
-		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		ctx.JSON(401, dto.Response{
+			Error: "Unauthorized",
+			Code:  dto.UnauthorizedCode,
+		})
 		return
 	}
 	var request dto.CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid request"})
+		ctx.JSON(400, dto.Response{
+			Error: "Invalid request",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 
@@ -88,8 +97,8 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"status": "comparison recorded",
+	ctx.JSON(200, dto.Response{
+		Message: "Comparison recorded successfully",
 	})
 }
 
@@ -105,7 +114,10 @@ func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
 
 	items, total, err := h.ItemsService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to get leaderboard: " + err.Error()})
+		ctx.JSON(500, dto.Response{
+			Error: "Failed to get leaderboard: " + err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 

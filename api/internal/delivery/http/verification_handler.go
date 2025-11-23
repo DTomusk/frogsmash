@@ -39,16 +39,24 @@ func NewVerificationHandler(c *container.Container) *VerificationHandler {
 func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 	user_id, ok := utils.GetUserID(ctx)
 	if !ok {
-		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		ctx.JSON(401, dto.Response{
+			Error: "Unauthorized",
+			Code:  "UNAUTHORIZED",
+		})
 		return
 	}
 
 	err := h.verificationService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(500, dto.Response{
+			Error: err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
-	ctx.JSON(200, gin.H{"message": "Verification email resent successfully"})
+	ctx.JSON(200, dto.Response{
+		Message: "Verification email resent successfully",
+	})
 }
 
 // VerifyUser godoc
@@ -61,7 +69,10 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 	var req dto.VerificationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil || req.Code == "" {
-		ctx.JSON(400, gin.H{"error": "Invalid request"})
+		ctx.JSON(400, dto.Response{
+			Error: "Invalid request",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 
@@ -69,6 +80,8 @@ func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 
 	var err error
 
+	// TODO: we might not want this logic in the handler
+	// Could pass nullable claims to service layer instead
 	if !hasClaims || claims.Sub == "" {
 		// Verify anonymous user
 		err = h.verificationService.VerifyAnonymous(req.Code, ctx.Request.Context(), h.db)
@@ -79,24 +92,24 @@ func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 
 	switch {
 	case err == nil:
-		ctx.JSON(200, gin.H{
-			"message": "User verified successfully",
-			"code":    "USER_VERIFIED",
+		ctx.JSON(200, dto.Response{
+			Message: "User verified successfully",
+			Code:    dto.VerifiedCode,
 		})
 	case errors.Is(err, services.ErrInvalidVerificationCode):
-		ctx.JSON(400, gin.H{
-			"error": "Invalid verification code",
-			"code":  "INVALID_VERIFICATION_CODE",
+		ctx.JSON(400, dto.Response{
+			Error: "Invalid verification code",
+			Code:  dto.InvalidCodeCode,
 		})
 	case errors.Is(err, services.ErrAlreadyVerified):
-		ctx.JSON(409, gin.H{
-			"error": "User is already verified",
-			"code":  "ALREADY_VERIFIED",
+		ctx.JSON(409, dto.Response{
+			Error: "User is already verified",
+			Code:  dto.AlreadyVerifiedCode,
 		})
 	default:
-		ctx.JSON(500, gin.H{
-			"error": "Internal server error",
-			"code":  "INTERNAL_SERVER_ERROR",
+		ctx.JSON(500, dto.Response{
+			Error: "Internal server error",
+			Code:  dto.InternalServerErrorCode,
 		})
 	}
 }

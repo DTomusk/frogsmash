@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"frogsmash/internal/container"
+	"frogsmash/internal/delivery/dto"
 	"frogsmash/internal/delivery/utils"
 	"mime/multipart"
 
@@ -38,18 +39,23 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 	}
 	file, err := ctx.FormFile("image")
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": "No image is received"})
+		ctx.JSON(400, dto.Response{
+			Error: "Image file is required",
+			Code:  dto.InvalidRequestCode,
+		})
 		return
 	}
 
 	fileUrl, err := h.UploadService.UploadImage(file, ctx)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(500, dto.Response{
+			Error: err.Error(),
+			Code:  dto.InternalServerErrorCode,
+		})
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"message": "Image uploaded successfully",
-		"url":     fileUrl,
+	ctx.JSON(200, dto.UploadImageResponse{
+		URL: fileUrl,
 	})
 }
