@@ -22,3 +22,6 @@ export { default as ErrorMessage } from "./components/atoms/ErrorMessage";
 
 // Molecules
 export { default as LoadingSpinner } from "./components/molecules/LoadingSpinner";
+
+// DTOs
+export * from "./api/dtos";

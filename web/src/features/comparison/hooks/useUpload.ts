@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/shared";
-
-interface UploadResponse {
-    message: string;
-}
+import type { UploadResponse } from "../dtos/uploadResponse";
 
 function useUpload() {
     return useMutation({

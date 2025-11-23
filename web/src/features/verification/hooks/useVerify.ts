@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/shared";
+import type { VerificationResponse } from "../dtos/verificationResponse";
 
 function useResendVerification() {
     return useMutation({
@@ -17,7 +18,7 @@ function useVerifyCode() {
     return useMutation({
         mutationKey: ['verifyCode'],
         mutationFn: async (code: string) => {
-            const res = await apiFetch<void>('/verify', {
+            const res = await apiFetch<VerificationResponse>('/verify', {
                 method: 'POST',
                 body: JSON.stringify({ code }),
             });

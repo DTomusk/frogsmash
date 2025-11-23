@@ -1,11 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/shared";
+import type { ApiResponse } from "@/shared";
+import type { RegistrationRequest } from "../dtos/registrationRequest";
 
 function useRegister() {
     return useMutation({
         mutationKey: ['register'],
-        mutationFn: async (data: { email: string; password: string; }) => {
-            const res = await apiFetch<{ message: string }>('/register', {
+        mutationFn: async (data: RegistrationRequest) => {
+            const res = await apiFetch<ApiResponse>('/register', {
                 method: 'POST',
                 body: JSON.stringify(data),
             });

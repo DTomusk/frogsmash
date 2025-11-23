@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ResendVerificationButton from "../organisms/ResendVerificationButton";
 import { useVerifyCode } from "../../hooks/useVerify";
+import { AlreadyVerifiedCode, VerifiedCode } from "../../dtos/verificationResponse";
 
 // This page should just show components based on the user state and the presence of the code param
 // 1. if code, verify
@@ -36,7 +37,11 @@ function VerificationPage() {
         console.log("Verifying code:", code);
         
         verifyCode(code, {
-            onSuccess: () => {
+            onSuccess: (response) => {
+                console.log("Verification response code:", response.code);
+                if (response.code === VerifiedCode || response.code === AlreadyVerifiedCode) {
+                    
+                }
                 setStatus("success");
 
             },
