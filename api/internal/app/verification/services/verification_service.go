@@ -112,7 +112,7 @@ func (s *verificationService) verifyAnonymous(code string, ctx context.Context, 
 		return ErrInvalidVerificationCode
 	}
 
-	return s.verifyUser(codeModel.UserID, ctx, db)
+	return s.verificationTransaction(codeModel.UserID, ctx, db)
 }
 
 func (s *verificationService) verifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
@@ -131,17 +131,17 @@ func (s *verificationService) verifyLoggedIn(code, loggedInUserID string, isVeri
 
 	// If the logged-in user is the same as the code user, verify directly and expose any errors
 	if loggedInUserID == codeModel.UserID {
-		return s.verifyUser(codeModel.UserID, ctx, db)
+		return s.verificationTransaction(codeModel.UserID, ctx, db)
 	}
 
 	// If the logged-in user is different, just verify the code user without exposing errors
-	_ = s.verifyUser(codeModel.UserID, ctx, db)
+	_ = s.verificationTransaction(codeModel.UserID, ctx, db)
 
 	// In the case that the logged in user is different, always return invalid code to avoid information leakage
 	return ErrInvalidVerificationCode
 }
 
-func (s *verificationService) verifyUser(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) verificationTransaction(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
