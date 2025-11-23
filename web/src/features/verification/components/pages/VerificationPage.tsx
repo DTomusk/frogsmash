@@ -27,11 +27,15 @@ function VerificationPage() {
 
     const { mutate: verifyCode, isPending: isVerifying } = useVerifyCode();
 
-    const [status, setStatus] = useState<"pending" | "success" | "error">(code ? "pending" : "error");
+    const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
 
     useEffect(() => {
         if (!code) {
             return;
+            // Call auth/me to determine whether user is logged in and verified
+            // Show resend with email entry if not logged in
+            // Show resend button if logged in and not verified
+            // Show already verified message if logged in and verified
         }
 
         console.log("Verifying code:", code);

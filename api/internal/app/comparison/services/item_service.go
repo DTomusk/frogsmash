@@ -16,22 +16,22 @@ type ItemsRepo interface {
 	GetTotalItemCount(ctx context.Context, db shared.DBTX) (int, error)
 }
 
-type ItemService interface {
+type ComparisonService interface {
 	GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
 	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
-type itemService struct {
+type comparisonService struct {
 	Repo          ItemsRepo
 	EventsService EventsService
 }
 
-func NewItemService(repo ItemsRepo, eventsService EventsService) ItemService {
-	return &itemService{Repo: repo, EventsService: eventsService}
+func NewComparisonService(repo ItemsRepo, eventsService EventsService) ComparisonService {
+	return &comparisonService{Repo: repo, EventsService: eventsService}
 }
 
-func (s *itemService) GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error) {
+func (s *comparisonService) GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error) {
 	items, err := s.Repo.GetRandomItems(2, ctx, db)
 	if err != nil {
 		return nil, nil, err
@@ -42,7 +42,7 @@ func (s *itemService) GetComparisonItems(ctx context.Context, db shared.DBTX) (*
 	return &items[0], &items[1], nil
 }
 
-func (s *itemService) CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error {
+func (s *comparisonService) CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error {
 	if winnerId == loserId {
 		return fmt.Errorf("winner and loser cannot be the same")
 	}
@@ -58,7 +58,7 @@ func (s *itemService) CompareItems(winnerId, loserId, userId string, ctx context
 	return s.EventsService.LogEvent(winnerId, loserId, userId, ctx, db)
 }
 
-func (s *itemService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error) {
+func (s *comparisonService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error) {
 	// Placeholder implementation, replace with repo call
 	var items []*models.LeaderboardItem
 	items, err := s.Repo.GetLeaderboardItems(limit, offset, ctx, db)

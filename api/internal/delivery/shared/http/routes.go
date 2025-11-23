@@ -2,13 +2,18 @@ package http
 
 import (
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/middleware"
+	"frogsmash/internal/delivery/shared/middleware"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	authHttp "frogsmash/internal/delivery/auth/http"
+	comparisonHttp "frogsmash/internal/delivery/comparison/http"
+	uploadHttp "frogsmash/internal/delivery/upload/http"
+	verificationHttp "frogsmash/internal/delivery/verification/http"
 )
 
 func SetupRoutes(c *container.Container) *gin.Engine {
@@ -32,28 +37,10 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		})
 	})
 
-	itemsHandler := NewItemsHandler(c)
-	uploadHandler := NewUploadHandler(c)
-	authHandler := NewAuthHandler(c)
-	verificationHandler := NewVerificationHandler(c)
-
-	r.GET("/leaderboard", itemsHandler.GetLeaderboard)
-	r.POST("/register", authHandler.Register)
-	r.POST("/login", authHandler.Login)
-	r.POST("/refresh-token", authHandler.RefreshToken)
-
-	protectedOptional := r.Group("/").Use(middleware.OptionalAuthMiddleware(c.Auth.JwtService))
-	protectedOptional.POST("/verify", verificationHandler.VerifyUser)
-
-	protected := r.Group("/")
-	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
-	{
-		protected.GET("/items", itemsHandler.GetItems)
-		protected.POST("/compare", itemsHandler.CompareItems)
-		protected.POST("/upload", uploadHandler.UploadImage)
-		protected.POST("/resend-verification", verificationHandler.ResendVerificationEmail)
-		protected.GET("/me", authHandler.GetMe)
-	}
+	authHttp.RegisterAuthRoutes(r, c)
+	comparisonHttp.RegisterComparisonRoutes(r, c)
+	uploadHttp.RegisterUploadRoutes(r, c)
+	verificationHttp.RegisterVerificationRoutes(r, c)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"frogsmash/internal/config"
 	"frogsmash/internal/container"
-	appHttp "frogsmash/internal/delivery/http"
+	appHttp "frogsmash/internal/delivery/shared/http"
 	"log"
 	"net/http"
 	"os"

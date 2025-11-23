@@ -3,8 +3,9 @@ package http
 import (
 	"context"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/dto"
-	"frogsmash/internal/delivery/utils"
+	sharedDto "frogsmash/internal/delivery/shared/dto"
+	"frogsmash/internal/delivery/shared/utils"
+	"frogsmash/internal/delivery/upload/dto"
 	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
@@ -39,18 +40,18 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 	}
 	file, err := ctx.FormFile("image")
 	if err != nil {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Image file is required",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
 
 	fileUrl, err := h.UploadService.UploadImage(file, ctx)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}

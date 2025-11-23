@@ -5,27 +5,28 @@ import (
 	"frogsmash/internal/app/comparison/models"
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/dto"
-	"frogsmash/internal/delivery/utils"
+	"frogsmash/internal/delivery/comparison/dto"
+	sharedDto "frogsmash/internal/delivery/shared/dto"
+	"frogsmash/internal/delivery/shared/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ItemsService interface {
+type ComparisonService interface {
 	GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
 	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
-type ItemsHandler struct {
-	ItemsService ItemsService
-	db           shared.DBTX
+type ComparisonHandler struct {
+	ComparisonService ComparisonService
+	db                shared.DBTX
 }
 
-func NewItemsHandler(c *container.Container) *ItemsHandler {
-	return &ItemsHandler{
-		ItemsService: c.Comparison.ItemsService,
-		db:           c.InfraServices.DB,
+func NewComparisonHandler(c *container.Container) *ComparisonHandler {
+	return &ComparisonHandler{
+		ComparisonService: c.Comparison.ComparisonService,
+		db:                c.InfraServices.DB,
 	}
 }
 
@@ -34,12 +35,12 @@ func NewItemsHandler(c *container.Container) *ItemsHandler {
 // @Description  Retrieves two distinct items for comparison
 // @Router       /items [get]
 // @Produce      json
-func (h *ItemsHandler) GetItems(ctx *gin.Context) {
-	item1, item2, err := h.ItemsService.GetComparisonItems(ctx.Request.Context(), h.db)
+func (h *ComparisonHandler) GetItems(ctx *gin.Context) {
+	item1, item2, err := h.ComparisonService.GetComparisonItems(ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to get items: " + err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
@@ -66,25 +67,25 @@ func (h *ItemsHandler) GetItems(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        compareRequest  body      dto.CompareRequest  true  "Comparison Request"
-func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
+func (h *ComparisonHandler) CompareItems(ctx *gin.Context) {
 	user_id, ok := utils.GetUserID(ctx)
 	if !ok {
-		ctx.JSON(401, dto.Response{
+		ctx.JSON(401, sharedDto.Response{
 			Error: "Unauthorized",
-			Code:  dto.UnauthorizedCode,
+			Code:  sharedDto.UnauthorizedCode,
 		})
 		return
 	}
 	var request dto.CompareRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Invalid request",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
 
-	err := h.ItemsService.CompareItems(
+	err := h.ComparisonService.CompareItems(
 		request.WinnerId,
 		request.LoserId,
 		user_id,
@@ -97,7 +98,7 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, dto.Response{
+	ctx.JSON(200, sharedDto.Response{
 		Message: "Comparison recorded successfully",
 	})
 }
@@ -109,19 +110,19 @@ func (h *ItemsHandler) CompareItems(ctx *gin.Context) {
 // @Produce      json
 // @Param        page   query     int  false  "Page number"  default(1)
 // @Param        limit  query     int  false  "Items per page"  default(10)
-func (h *ItemsHandler) GetLeaderboard(ctx *gin.Context) {
+func (h *ComparisonHandler) GetLeaderboard(ctx *gin.Context) {
 	p := utils.NewPagination(ctx)
 
-	items, total, err := h.ItemsService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
+	items, total, err := h.ComparisonService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to get leaderboard: " + err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
 
-	res := dto.NewPagedResponse(items, total, p.Page, p.Limit)
+	res := sharedDto.NewPagedResponse(items, total, p.Page, p.Limit)
 
 	ctx.JSON(200, res)
 }

@@ -5,8 +5,9 @@ import (
 	"frogsmash/internal/app/shared"
 	user "frogsmash/internal/app/user/models"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/dto"
-	"frogsmash/internal/delivery/utils"
+	"frogsmash/internal/delivery/auth/dto"
+	sharedDto "frogsmash/internal/delivery/shared/dto"
+	"frogsmash/internal/delivery/shared/utils"
 
 	"context"
 
@@ -44,17 +45,17 @@ func NewAuthHandler(c *container.Container) *AuthHandler {
 func (h *AuthHandler) GetMe(ctx *gin.Context) {
 	sub, exists := utils.GetUserID(ctx)
 	if !exists || sub == "" {
-		ctx.JSON(401, dto.Response{
+		ctx.JSON(401, sharedDto.Response{
 			Error: "Unauthorized",
-			Code:  dto.UnauthorizedCode,
+			Code:  sharedDto.UnauthorizedCode,
 		})
 		return
 	}
 	user, err := h.userService.GetUserByID(sub, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to retrieve user",
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
@@ -75,22 +76,22 @@ func (h *AuthHandler) GetMe(ctx *gin.Context) {
 func (h *AuthHandler) Register(ctx *gin.Context) {
 	var req dto.UserRegistrationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Invalid request payload",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
 	err := h.userService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
 
-	ctx.JSON(201, dto.Response{
+	ctx.JSON(201, sharedDto.Response{
 		Message: "User registered successfully",
 	})
 }
@@ -107,17 +108,17 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	// Implementation for user login
 	var req dto.UserLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Invalid credentials",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
 	jwt, refreshToken, user, err := h.authService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: "Invalid credentials",
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
@@ -145,17 +146,17 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 	cookie, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Refresh token not provided",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
 	jwt, refreshToken, user, err := h.authService.RefreshToken(cookie, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}

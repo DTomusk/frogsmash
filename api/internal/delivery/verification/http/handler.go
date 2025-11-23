@@ -6,8 +6,9 @@ import (
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/app/verification/services"
 	"frogsmash/internal/container"
-	"frogsmash/internal/delivery/dto"
-	"frogsmash/internal/delivery/utils"
+	sharedDto "frogsmash/internal/delivery/shared/dto"
+	"frogsmash/internal/delivery/shared/utils"
+	"frogsmash/internal/delivery/verification/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +39,7 @@ func NewVerificationHandler(c *container.Container) *VerificationHandler {
 func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 	user_id, ok := utils.GetUserID(ctx)
 	if !ok {
-		ctx.JSON(401, dto.Response{
+		ctx.JSON(401, sharedDto.Response{
 			Error: "Unauthorized",
 			Code:  "UNAUTHORIZED",
 		})
@@ -47,13 +48,13 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 
 	err := h.verificationService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
 	if err != nil {
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 		return
 	}
-	ctx.JSON(200, dto.Response{
+	ctx.JSON(200, sharedDto.Response{
 		Message: "Verification email resent successfully",
 	})
 }
@@ -68,9 +69,9 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 	var req dto.VerificationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil || req.Code == "" {
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Invalid request",
-			Code:  dto.InvalidRequestCode,
+			Code:  sharedDto.InvalidRequestCode,
 		})
 		return
 	}
@@ -81,24 +82,24 @@ func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 
 	switch {
 	case err == nil:
-		ctx.JSON(200, dto.Response{
+		ctx.JSON(200, sharedDto.Response{
 			Message: "User verified successfully",
 			Code:    dto.VerifiedCode,
 		})
 	case errors.Is(err, services.ErrInvalidVerificationCode):
-		ctx.JSON(400, dto.Response{
+		ctx.JSON(400, sharedDto.Response{
 			Error: "Invalid verification code",
 			Code:  dto.InvalidCodeCode,
 		})
 	case errors.Is(err, services.ErrAlreadyVerified):
-		ctx.JSON(409, dto.Response{
+		ctx.JSON(409, sharedDto.Response{
 			Error: "User is already verified",
 			Code:  dto.AlreadyVerifiedCode,
 		})
 	default:
-		ctx.JSON(500, dto.Response{
+		ctx.JSON(500, sharedDto.Response{
 			Error: "Internal server error",
-			Code:  dto.InternalServerErrorCode,
+			Code:  sharedDto.InternalServerErrorCode,
 		})
 	}
 }
