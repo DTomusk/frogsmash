@@ -6,6 +6,7 @@ import (
 	user "frogsmash/internal/app/user/models"
 	"frogsmash/internal/container"
 	"frogsmash/internal/delivery/dto"
+	"frogsmash/internal/delivery/utils"
 
 	"context"
 
@@ -19,6 +20,7 @@ type AuthService interface {
 
 type UserService interface {
 	RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
+	GetUserByID(id string, ctx context.Context, db shared.DBWithTxStarter) (*user.User, error)
 }
 
 type AuthHandler struct {
@@ -32,6 +34,35 @@ func NewAuthHandler(c *container.Container) *AuthHandler {
 		authService: c.Auth.AuthService,
 		db:          c.InfraServices.DB,
 	}
+}
+
+// GetMe godoc
+// @Summary      Get current user
+// @Description  Retrieves the currently authenticated user's information
+// @Router       /me [get]
+// @Produce      json
+func (h *AuthHandler) GetMe(ctx *gin.Context) {
+	sub, exists := utils.GetUserID(ctx)
+	if !exists || sub == "" {
+		ctx.JSON(401, dto.Response{
+			Error: "Unauthorized",
+			Code:  dto.UnauthorizedCode,
+		})
+		return
+	}
+	user, err := h.userService.GetUserByID(sub, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, dto.Response{
+			Error: "Failed to retrieve user",
+			Code:  dto.InternalServerErrorCode,
+		})
+		return
+	}
+	ctx.JSON(200, dto.UserResponse{
+		ID:         user.ID,
+		Email:      user.Email,
+		IsVerified: user.IsVerified,
+	})
 }
 
 // Register godoc

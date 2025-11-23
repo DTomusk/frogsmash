@@ -52,6 +52,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 		protected.POST("/compare", itemsHandler.CompareItems)
 		protected.POST("/upload", uploadHandler.UploadImage)
 		protected.POST("/resend-verification", verificationHandler.ResendVerificationEmail)
+		protected.GET("/me", authHandler.GetMe)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
