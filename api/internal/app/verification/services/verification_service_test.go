@@ -19,7 +19,7 @@ func TestVerifyLoggedIn_AlreadyVerified(t *testing.T) {
 	svc := NewVerificationService(nil, nil, nil, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("some-code", "user-id", true, nil, nil)
+	err := svc.VerifyUser("some-code", "user-id", true, nil, nil)
 
 	// Assert
 	if errors.Is(err, ErrAlreadyVerified) == false {
@@ -38,7 +38,7 @@ func TestVerifyLoggedIn_NotVerified_InvalidCode(t *testing.T) {
 	svc := NewVerificationService(nil, mockVerificationRepo, nil, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("invalid-code", "user-id", false, nil, nil)
+	err := svc.VerifyUser("invalid-code", "user-id", false, nil, nil)
 
 	// Assert
 	if errors.Is(err, ErrInvalidVerificationCode) == false {
@@ -64,7 +64,7 @@ func TestVerifyLoggedIn_NotVerified_ExpiredCode(t *testing.T) {
 	svc := NewVerificationService(nil, mockVerificationRepo, nil, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("expired-code", "user-id", false, nil, nil)
+	err := svc.VerifyUser("expired-code", "user-id", false, nil, nil)
 
 	// Assert
 	if errors.Is(err, ErrInvalidVerificationCode) == false {
@@ -119,7 +119,7 @@ func TestVerifyLoggedIn_NotVerified_ValidCode_Success(t *testing.T) {
 	svc := NewVerificationService(mockUserService, mockVerificationRepo, mockEmailService, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("valid-code", userId, false, nil, mockDB)
+	err := svc.VerifyUser("valid-code", userId, false, nil, mockDB)
 
 	// Assert
 	if err != nil {
@@ -175,7 +175,7 @@ func TestVerifyLoggedIn_NotVerified_ValidCode_DifferentUser_Error(t *testing.T) 
 	svc := NewVerificationService(mockUserService, mockVerificationRepo, mockEmailService, 6, 15)
 
 	// Act
-	err := svc.VerifyLoggedIn("valid-code", loggedInUserID, false, nil, mockDB)
+	err := svc.VerifyUser("valid-code", loggedInUserID, false, nil, mockDB)
 
 	// Assert
 	if errors.Is(err, ErrInvalidVerificationCode) == false {

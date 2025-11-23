@@ -32,8 +32,7 @@ type EmailService interface {
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
 	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
-	VerifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error
-	VerifyLoggedIn(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
+	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type verificationService struct {
@@ -97,7 +96,14 @@ func (s *verificationService) GenerateAndSend(userID, email string, ctx context.
 	return err
 }
 
-func (s *verificationService) VerifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) VerifyUser(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
+	if loggedInUserID == "" {
+		return s.verifyAnonymous(code, ctx, db)
+	}
+	return s.verifyLoggedIn(code, loggedInUserID, isVerified, ctx, db)
+}
+
+func (s *verificationService) verifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error {
 	codeModel, err := s.verificationRepo.GetVerificationCode(code, ctx, db)
 	if err != nil {
 		return err
@@ -109,7 +115,7 @@ func (s *verificationService) VerifyAnonymous(code string, ctx context.Context, 
 	return s.verifyUser(codeModel.UserID, ctx, db)
 }
 
-func (s *verificationService) VerifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) verifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
 	// Do nothing if the calling user is verified already
 	if isVerified {
 		return ErrAlreadyVerified

@@ -14,8 +14,7 @@ import (
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
-	VerifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error
-	VerifyLoggedIn(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
+	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type VerificationHandler struct {
@@ -78,17 +77,7 @@ func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 
 	claims, hasClaims := utils.GetClaims(ctx)
 
-	var err error
-
-	// TODO: we might not want this logic in the handler
-	// Could pass nullable claims to service layer instead
-	if !hasClaims || claims.Sub == "" {
-		// Verify anonymous user
-		err = h.verificationService.VerifyAnonymous(req.Code, ctx.Request.Context(), h.db)
-	} else {
-		// Verify logged-in user
-		err = h.verificationService.VerifyLoggedIn(req.Code, claims.Sub, claims.IsVerified, ctx.Request.Context(), h.db)
-	}
+	err := h.verificationService.VerifyUser(req.Code, claims.Sub, hasClaims && claims.IsVerified, ctx.Request.Context(), h.db)
 
 	switch {
 	case err == nil:
