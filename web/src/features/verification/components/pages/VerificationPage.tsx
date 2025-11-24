@@ -11,6 +11,7 @@ import AlreadyVerified from "../organisms/AlreadyVerified";
 import VerificationFailed from "../organisms/VerificationFailed";
 import VerifiedLoggedIn from "../organisms/VerifiedLoggedIn";
 import VerifiedAnonymous from "../organisms/VerifiedAnonymous";
+import { ContentWrapper } from "@/shared";
 
 // This page should just show components based on the user state and the presence of the code param
 // 1. if code, verify
@@ -30,7 +31,7 @@ import VerifiedAnonymous from "../organisms/VerifiedAnonymous";
 type VerificationStatus = "pending" 
     | "no_code_anonymous" 
     | "no_code_logged_in_unverified"
-    | "no_code_logged_in_verified"
+    | "logged_in_verified"
     | "code_error"
     | "code_success_logged_in"
     | "code_success_anonymous";
@@ -47,19 +48,25 @@ function VerificationPage() {
     const [status, setStatus] = useState<VerificationStatus>("pending");
 
     useEffect(() => {
+        if (isLoadingCurrentUser) {
+            return;
+        }
+        if (currentUser && currentUser.isVerified) {
+            setStatus("logged_in_verified");
+            return;
+        }
+        console.log("VerificationPage mounted with code:", code);
         if (!code) {
-            // Call auth/me to determine whether user is logged in and verified
-            // Show resend with email entry if not logged in
-            // Show resend button if logged in and not verified
-            // Show already verified message if logged in and verified
-            if (!isLoadingCurrentUser) {
-                if (!currentUser) {
-                    setStatus("no_code_anonymous");
-                } else if (currentUser && !currentUser.isVerified) {
-                    setStatus("no_code_logged_in_unverified");
-                } else {
-                    setStatus("no_code_logged_in_verified");
-                }
+            console.log("No code provided, checking user status.");
+            if (!currentUser) {
+                console.log("User not logged in.");
+                setStatus("no_code_anonymous");
+            } else if (currentUser && !currentUser.isVerified) {
+                console.log("User logged in but not verified.");
+                setStatus("no_code_logged_in_unverified");
+            } else {
+                console.log("User logged in and verified.");
+                setStatus("logged_in_verified");
             }
             return;
         }
@@ -86,21 +93,21 @@ function VerificationPage() {
                 setStatus("code_error");
             }
         });
-    }, [code]);
+    }, [code, isLoadingCurrentUser, currentUser]);
 
     const views: Record<VerificationStatus, JSX.Element> = {
     pending: <PendingView />,
     no_code_anonymous: <AnonymousResendForm />,
     no_code_logged_in_unverified: <LoggedInResendForm />,
-    no_code_logged_in_verified: <AlreadyVerified />,
+    logged_in_verified: <AlreadyVerified />,
     code_error: <VerificationFailed />,
     code_success_logged_in: <VerifiedLoggedIn />,
     code_success_anonymous: <VerifiedAnonymous />
   };
 
-    return ( <> 
+    return ( <ContentWrapper> 
     {isVerifying ? <PendingView /> : views[status] ?? <PendingView />}
-    </>);
+    </ContentWrapper>);
 }
 
 export default VerificationPage;
