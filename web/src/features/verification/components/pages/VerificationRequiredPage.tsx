@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import { ContentWrapper } from "@/shared";
-import ResendVerificationButton from "../organisms/ResendVerificationButton";
+import ResendVerificationButton from "../molecules/ResendVerificationButton";
 import { useAuth } from "@/app/providers";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

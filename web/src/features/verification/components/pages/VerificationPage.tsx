@@ -1,10 +1,16 @@
-import { Button, Typography } from "@mui/material";
-import { ContentWrapper, LoadingSpinner } from "@/shared";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ResendVerificationButton from "../organisms/ResendVerificationButton";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState, type JSX } from "react";
 import { useVerifyCode } from "../../hooks/useVerify";
 import { AlreadyVerifiedCode, VerifiedCode } from "../../dtos/verificationResponse";
+import { useCurrentUser } from "@/features/auth/hooks/useCurrentUser";
+import { useQueryClient } from "@tanstack/react-query";
+import PendingView from "../organisms/PendingView";
+import AnonymousResendForm from "../organisms/AnonymousResendForm";
+import LoggedInResendForm from "../organisms/LoggedInResendForm";
+import AlreadyVerified from "../organisms/AlreadyVerified";
+import VerificationFailed from "../organisms/VerificationFailed";
+import VerifiedLoggedIn from "../organisms/VerifiedLoggedIn";
+import VerifiedAnonymous from "../organisms/VerifiedAnonymous";
 
 // This page should just show components based on the user state and the presence of the code param
 // 1. if code, verify
@@ -20,67 +26,81 @@ import { AlreadyVerifiedCode, VerifiedCode } from "../../dtos/verificationRespon
 // 2.a user not logged in -> show email entry to resend verification email
 // 2.b user logged in and not verified -> show button to resend verification email
 // 2.c user logged in and verified -> show already verified message and prompt to continue to app
+
+type VerificationStatus = "pending" 
+    | "no_code_anonymous" 
+    | "no_code_logged_in_unverified"
+    | "no_code_logged_in_verified"
+    | "code_error"
+    | "code_success_logged_in"
+    | "code_success_anonymous";
+
 function VerificationPage() {
     const [params] = useSearchParams();
     const code = params.get("code");
-    const navigate = useNavigate();
+
+    const queryClient = useQueryClient();
 
     const { mutate: verifyCode, isPending: isVerifying } = useVerifyCode();
+    const { data: currentUser, isLoading: isLoadingCurrentUser } = useCurrentUser();
 
-    const [status, setStatus] = useState<"pending" | "success" | "error">("pending");
+    const [status, setStatus] = useState<VerificationStatus>("pending");
 
     useEffect(() => {
         if (!code) {
-            return;
             // Call auth/me to determine whether user is logged in and verified
             // Show resend with email entry if not logged in
             // Show resend button if logged in and not verified
             // Show already verified message if logged in and verified
+            if (!isLoadingCurrentUser) {
+                if (!currentUser) {
+                    setStatus("no_code_anonymous");
+                } else if (currentUser && !currentUser.isVerified) {
+                    setStatus("no_code_logged_in_unverified");
+                } else {
+                    setStatus("no_code_logged_in_verified");
+                }
+            }
+            return;
         }
 
         console.log("Verifying code:", code);
         
         verifyCode(code, {
-            onSuccess: (response) => {
+            onSuccess: async (response) => {
                 console.log("Verification response code:", response.code);
                 if (response.code === VerifiedCode || response.code === AlreadyVerifiedCode) {
                     
                 }
-                setStatus("success");
+                // Invalidate current user to update verified status
+                await queryClient.invalidateQueries({queryKey: ['currentUser']});
+                // Recall current user to get updated verified status
+                if (currentUser) {
+                    setStatus("code_success_logged_in");
+                } else {
+                    setStatus("code_success_anonymous");
+                }
 
             },
             onError: () => {
-                setStatus("error");
+                setStatus("code_error");
             }
         });
     }, [code]);
 
-    return (<>
-        {status === "pending" && (<><ContentWrapper>
-            <Typography variant="h3" sx={{ mb: 2}}>Verify your account🐸</Typography>
-            <Typography variant="subtitle1" sx={{mb: 2}}>We've sent a verification email to your registered email address. It might take a few minutes to show up. Please check your inbox and click on the verification link to activate your account. If you still haven't received an email, please check your spam folder or request a new verification email by clicking the magical button below.</Typography>
-            {isVerifying ? <LoadingSpinner /> : <ResendVerificationButton />}
-        </ContentWrapper></>)}
+    const views: Record<VerificationStatus, JSX.Element> = {
+    pending: <PendingView />,
+    no_code_anonymous: <AnonymousResendForm />,
+    no_code_logged_in_unverified: <LoggedInResendForm />,
+    no_code_logged_in_verified: <AlreadyVerified />,
+    code_error: <VerificationFailed />,
+    code_success_logged_in: <VerifiedLoggedIn />,
+    code_success_anonymous: <VerifiedAnonymous />
+  };
 
-        {status === "success" && (<><ContentWrapper>
-            <Typography variant="h3" sx={{ mb: 2}}>Verification Successful🐸</Typography>
-            <Typography variant="subtitle1" sx={{mb: 2}}>Thank you for verifying your account! You can now access all the features of our platform. Welcome aboard!</Typography>
-            <Button variant="contained" 
-                    size="large" 
-                    color="primary"
-                    sx={{ mt: 4, px: 2 }}
-                    onClick={() => navigate("/smash")}>
-                    <Typography variant="h5">Start smashing!</Typography>
-                </Button>
-        </ContentWrapper></>)}
-
-        {status === "error" && (<><ContentWrapper>
-            <Typography variant="h3" sx={{ mb: 2}}>Verification Failed🐸</Typography>
-            <Typography variant="subtitle1" sx={{mb: 2}}>The verification link is invalid or has expired. Please request a new verification email by clicking the magical button below.</Typography>
-            <ResendVerificationButton />
-        </ContentWrapper></>)}
-    </>
-    );
+    return ( <> 
+    {isVerifying ? <PendingView /> : views[status] ?? <PendingView />}
+    </>);
 }
 
 export default VerificationPage;
