@@ -6,7 +6,7 @@ function useResendVerification() {
     return useMutation({
         mutationKey: ['resendVerification'],
         mutationFn: async () => {
-            const res = await apiFetch<void>('/resend-verification', {
+            const res = await apiFetch<void>('/verify/resend-email', {
                 method: 'POST',
             });
             return res;

@@ -12,9 +12,15 @@ func RegisterVerificationRoutes(r *gin.Engine, c *container.Container) {
 
 	verification := r.Group("/verify")
 
-	optional := verification.Group("/").Use(middleware.OptionalAuthMiddleware(c.Auth.JwtService))
-	optional.POST("/", verificationHandler.VerifyUser)
+	optional := verification.Group("/")
+	optional.Use(middleware.OptionalAuthMiddleware(c.Auth.JwtService))
+	{
+		optional.POST("", verificationHandler.VerifyUser)
+	}
 
-	protected := verification.Group("/").Use(middleware.AuthMiddleware(c.Auth.JwtService))
-	protected.POST("/resend-email", verificationHandler.ResendVerificationEmail)
+	protected := verification.Group("/")
+	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
+	{
+		protected.POST("/resend-email", verificationHandler.ResendVerificationEmail)
+	}
 }

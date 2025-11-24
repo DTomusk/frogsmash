@@ -27,7 +27,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
   // If unauthorized, try to refresh the token and retry the request
   if (response.status === 401) {
-    const refreshResponse = await fetch(`${API_BASE_URL}/refresh-token`, {
+    const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
       method: 'POST',
       credentials: 'include',
     });

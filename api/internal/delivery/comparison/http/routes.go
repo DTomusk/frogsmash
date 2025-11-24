@@ -13,7 +13,8 @@ func RegisterComparisonRoutes(r *gin.Engine, c *container.Container) {
 
 	comparison.GET("/leaderboard", comparisonHandler.GetLeaderboard)
 
-	protected := comparison.Group("/").Use(middleware.AuthMiddleware(c.Auth.JwtService))
+	protected := comparison.Group("/")
+	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
 	{
 		protected.GET("/items", comparisonHandler.GetItems)
 		protected.POST("/compare", comparisonHandler.CompareItems)

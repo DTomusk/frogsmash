@@ -7,7 +7,7 @@ function useRegister() {
     return useMutation({
         mutationKey: ['register'],
         mutationFn: async (data: RegistrationRequest) => {
-            const res = await apiFetch<ApiResponse>('/register', {
+            const res = await apiFetch<ApiResponse>('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify(data),
             });

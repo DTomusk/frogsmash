@@ -13,6 +13,6 @@ func RegisterUploadRoutes(r *gin.Engine, c *container.Container) {
 	upload := r.Group("/upload")
 	upload.Use(middleware.AuthMiddleware(c.Auth.JwtService))
 	{
-		upload.POST("/", uploadHandler.UploadImage)
+		upload.POST("", uploadHandler.UploadImage)
 	}
 }

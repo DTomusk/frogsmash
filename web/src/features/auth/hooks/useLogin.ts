@@ -7,7 +7,7 @@ function useLogin() {
     return useMutation({
         mutationKey: ['login'],
         mutationFn: async (data: LoginRequest) => {
-            const res = await apiFetch<LoginResponse>('/login', {
+            const res = await apiFetch<LoginResponse>('/auth/login', {
                 method: 'POST',
                 body: JSON.stringify(data),
             });

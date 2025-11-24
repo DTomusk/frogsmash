@@ -6,7 +6,7 @@ export function useItems() {
     return useQuery({
         queryKey: ['comparisonItems'],
         queryFn: async () => {
-            const response = await apiFetch<ItemsResponse>('/items');
+            const response = await apiFetch<ItemsResponse>('/comparison/items');
             return response.items;
         },
         refetchOnWindowFocus: false,  
