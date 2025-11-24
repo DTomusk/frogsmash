@@ -17,11 +17,11 @@ import (
 type AuthService interface {
 	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type UserService interface {
-	RegisterUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
-	GetUserByID(id string, ctx context.Context, db shared.DBWithTxStarter) (*user.User, error)
+	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
 }
 
 type AuthHandler struct {
@@ -33,6 +33,7 @@ type AuthHandler struct {
 func NewAuthHandler(c *container.Container) *AuthHandler {
 	return &AuthHandler{
 		authService: c.Auth.AuthService,
+		userService: c.User.UserService,
 		db:          c.InfraServices.DB,
 	}
 }
@@ -51,7 +52,7 @@ func (h *AuthHandler) GetMe(ctx *gin.Context) {
 		})
 		return
 	}
-	user, err := h.userService.GetUserByID(sub, ctx.Request.Context(), h.db)
+	user, err := h.userService.GetUserByUserID(sub, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to retrieve user",
@@ -82,7 +83,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 		})
 		return
 	}
-	err := h.userService.RegisterUser(req.Email, req.Password, ctx.Request.Context(), h.db)
+	err := h.authService.Register(req.Email, req.Password, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
