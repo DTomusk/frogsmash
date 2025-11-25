@@ -1,6 +1,6 @@
 import { EmailField, FormWrapper } from "@/shared";
 import { Alert, Button, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useResendVerificationWithEmail } from "../../hooks/useVerify";
 
@@ -13,11 +13,20 @@ export default function ResendVerificationEmailForm({ title, message }: ResendVe
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<{ email: string }>();
 
     const [state, setState] = useState<"idle" | "success" | "error">("idle");
     const { mutate, isPending } = useResendVerificationWithEmail();
+
+    const email = watch("email");
+
+    useEffect(() => {
+        if (state !== "idle") {
+            setState("idle");
+        }
+    }, [email]);
 
     const onSubmit = (data: { email: string }) => {
         // Handle resend verification email logic here
