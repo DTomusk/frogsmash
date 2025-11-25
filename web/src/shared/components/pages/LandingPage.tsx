@@ -1,9 +1,8 @@
-import { Box, Button, Paper, Typography, useTheme } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
+import LinkButton from "../atoms/LinkButton";
 
 function LandingPage() {
     const theme = useTheme(); 
-    const navigate = useNavigate();
     return <Box sx={{display: "flex", flexDirection: "column", alignItems: "center"}}>
             <Box
             sx={{
@@ -26,13 +25,7 @@ function LandingPage() {
                 <Typography variant="h4" sx={{ textAlign: 'center', mt: 4, color: theme.palette.mode === 'light' ? 'black' : 'white' }}>
                     Ribbit ribbit
                 </Typography>
-                <Button variant="contained" 
-                    size="large" 
-                    color={theme.palette.mode === 'light' ? 'primary' : 'secondary'} 
-                    sx={{ mt: 4, px: 2 }}
-                    onClick={() => navigate("/smash")}>
-                    <Typography variant="h5">Start smashing!</Typography>
-                </Button>
+                <LinkButton color={theme.palette.mode === 'light' ? 'primary' : 'secondary'} text="Start smashing!" to="/smash" />
             </Box>
         </Box>
         <Box width="50%">

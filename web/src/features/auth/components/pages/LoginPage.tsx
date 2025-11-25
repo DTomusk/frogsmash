@@ -1,10 +1,11 @@
 import { Button, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useLogin, type LoginResponse } from "../../hooks/useLogin";
+import { useLogin } from "../../hooks/useLogin";
 import { useAuth, useSnackbar } from "@/app/providers";
 import { FormWrapper, EmailField, StyledLink } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
+import type { LoginResponse } from "../../dtos/loginResponse";
 
 interface LoginData {
     email: string;

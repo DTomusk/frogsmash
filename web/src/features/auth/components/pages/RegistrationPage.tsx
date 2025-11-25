@@ -2,12 +2,13 @@ import { Button, Typography } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useRegister } from "../../hooks/useRegister";
-import { useLogin, type LoginResponse } from "../../hooks/useLogin";
+import { useLogin } from "../../hooks/useLogin";
 import { useAuth, useSnackbar } from "@/app/providers";
 import { checkPasswordStrength } from "../../utils/PasswordStrength";
 import { FormWrapper, StyledLink, EmailField } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 import PasswordStrength from "../atoms/PasswordStrength";
+import type { LoginResponse } from "../../dtos/loginResponse";
 
 interface RegistrationData {
     email: string;

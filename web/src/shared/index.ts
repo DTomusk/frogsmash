@@ -19,6 +19,7 @@ export { default as EmailField } from "./components/atoms/EmailField";
 export { default as StyledLink } from "./components/atoms/StyledLink";
 export { default as ContentWrapper } from "./components/atoms/ContentWrapper";
 export { default as ErrorMessage } from "./components/atoms/ErrorMessage";
+export { default as LinkButton } from "./components/atoms/LinkButton";
 
 // Molecules
 export { default as LoadingSpinner } from "./components/molecules/LoadingSpinner";
