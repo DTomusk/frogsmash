@@ -14,6 +14,19 @@ function useResendVerification() {
     })
 }
 
+function useResendVerificationWithEmail() {
+    return useMutation({
+        mutationKey: ['resendVerificationWithEmail'],
+        mutationFn: async (email: string) => {
+            const res = await apiFetch<void>('/verify/resend-email-anonymous', {
+                method: 'POST',
+                body: JSON.stringify({ email }),
+            });
+            return res;
+        }
+    })
+}
+
 function useVerifyCode() {
     return useMutation({
         mutationKey: ['verifyCode'],
@@ -27,4 +40,4 @@ function useVerifyCode() {
     })
 }
 
-export { useResendVerification, useVerifyCode };
+export { useResendVerification, useResendVerificationWithEmail, useVerifyCode };

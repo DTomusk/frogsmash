@@ -11,3 +11,9 @@ const (
 type VerificationRequest struct {
 	Code string `json:"code" binding:"required"`
 }
+
+// ResendVerificationEmailRequest godoc
+// @Description  Request payload for resending verification email
+type ResendVerificationEmailRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}

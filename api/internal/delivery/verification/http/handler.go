@@ -15,6 +15,7 @@ import (
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error
 	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
@@ -54,6 +55,33 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 		})
 		return
 	}
+	ctx.JSON(200, sharedDto.Response{
+		Message: "Verification email resent successfully",
+	})
+}
+
+// ResendVerificationEmailAnonymous godoc
+// @Summary      Resend verification email (anonymous)
+// @Description  Resends the verification email to the user without authentication
+func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context) {
+	var req dto.ResendVerificationEmailRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil || req.Email == "" {
+		ctx.JSON(400, sharedDto.Response{
+			Error: "Invalid request",
+			Code:  sharedDto.InvalidRequestCode,
+		})
+		return
+	}
+
+	err := h.verificationService.ResendVerificationEmailToEmail(req.Email, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, sharedDto.Response{
+			Error: err.Error(),
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+
 	ctx.JSON(200, sharedDto.Response{
 		Message: "Verification email resent successfully",
 	})

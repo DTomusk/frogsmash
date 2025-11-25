@@ -1,9 +1,18 @@
-export default function LoggedInResendForm() {
+import { ContentWrapper } from "@/shared";
+import { Typography } from "@mui/material";
+import ResendVerificationButton from "../molecules/ResendVerificationButton";
+
+interface LoggedInResendFormProps {
+    title: string;
+    message: string;
+}
+
+export default function LoggedInResendForm({ title, message }: LoggedInResendFormProps) {
     return (
-        <div>
-            <h2>Resend Verification Email</h2>
-            <p>Your account is not yet verified. Please click the button below to resend the verification email.</p>
-            {/* Include the ResendVerificationButton component here */}
-        </div>
+        <ContentWrapper>
+            <Typography variant='h3'>{title}</Typography>
+            <Typography variant='body1' sx={{ mb: 2}}>{message}</Typography>
+            <ResendVerificationButton />
+        </ContentWrapper>
     );
 }

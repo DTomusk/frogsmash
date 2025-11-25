@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"frogsmash/internal/app/shared"
+	user "frogsmash/internal/app/user/models"
 	"frogsmash/internal/app/verification/factories"
 	"frogsmash/internal/app/verification/models"
 	"time"
@@ -16,6 +17,7 @@ var (
 
 type UserService interface {
 	GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error)
+	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*user.User, error)
 	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
@@ -31,6 +33,7 @@ type EmailService interface {
 
 type VerificationService interface {
 	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error
 	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
 	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
@@ -65,6 +68,27 @@ func (s *verificationService) ResendVerificationEmail(userID string, ctx context
 
 	defer tx.Rollback()
 	err = s.GenerateAndSend(userID, email, ctx, tx)
+	if err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *verificationService) ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error {
+	user, err := s.userService.GetUserByEmail(email, ctx, db)
+	if err != nil || user == nil {
+		return err
+	}
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	err = s.GenerateAndSend(user.ID, email, ctx, tx)
 	if err != nil {
 		return err
 	}
