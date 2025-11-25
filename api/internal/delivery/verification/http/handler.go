@@ -73,14 +73,8 @@ func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context)
 		return
 	}
 
-	err := h.verificationService.ResendVerificationEmailToEmail(req.Email, ctx.Request.Context(), h.db)
-	if err != nil {
-		ctx.JSON(500, sharedDto.Response{
-			Error: err.Error(),
-			Code:  sharedDto.InternalServerErrorCode,
-		})
-		return
-	}
+	// Ignore error to prevent email enumeration attacks
+	_ = h.verificationService.ResendVerificationEmailToEmail(req.Email, ctx.Request.Context(), h.db)
 
 	ctx.JSON(200, sharedDto.Response{
 		Message: "Verification email resent successfully",
