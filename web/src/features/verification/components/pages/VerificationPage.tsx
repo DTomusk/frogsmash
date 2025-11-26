@@ -39,27 +39,19 @@ function VerificationPage() {
             setStatus("logged_in_verified");
             return;
         }
-        console.log("VerificationPage mounted with code:", code);
         if (!code) {
-            console.log("No code provided, checking user status.");
             if (!currentUser) {
-                console.log("User not logged in.");
                 setStatus("no_code_anonymous");
             } else if (currentUser && !currentUser.isVerified) {
-                console.log("User logged in but not verified.");
                 setStatus("no_code_logged_in_unverified");
             } else {
-                console.log("User logged in and verified.");
                 setStatus("logged_in_verified");
             }
             return;
         }
-
-        console.log("Verifying code:", code);
         
         verifyCode(code, {
             onSuccess: async (response) => {
-                console.log("Verification response code:", response.code);
                 if (response.code === VerifiedCode || response.code === AlreadyVerifiedCode) {
                     
                 }
