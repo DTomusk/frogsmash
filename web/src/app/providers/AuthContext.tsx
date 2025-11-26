@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { User } from "../../features/auth/models/user";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 interface AuthContextType {
     token: string | null;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
     const [user, setUser] = useState<User | null>(null);
+    const { mutate: logoutMutate } = useLogout();
 
     const login = (jwt: string, userData?: User) => {
         localStorage.setItem("token", jwt);
@@ -28,9 +30,13 @@ export const AuthProvider = ({children}: {children: React.ReactNode}) => {
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
-        setToken(null);
-        setUser(null);
+        logoutMutate(undefined, {
+        onSettled: () => {
+            localStorage.removeItem("token");
+            setToken(null);
+            setUser(null);
+        }
+    });
     };
 
     return (

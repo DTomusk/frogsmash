@@ -16,6 +16,7 @@ import (
 
 type AuthService interface {
 	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
 	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 }
@@ -135,6 +136,40 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		},
 	}
 	ctx.JSON(200, res)
+}
+
+// Logout godoc
+// @Summary      User logout
+// @Description  Logs out a user by clearing the refresh token cookie
+// @Router       /logout [post]
+// @Accept       json
+// @Produce      json
+func (h *AuthHandler) Logout(ctx *gin.Context) {
+	cookie, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		ctx.JSON(400, sharedDto.Response{
+			Error: "Refresh token not provided",
+			Code:  sharedDto.InvalidRequestCode,
+		})
+		return
+	}
+	// Ignore error to ensure logout proceeds
+	// TODO: log error if needed
+	_ = h.authService.Logout(cookie, ctx.Request.Context(), h.db)
+
+	ctx.SetCookie(
+		"refresh_token",
+		"",
+		-1,
+		"/",
+		"",
+		// TODO: move to https in production
+		false,
+		true,
+	)
+	ctx.JSON(200, sharedDto.Response{
+		Message: "User logged out successfully",
+	})
 }
 
 // RefreshToken godoc

@@ -34,6 +34,7 @@ type VerificationService interface {
 
 type AuthService interface {
 	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
 	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
@@ -93,6 +94,20 @@ func (s *authService) Login(email, password string, ctx context.Context, db shar
 	}
 
 	return jwt, refreshToken, user, nil
+}
+
+func (s *authService) Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error {
+	token, err := s.refreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
+	if err != nil {
+		return err
+	}
+	if token == nil {
+		return fmt.Errorf("refresh token not found")
+	}
+	if err := s.refreshTokenRepo.RevokeTokens(token.UserID, ctx, db); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *authService) Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {

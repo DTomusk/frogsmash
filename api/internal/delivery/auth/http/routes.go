@@ -14,6 +14,7 @@ func RegisterAuthRoutes(r *gin.Engine, c *container.Container) {
 
 	auth.POST("/register", authHandler.Register)
 	auth.POST("/login", authHandler.Login)
+	auth.POST("/logout", authHandler.Logout)
 	auth.POST("/refresh-token", authHandler.RefreshToken)
 
 	protected := auth.Group("/")
