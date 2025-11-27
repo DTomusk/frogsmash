@@ -23,3 +23,11 @@ type Event struct {
 	WinnerID string
 	LoserID  string
 }
+
+type ImageUpload struct {
+	ID         string
+	UserID     string
+	FileName   string
+	URL        string
+	UploadedAt string
+}

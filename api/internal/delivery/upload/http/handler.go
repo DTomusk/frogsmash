@@ -47,6 +47,8 @@ func (h *UploadHandler) UploadImage(ctx *gin.Context) {
 		return
 	}
 
+	// TODO: don't call upload service directly
+	// Or maybe do, I don't know
 	fileUrl, err := h.UploadService.UploadImage(file, ctx)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
