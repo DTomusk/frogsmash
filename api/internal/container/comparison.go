@@ -10,10 +10,11 @@ import (
 
 type Comparison struct {
 	ComparisonService services.ComparisonService
+	SubmissionService services.SubmissionService
 	ScoreUpdater      services.ScoreUpdater
 }
 
-func NewComparison(cfg *config.Config, db shared.DBWithTxStarter) *Comparison {
+func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService services.UploadService) *Comparison {
 	eventsRepo := repos.NewEventsRepo()
 	eventsService := services.NewEventsService(eventsRepo)
 
@@ -21,9 +22,13 @@ func NewComparison(cfg *config.Config, db shared.DBWithTxStarter) *Comparison {
 	comparisonService := services.NewComparisonService(itemsRepo, eventsService)
 	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 
+	submissionRepo := repos.NewSubmissionRepo()
+	submissionService := services.NewSubmissionService(uploadService, submissionRepo)
+
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.AppConfig.KFactor, updateInterval)
 	return &Comparison{
 		ComparisonService: comparisonService,
+		SubmissionService: submissionService,
 		ScoreUpdater:      scoreUpdater,
 	}
 }

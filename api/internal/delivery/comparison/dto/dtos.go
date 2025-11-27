@@ -17,3 +17,7 @@ type CompareRequest struct {
 	WinnerId string `json:"winner_id"`
 	LoserId  string `json:"loser_id"`
 }
+
+type GetLatestSubmissionResponse struct {
+	UploadedAt string `json:"uploaded_at"`
+}

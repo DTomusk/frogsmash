@@ -12,7 +12,6 @@ import (
 
 	authHttp "frogsmash/internal/delivery/auth/http"
 	comparisonHttp "frogsmash/internal/delivery/comparison/http"
-	uploadHttp "frogsmash/internal/delivery/upload/http"
 	verificationHttp "frogsmash/internal/delivery/verification/http"
 )
 
@@ -39,7 +38,6 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 
 	authHttp.RegisterAuthRoutes(r, c)
 	comparisonHttp.RegisterComparisonRoutes(r, c)
-	uploadHttp.RegisterUploadRoutes(r, c)
 	verificationHttp.RegisterVerificationRoutes(r, c)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

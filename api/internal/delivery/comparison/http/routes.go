@@ -18,5 +18,7 @@ func RegisterComparisonRoutes(r *gin.Engine, c *container.Container) {
 	{
 		protected.GET("/items", comparisonHandler.GetItems)
 		protected.POST("/compare", comparisonHandler.CompareItems)
+		protected.GET("/latest-submission", comparisonHandler.GetTimeOfLatestSubmission)
+		protected.POST("/submit-contender", comparisonHandler.SubmitContender)
 	}
 }

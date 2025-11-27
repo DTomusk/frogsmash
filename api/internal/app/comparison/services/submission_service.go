@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"frogsmash/internal/app/comparison/models"
+	"frogsmash/internal/app/shared"
 	"mime/multipart"
 	"time"
 )
 
 type SubmissionService interface {
-	SubmitContender(userID string, fileHeader *multipart.FileHeader, ctx context.Context) error
-	GetTimeOfLatestSubmission(userID string, ctx context.Context) (string, error)
+	SubmitContender(userID string, fileHeader *multipart.FileHeader, ctx context.Context, db shared.DBTX) error
+	GetTimeOfLatestSubmission(userID string, ctx context.Context, db shared.DBTX) (string, error)
 }
 
 type submissionService struct {
@@ -23,9 +24,9 @@ type UploadService interface {
 }
 
 type SubmissionRepo interface {
-	GetLatestSubmissionByUser(userID string, ctx context.Context) (*models.ImageUpload, error)
-	GetTotalDataUploaded(ctx context.Context) (int64, error)
-	GetTimeOfLatestSubmission(userID string, ctx context.Context) (string, error)
+	GetLatestSubmissionByUser(userID string, ctx context.Context, db shared.DBTX) (*models.ImageUpload, error)
+	GetTotalDataUploaded(ctx context.Context, db shared.DBTX) (int64, error)
+	GetTimeOfLatestSubmission(userID string, ctx context.Context, db shared.DBTX) (string, error)
 }
 
 func NewSubmissionService(uploadService UploadService, repo SubmissionRepo) SubmissionService {
@@ -35,8 +36,8 @@ func NewSubmissionService(uploadService UploadService, repo SubmissionRepo) Subm
 	}
 }
 
-func (s *submissionService) SubmitContender(userID string, fileHeader *multipart.FileHeader, ctx context.Context) error {
-	latest, err := s.repo.GetLatestSubmissionByUser(userID, ctx)
+func (s *submissionService) SubmitContender(userID string, fileHeader *multipart.FileHeader, ctx context.Context, db shared.DBTX) error {
+	latest, err := s.repo.GetLatestSubmissionByUser(userID, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -51,7 +52,7 @@ func (s *submissionService) SubmitContender(userID string, fileHeader *multipart
 			return errors.New("user has already submitted an image today")
 		}
 	}
-	totalData, err := s.repo.GetTotalDataUploaded(ctx)
+	totalData, err := s.repo.GetTotalDataUploaded(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -66,6 +67,6 @@ func (s *submissionService) SubmitContender(userID string, fileHeader *multipart
 	return nil
 }
 
-func (s *submissionService) GetTimeOfLatestSubmission(userID string, ctx context.Context) (string, error) {
-	return s.repo.GetTimeOfLatestSubmission(userID, ctx)
+func (s *submissionService) GetTimeOfLatestSubmission(userID string, ctx context.Context, db shared.DBTX) (string, error) {
+	return s.repo.GetTimeOfLatestSubmission(userID, ctx, db)
 }

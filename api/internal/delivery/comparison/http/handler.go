@@ -8,6 +8,7 @@ import (
 	"frogsmash/internal/delivery/comparison/dto"
 	sharedDto "frogsmash/internal/delivery/shared/dto"
 	"frogsmash/internal/delivery/shared/utils"
+	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,14 +19,21 @@ type ComparisonService interface {
 	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
+type SubmissionService interface {
+	SubmitContender(userID string, fileHeader *multipart.FileHeader, ctx context.Context, db shared.DBTX) error
+	GetTimeOfLatestSubmission(userID string, ctx context.Context, db shared.DBTX) (string, error)
+}
+
 type ComparisonHandler struct {
 	ComparisonService ComparisonService
+	SubmissionService SubmissionService
 	db                shared.DBTX
 }
 
 func NewComparisonHandler(c *container.Container) *ComparisonHandler {
 	return &ComparisonHandler{
 		ComparisonService: c.Comparison.ComparisonService,
+		SubmissionService: c.Comparison.SubmissionService,
 		db:                c.InfraServices.DB,
 	}
 }
@@ -125,4 +133,71 @@ func (h *ComparisonHandler) GetLeaderboard(ctx *gin.Context) {
 	res := sharedDto.NewPagedResponse(items, total, p.Page, p.Limit)
 
 	ctx.JSON(200, res)
+}
+
+// UploadImage godoc
+// @Summary      Upload an image
+// @Description  Uploads an image to the server
+// @Router       /upload [post]
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        image  formData  file  true  "Image file to upload"
+func (h *ComparisonHandler) SubmitContender(ctx *gin.Context) {
+	claims, ok := utils.GetClaims(ctx)
+	if !ok || !claims.IsVerified {
+		ctx.JSON(403, gin.H{"error": "User is not verified"})
+		return
+	}
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		ctx.JSON(400, sharedDto.Response{
+			Error: "Image file is required",
+			Code:  sharedDto.InvalidRequestCode,
+		})
+		return
+	}
+
+	err = h.SubmissionService.SubmitContender(claims.Sub, file, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, sharedDto.Response{
+			Error: err.Error(),
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+
+	// TODO: add response dto
+	ctx.JSON(200, sharedDto.Response{
+		Message: "Image submitted successfully",
+	})
+}
+
+// GetTimeOfLatestSubmission godoc
+// @Summary      Get time of latest submission
+// @Description  Retrieves the time of the latest submission by the user
+// @Router       /latest-submission [get]
+// @Produce      json
+func (h *ComparisonHandler) GetTimeOfLatestSubmission(ctx *gin.Context) {
+	claims, ok := utils.GetClaims(ctx)
+	if !ok || !claims.IsVerified {
+		ctx.JSON(401, sharedDto.Response{
+			Error: "Unauthorized",
+			Code:  sharedDto.UnauthorizedCode,
+		})
+		return
+	}
+
+	uploadedAt, err := h.SubmissionService.GetTimeOfLatestSubmission(claims.Sub, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Failed to get latest submission time: " + err.Error(),
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+
+	// TODO: add response dto
+	ctx.JSON(200, dto.GetLatestSubmissionResponse{
+		UploadedAt: uploadedAt,
+	})
 }
