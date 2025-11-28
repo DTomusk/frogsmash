@@ -18,6 +18,7 @@ type submissionService struct {
 	uploadService       UploadService
 	repo                SubmissionRepo
 	verificationService VerificationService
+	totalDataLimit      int64
 }
 
 type UploadService interface {
@@ -35,11 +36,12 @@ type SubmissionRepo interface {
 	InsertImageUploadRecord(userID string, fileSize int64, imageURL string, ctx context.Context, db shared.DBTX) error
 }
 
-func NewSubmissionService(uploadService UploadService, repo SubmissionRepo, verificationService VerificationService) SubmissionService {
+func NewSubmissionService(uploadService UploadService, repo SubmissionRepo, verificationService VerificationService, totalDataLimit int64) SubmissionService {
 	return &submissionService{
 		uploadService:       uploadService,
 		repo:                repo,
 		verificationService: verificationService,
+		totalDataLimit:      totalDataLimit,
 	}
 }
 
@@ -72,7 +74,7 @@ func (s *submissionService) SubmitContender(userID string, fileHeader *multipart
 		return err
 	}
 	// TODO: inject limit
-	if totalData >= 5*1024*1024*1024 {
+	if totalData >= s.totalDataLimit {
 		return errors.New("total data upload limit reached")
 	}
 	fileURL, err := s.uploadService.UploadImage(fileHeader, ctx)

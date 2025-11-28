@@ -23,7 +23,7 @@ func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService 
 	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 
 	submissionRepo := repos.NewSubmissionRepo()
-	submissionService := services.NewSubmissionService(uploadService, submissionRepo, verificationService)
+	submissionService := services.NewSubmissionService(uploadService, submissionRepo, verificationService, cfg.AppConfig.TotalDataLimit)
 
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.AppConfig.KFactor, updateInterval)
 	return &Comparison{

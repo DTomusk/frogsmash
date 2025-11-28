@@ -5,6 +5,7 @@ type AppConfig struct {
 	AppURL              string
 	KFactor             float64
 	MaxFileSize         int64
+	TotalDataLimit      int64
 	Port                string
 	ScoreUpdateInterval int
 }
@@ -14,7 +15,8 @@ func NewAppConfig() *AppConfig {
 		AllowedOrigin:       getEnv("ALLOWED_ORIGIN"),
 		AppURL:              getEnv("APP_URL"),
 		KFactor:             getFloat("KFACTOR"),
-		MaxFileSize:         getInt64("MAX_FILE_SIZE_MB") * 1024 * 1024, // Convert MB to bytes
+		MaxFileSize:         getInt64("MAX_FILE_SIZE_MB") * 1024 * 1024,           // Convert MB to bytes
+		TotalDataLimit:      getInt64("TOTAL_DATA_LIMIT_GB") * 1024 * 1024 * 1024, // Convert GB to bytes
 		Port:                getEnv("PORT"),
 		ScoreUpdateInterval: getInt("SCORE_UPDATE_INTERVAL_SECONDS"),
 	}
