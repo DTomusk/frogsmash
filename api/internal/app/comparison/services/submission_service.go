@@ -81,9 +81,16 @@ func (s *submissionService) SubmitContender(userID string, fileHeader *multipart
 	}
 
 	err = s.repo.InsertImageUploadRecord(userID, fileHeader.Size, fileURL, ctx, db)
-	return nil
+	return err
 }
 
 func (s *submissionService) GetTimeOfLatestSubmission(userID string, ctx context.Context, db shared.DBTX) (string, error) {
+	isVerified, err := s.verificationService.IsUserVerified(userID, ctx, db)
+	if err != nil {
+		return "", err
+	}
+	if !isVerified {
+		return "", errors.New("user is not verified")
+	}
 	return s.repo.GetTimeOfLatestSubmission(userID, ctx, db)
 }

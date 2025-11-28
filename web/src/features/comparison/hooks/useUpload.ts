@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/shared";
 import type { UploadResponse } from "../dtos/uploadResponse";
+import type { LatestSubmissionResponse } from "../dtos/latestSubmissionResponse";
 
 function useUpload() {
     return useMutation({
@@ -17,4 +18,16 @@ function useUpload() {
     });
 }
 
-export { useUpload };
+function useLatestUploadTime() {
+    return useMutation({
+        mutationKey: ['latestUploadTime'],
+        mutationFn: async () => {
+            const res = await apiFetch<LatestSubmissionResponse>('/comparison/latest-submission', {
+                method: 'GET'
+            });
+            return res;
+        }
+    });
+}
+
+export { useUpload, useLatestUploadTime };

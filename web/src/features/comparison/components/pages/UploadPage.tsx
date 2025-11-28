@@ -1,14 +1,49 @@
 import { Typography } from "@mui/material";
-import { useUpload } from "../../hooks/useUpload";
-import { useState } from "react";
+import { useLatestUploadTime, useUpload } from "../../hooks/useUpload";
+import { useEffect, useState } from "react";
 import { useSnackbar } from "@/app/providers";
 import { FormWrapper } from "@/shared";
 import FileUploadButton from "../molecules/FileUploadButton";
+import TomorrowCountdown from "../molecules/TomorrowCountdown";
 
 function UploadPage() {
     const { mutate: upload, isPending } = useUpload();
     const [uploadDisabled, setUploadDisabled] = useState(false);
     const { showSnackbar } = useSnackbar();
+    const { mutate: getLatestUploadTime } = useLatestUploadTime();
+    const [uploadedToday, setUploadedToday] = useState(false);
+
+    useEffect(() => {
+        getLatestUploadTime(undefined, {
+            onSuccess: (res) => {
+                if (!res.uploaded_at) {
+                    setUploadDisabled(false);
+                    return;
+                }
+
+                const lastUpload = new Date(res.uploaded_at);
+                const now = new Date();
+
+                const lastY = lastUpload.getUTCFullYear();
+                const lastM = lastUpload.getUTCMonth();
+                const lastD = lastUpload.getUTCDate();
+
+
+                const nowY = now.getUTCFullYear();
+                const nowM = now.getUTCMonth();
+                const nowD = now.getUTCDate();
+
+                const didUploadTodayUTC =
+                    lastY === nowY && lastM === nowM && lastD === nowD;
+
+                setUploadedToday(didUploadTodayUTC);
+            },
+            onError: () => {
+                setUploadedToday(false);
+            }
+        }
+    );
+    }, [getLatestUploadTime]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -37,12 +72,15 @@ function UploadPage() {
   return (
     <FormWrapper onSubmit={(e) => e.preventDefault()}>
         <Typography variant="h3" sx={{ mb: 2}}>Submit a contender</Typography>
+        {uploadedToday? <TomorrowCountdown onFinish={() => setUploadedToday(false)} />:
+        <>
         <Typography variant="subtitle1" sx={{mb: 2}}>Does your champion have what it takes to take on the mighty frogs?🐸 Submit an image of anything of your choosing for the chance to have them appear alongside the frogs on the battlefield and let the people decide whether they triumph or fall.</Typography>
         <FileUploadButton
             onChange={handleFileChange}
             isPending={isPending}
             disabled={uploadDisabled}
         />
+        </>}
     </FormWrapper>
   );
 }

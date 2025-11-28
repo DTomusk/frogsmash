@@ -182,8 +182,8 @@ func (h *ComparisonHandler) SubmitContender(ctx *gin.Context) {
 // @Router       /latest-submission [get]
 // @Produce      json
 func (h *ComparisonHandler) GetTimeOfLatestSubmission(ctx *gin.Context) {
-	claims, ok := utils.GetClaims(ctx)
-	if !ok || !claims.IsVerified {
+	userId, ok := utils.GetUserID(ctx)
+	if !ok {
 		ctx.JSON(401, sharedDto.Response{
 			Error: "Unauthorized",
 			Code:  sharedDto.UnauthorizedCode,
@@ -191,7 +191,7 @@ func (h *ComparisonHandler) GetTimeOfLatestSubmission(ctx *gin.Context) {
 		return
 	}
 
-	uploadedAt, err := h.SubmissionService.GetTimeOfLatestSubmission(claims.Sub, ctx.Request.Context(), h.db)
+	uploadedAt, err := h.SubmissionService.GetTimeOfLatestSubmission(userId, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to get latest submission time: " + err.Error(),
