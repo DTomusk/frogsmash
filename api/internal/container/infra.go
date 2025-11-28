@@ -6,6 +6,7 @@ import (
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/config"
 	"frogsmash/internal/infrastructure/email"
+	"frogsmash/internal/infrastructure/redis"
 	"frogsmash/internal/infrastructure/storage"
 )
 
@@ -13,6 +14,7 @@ type InfraServices struct {
 	DB            shared.DBWithTxStarter
 	UploadService storage.UploadService
 	EmailService  email.EmailService
+	RedisClient   redis.RedisClient
 }
 
 func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, error) {
@@ -54,9 +56,15 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
+	redisClient, err := redis.NewRedisClient(ctx, "redis:6379")
+	if err != nil {
+		return nil, err
+	}
+
 	return &InfraServices{
 		UploadService: uploadService,
 		EmailService:  emailService,
 		DB:            dbWithTxStarter,
+		RedisClient:   redisClient,
 	}, nil
 }

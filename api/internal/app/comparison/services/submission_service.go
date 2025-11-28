@@ -73,7 +73,6 @@ func (s *submissionService) SubmitContender(userID string, fileHeader *multipart
 	if err != nil {
 		return err
 	}
-	// TODO: inject limit
 	if totalData >= s.totalDataLimit {
 		return errors.New("total data upload limit reached")
 	}

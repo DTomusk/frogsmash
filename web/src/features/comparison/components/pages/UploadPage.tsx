@@ -62,6 +62,7 @@ function UploadPage() {
             onSuccess: () => {
                 setUploadDisabled(true);
                 showSnackbar({ message: "Upload successful! Your contender will appear soon.", severity: "success" });
+                setUploadedToday(true);
             },
             onError: (err: any) => {
                 showSnackbar({ message: err.message || "Upload failed", severity: "error" });
