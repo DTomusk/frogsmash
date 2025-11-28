@@ -3,5 +3,5 @@ CREATE TABLE IF NOT EXISTS image_uploads (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
     image_url TEXT NOT NULL,
     uploaded_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    file_size INT NOT NULL,
+    file_size INT NOT NULL
 );

@@ -14,7 +14,7 @@ type Comparison struct {
 	ScoreUpdater      services.ScoreUpdater
 }
 
-func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService services.UploadService) *Comparison {
+func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService services.UploadService, verificationService services.VerificationService) *Comparison {
 	eventsRepo := repos.NewEventsRepo()
 	eventsService := services.NewEventsService(eventsRepo)
 
@@ -23,7 +23,7 @@ func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService 
 	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 
 	submissionRepo := repos.NewSubmissionRepo()
-	submissionService := services.NewSubmissionService(uploadService, submissionRepo)
+	submissionService := services.NewSubmissionService(uploadService, submissionRepo, verificationService)
 
 	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.AppConfig.KFactor, updateInterval)
 	return &Comparison{

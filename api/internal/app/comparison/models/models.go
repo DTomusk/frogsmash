@@ -27,7 +27,6 @@ type Event struct {
 type ImageUpload struct {
 	ID         string
 	UserID     string
-	FileName   string
 	URL        string
 	UploadedAt string
 }

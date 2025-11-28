@@ -25,6 +25,7 @@ type VerificationRepo interface {
 	SaveVerificationCode(code *models.VerificationCode, ctx context.Context, db shared.DBTX) error
 	DeleteVerificationCodesForUser(userID string, ctx context.Context, db shared.DBTX) error
 	GetVerificationCode(code string, ctx context.Context, db shared.DBTX) (*models.VerificationCode, error)
+	IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error)
 }
 
 type EmailService interface {
@@ -36,6 +37,7 @@ type VerificationService interface {
 	ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error
 	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
 	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
+	IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error)
 }
 
 type verificationService struct {
@@ -187,4 +189,8 @@ func (s *verificationService) verificationTransaction(userID string, ctx context
 	}
 
 	return nil
+}
+
+func (s *verificationService) IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error) {
+	return s.verificationRepo.IsUserVerified(userID, ctx, db)
 }

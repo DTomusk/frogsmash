@@ -16,16 +16,6 @@ func GetUserID(c *gin.Context) (string, bool) {
 	return idStr, ok
 }
 
-func IsUserVerified(c *gin.Context) (bool, bool) {
-	isVerified, ok := c.Get("is_verified")
-	if !ok {
-		return false, false
-	}
-
-	verifiedBool, ok := isVerified.(bool)
-	return verifiedBool, ok
-}
-
 func GetClaims(c *gin.Context) (*models.Claims, bool) {
 	v, ok := c.Get("claims")
 	if !ok {

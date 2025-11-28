@@ -8,7 +8,7 @@ function useUpload() {
         mutationFn: async (file: File) => {
             const formData = new FormData();
             formData.append('image', file);
-            const res = await apiFetch<UploadResponse>('/upload', {
+            const res = await apiFetch<UploadResponse>('/comparison/submit-contender', {
                 method: 'POST',
                 body: formData
             });

@@ -40,3 +40,15 @@ func (r *VerificationRepo) GetVerificationCode(code string, ctx context.Context,
 	}
 	return &vc, nil
 }
+
+func (r *VerificationRepo) IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error) {
+	row := db.QueryRowContext(ctx,
+		"SELECT is_verified FROM users WHERE id = $1", userID,
+	)
+	var isVerified bool
+	err := row.Scan(&isVerified)
+	if err != nil {
+		return false, err
+	}
+	return isVerified, nil
+}

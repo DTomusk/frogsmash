@@ -14,11 +14,11 @@ func NewSubmissionRepo() *SubmissionRepo {
 }
 
 func (r *SubmissionRepo) GetLatestSubmissionByUser(userID string, ctx context.Context, db shared.DBTX) (*models.ImageUpload, error) {
-	query := "SELECT id, user_id, file_name, url, uploaded_at FROM image_uploads WHERE user_id = $1 ORDER BY uploaded_at DESC LIMIT 1"
+	query := "SELECT id, user_id, image_url, uploaded_at FROM image_uploads WHERE user_id = $1 ORDER BY uploaded_at DESC LIMIT 1"
 	row := db.QueryRowContext(ctx, query, userID)
 	var upload models.ImageUpload
 
-	if err := row.Scan(&upload.ID, &upload.UserID, &upload.FileName, &upload.URL, &upload.UploadedAt); err != nil {
+	if err := row.Scan(&upload.ID, &upload.UserID, &upload.URL, &upload.UploadedAt); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -50,4 +50,10 @@ func (r *SubmissionRepo) GetTimeOfLatestSubmission(userID string, ctx context.Co
 		return "", err
 	}
 	return uploadedAt, nil
+}
+
+func (r *SubmissionRepo) InsertImageUploadRecord(userID string, fileSize int64, imageURL string, ctx context.Context, db shared.DBTX) error {
+	query := "INSERT INTO image_uploads (user_id, file_size, image_url, uploaded_at) VALUES ($1, $2, $3, NOW())"
+	_, err := db.ExecContext(ctx, query, userID, fileSize, imageURL)
+	return err
 }

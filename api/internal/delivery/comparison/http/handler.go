@@ -143,11 +143,6 @@ func (h *ComparisonHandler) GetLeaderboard(ctx *gin.Context) {
 // @Produce      json
 // @Param        image  formData  file  true  "Image file to upload"
 func (h *ComparisonHandler) SubmitContender(ctx *gin.Context) {
-	claims, ok := utils.GetClaims(ctx)
-	if !ok || !claims.IsVerified {
-		ctx.JSON(403, gin.H{"error": "User is not verified"})
-		return
-	}
 	file, err := ctx.FormFile("image")
 	if err != nil {
 		ctx.JSON(400, sharedDto.Response{
@@ -157,7 +152,16 @@ func (h *ComparisonHandler) SubmitContender(ctx *gin.Context) {
 		return
 	}
 
-	err = h.SubmissionService.SubmitContender(claims.Sub, file, ctx.Request.Context(), h.db)
+	userId, ok := utils.GetUserID(ctx)
+	if !ok {
+		ctx.JSON(401, sharedDto.Response{
+			Error: "Unauthorized",
+			Code:  sharedDto.UnauthorizedCode,
+		})
+		return
+	}
+
+	err = h.SubmissionService.SubmitContender(userId, file, ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
