@@ -3,7 +3,6 @@ package container
 import (
 	"frogsmash/internal/app/auth/repos"
 	"frogsmash/internal/app/auth/services"
-	verification "frogsmash/internal/app/verification/services"
 	"frogsmash/internal/config"
 )
 
@@ -12,7 +11,7 @@ type Auth struct {
 	JwtService  services.TokenService
 }
 
-func NewAuth(cfg *config.Config, userService services.UserService, verificationService verification.VerificationService) *Auth {
+func NewAuth(cfg *config.Config, userService services.UserService, messageClient services.MessageClient) *Auth {
 	refreshTokenRepo := repos.NewRefreshTokenRepo()
 	hasher := services.NewBCryptHasher()
 	jwtService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)
@@ -22,7 +21,7 @@ func NewAuth(cfg *config.Config, userService services.UserService, verificationS
 		hasher,
 		jwtService,
 		userService,
-		verificationService,
+		messageClient,
 		cfg.TokenConfig.RefreshTokenLifetimeDays,
 	)
 

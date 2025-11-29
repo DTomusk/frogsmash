@@ -1,4 +1,4 @@
-package redis
+package messages
 
 import (
 	"context"
@@ -8,16 +8,17 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type RedisClient interface {
+type MessageClient interface {
 	IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error)
 	SetUpAndRunWorker(ctx context.Context, streamName, groupName, consumerID string) error
+	EnqueueMessage(ctx context.Context, message map[string]interface{}) error
 }
 
-type redisClient struct {
+type messageClient struct {
 	client *redis.Client
 }
 
-func NewRedisClient(ctx context.Context, redisAddress string) (RedisClient, error) {
+func NewMessageClient(ctx context.Context, redisAddress string) (MessageClient, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddress,
 	})
@@ -25,10 +26,10 @@ func NewRedisClient(ctx context.Context, redisAddress string) (RedisClient, erro
 	if err != nil {
 		return nil, err
 	}
-	return &redisClient{client: rdb}, nil
+	return &messageClient{client: rdb}, nil
 }
 
-func (r *redisClient) IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error) {
+func (r *messageClient) IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error) {
 	// If key doesn't exist, create and set to 1
 	val, err := r.client.Incr(ctx, key).Result()
 	if err != nil {
@@ -45,7 +46,7 @@ func (r *redisClient) IncrementAndGet(ctx context.Context, key string, expiratio
 	return val, nil
 }
 
-func (r *redisClient) SetUpAndRunWorker(ctx context.Context, streamName, groupName, consumerID string) error {
+func (r *messageClient) SetUpAndRunWorker(ctx context.Context, streamName, groupName, consumerID string) error {
 	// This creates a stream if it doesn't exist and a consumer group for the stream
 	// $ means only consume new messages
 	err := r.client.XGroupCreateMkStream(
@@ -94,4 +95,13 @@ func (r *redisClient) SetUpAndRunWorker(ctx context.Context, streamName, groupNa
 func isGroupExistsErr(err error) bool {
 	return err != nil &&
 		(err.Error() == "BUSYGROUP Consumer Group name already exists")
+}
+
+func (r *messageClient) EnqueueMessage(ctx context.Context, message map[string]interface{}) error {
+	log.Printf("Enqueuing message %v", message)
+	_, err := r.client.XAdd(ctx, &redis.XAddArgs{
+		Stream: "mystream",
+		Values: message,
+	}).Result()
+	return err
 }

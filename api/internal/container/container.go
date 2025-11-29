@@ -23,7 +23,7 @@ func NewContainer(cfg *config.Config, ctx context.Context) (*Container, error) {
 	user := NewUser(cfg)
 	verification := NewVerification(cfg, user.UserService, infraServices.EmailService)
 	// TODO: pass in infra queue instead so we can queue verification emails instead of sending them directly
-	auth := NewAuth(cfg, user.UserService, verification.VerificationService)
+	auth := NewAuth(cfg, user.UserService, infraServices.MessageClient)
 	comparison := NewComparison(cfg, infraServices.DB, infraServices.UploadService, verification.VerificationService)
 
 	return &Container{

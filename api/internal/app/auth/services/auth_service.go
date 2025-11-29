@@ -28,8 +28,8 @@ type UserService interface {
 	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
 }
 
-type VerificationService interface {
-	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
+type MessageClient interface {
+	EnqueueMessage(ctx context.Context, message map[string]interface{}) error
 }
 
 type AuthService interface {
@@ -44,7 +44,7 @@ type authService struct {
 	hasher                   Hasher
 	tokenService             TokenService
 	userService              UserService
-	verificationService      VerificationService
+	messageClient            MessageClient
 	refreshTokenLifetimeDays int
 }
 
@@ -53,14 +53,14 @@ func NewAuthService(
 	hasher Hasher,
 	tokenService TokenService,
 	userService UserService,
-	verificationService VerificationService,
+	messageClient MessageClient,
 	refreshTokenLifetimeDays int) AuthService {
 	return &authService{
 		refreshTokenRepo:         refreshTokenRepo,
 		hasher:                   hasher,
 		tokenService:             tokenService,
 		userService:              userService,
-		verificationService:      verificationService,
+		messageClient:            messageClient,
 		refreshTokenLifetimeDays: refreshTokenLifetimeDays,
 	}
 }
@@ -119,11 +119,19 @@ func (s *authService) Register(email, password string, ctx context.Context, db s
 	if err != nil {
 		return err
 	}
-	// TODO: send verification email
-	err = s.verificationService.GenerateAndSend(id, email, ctx, db)
-	if err != nil {
+
+	// err = s.verificationService.GenerateAndSend(id, email, ctx, db)
+	// if err != nil {
+	// 	return err
+	// }
+	if err := s.messageClient.EnqueueMessage(ctx, map[string]interface{}{
+		"type":    "send_verification_email",
+		"user_id": id,
+		"email":   email,
+	}); err != nil {
 		return err
 	}
+
 	return nil
 }
 

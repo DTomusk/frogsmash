@@ -20,6 +20,6 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
-	redisClient := c.InfraServices.RedisClient
-	redisClient.SetUpAndRunWorker(ctx, "mystream", "mygroup", "consumer1")
+	messageClient := c.InfraServices.MessageClient
+	messageClient.SetUpAndRunWorker(ctx, "mystream", "mygroup", "consumer1")
 }
