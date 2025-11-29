@@ -42,7 +42,7 @@ func NewAuthHandler(c *container.Container) *AuthHandler {
 // GetMe godoc
 // @Summary      Get current user
 // @Description  Retrieves the currently authenticated user's information
-// @Router       /me [get]
+// @Router       /auth/me [get]
 // @Produce      json
 func (h *AuthHandler) GetMe(ctx *gin.Context) {
 	sub, exists := utils.GetUserID(ctx)
@@ -71,7 +71,7 @@ func (h *AuthHandler) GetMe(ctx *gin.Context) {
 // Register godoc
 // @Summary      Register a new user
 // @Description  Registers a new user with email and password
-// @Router       /register [post]
+// @Router       /auth/register [post]
 // @Accept       json
 // @Produce      json
 // @Param        user  body  dto.UserRegistrationRequest  true  "User registration payload"
@@ -101,7 +101,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 // Login godoc
 // @Summary      User login
 // @Description  Logs in a user with email and password
-// @Router       /login [post]
+// @Router       /auth/login [post]
 // @Accept       json
 // @Produce      json
 // @Param        user  body  dto.UserLoginRequest  true  "User login payload"
@@ -141,7 +141,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 // Logout godoc
 // @Summary      User logout
 // @Description  Logs out a user by clearing the refresh token cookie
-// @Router       /logout [post]
+// @Router       /auth/logout [post]
 // @Accept       json
 // @Produce      json
 func (h *AuthHandler) Logout(ctx *gin.Context) {
@@ -175,7 +175,7 @@ func (h *AuthHandler) Logout(ctx *gin.Context) {
 // RefreshToken godoc
 // @Summary      Refresh JWT token
 // @Description  Refreshes the JWT token using a refresh token
-// @Router       /refresh-token [post]
+// @Router       /auth/refresh-token [post]
 // @Accept       json
 // @Produce      json
 // @Success      200    {object}  dto.UserLoginResponse

@@ -45,7 +45,7 @@ definitions:
         type: string
       id:
         type: string
-      is_verified:
+      isVerified:
         type: boolean
     type: object
   dto.VerificationRequest:
@@ -62,48 +62,7 @@ info:
   title: Frog Smash API
   version: "1.0"
 paths:
-  /compare:
-    post:
-      consumes:
-      - application/json
-      description: Records the result of a comparison between two items
-      parameters:
-      - description: Comparison Request
-        in: body
-        name: compareRequest
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CompareRequest'
-      produces:
-      - application/json
-      responses: {}
-      summary: Compare two items
-  /items:
-    get:
-      description: Retrieves two distinct items for comparison
-      produces:
-      - application/json
-      responses: {}
-      summary: Get two items for comparison
-  /leaderboard:
-    get:
-      description: Retrieves a paginated leaderboard of items
-      parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Items per page
-        in: query
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses: {}
-      summary: Get leaderboard
-  /login:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -123,7 +82,23 @@ paths:
           schema:
             $ref: '#/definitions/dto.UserLoginResponse'
       summary: User login
-  /refresh-token:
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logs out a user by clearing the refresh token cookie
+      produces:
+      - application/json
+      responses: {}
+      summary: User logout
+  /auth/me:
+    get:
+      description: Retrieves the currently authenticated user's information
+      produces:
+      - application/json
+      responses: {}
+      summary: Get current user
+  /auth/refresh-token:
     post:
       consumes:
       - application/json
@@ -136,7 +111,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.UserLoginResponse'
       summary: Refresh JWT token
-  /register:
+  /auth/register:
     post:
       consumes:
       - application/json
@@ -152,16 +127,55 @@ paths:
       - application/json
       responses: {}
       summary: Register a new user
-  /resend-verification:
+  /comparison/compare:
     post:
       consumes:
       - application/json
-      description: Resends the verification email to the user
+      description: Records the result of a comparison between two items
+      parameters:
+      - description: Comparison Request
+        in: body
+        name: compareRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CompareRequest'
       produces:
       - application/json
       responses: {}
-      summary: Resend verification email
-  /upload:
+      summary: Compare two items
+  /comparison/items:
+    get:
+      description: Retrieves two distinct items for comparison
+      produces:
+      - application/json
+      responses: {}
+      summary: Get two items for comparison
+  /comparison/latest-submission:
+    get:
+      description: Retrieves the time of the latest submission by the user
+      produces:
+      - application/json
+      responses: {}
+      summary: Get time of latest submission
+  /comparison/leaderboard:
+    get:
+      description: Retrieves a paginated leaderboard of items
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Get leaderboard
+  /comparison/submit-contender:
     post:
       consumes:
       - multipart/form-data
@@ -192,4 +206,22 @@ paths:
       - application/json
       responses: {}
       summary: Verify user email
+  /verify/resend-email-anonymous:
+    post:
+      consumes:
+      - application/json
+      description: Resends the verification email to the user without authentication
+      produces:
+      - application/json
+      responses: {}
+      summary: Resend verification email (anonymous)
+  /verify/resend-verification:
+    post:
+      consumes:
+      - application/json
+      description: Resends the verification email to the user
+      produces:
+      - application/json
+      responses: {}
+      summary: Resend verification email
 swagger: "2.0"

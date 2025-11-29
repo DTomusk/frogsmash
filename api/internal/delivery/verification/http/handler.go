@@ -34,7 +34,7 @@ func NewVerificationHandler(c *container.Container) *VerificationHandler {
 // ResendVerificationEmail godoc
 // @Summary      Resend verification email
 // @Description  Resends the verification email to the user
-// @Router       /resend-verification [post]
+// @Router       /verify/resend-verification [post]
 // @Accept       json
 // @Produce      json
 func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
@@ -63,6 +63,9 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 // ResendVerificationEmailAnonymous godoc
 // @Summary      Resend verification email (anonymous)
 // @Description  Resends the verification email to the user without authentication
+// @Router       /verify/resend-email-anonymous [post]
+// @Accept       json
+// @Produce      json
 func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context) {
 	var req dto.ResendVerificationEmailRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil || req.Email == "" {

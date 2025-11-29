@@ -41,7 +41,7 @@ func NewComparisonHandler(c *container.Container) *ComparisonHandler {
 // GetItems godoc
 // @Summary      Get two items for comparison
 // @Description  Retrieves two distinct items for comparison
-// @Router       /items [get]
+// @Router       /comparison/items [get]
 // @Produce      json
 func (h *ComparisonHandler) GetItems(ctx *gin.Context) {
 	item1, item2, err := h.ComparisonService.GetComparisonItems(ctx.Request.Context(), h.db)
@@ -71,7 +71,7 @@ func (h *ComparisonHandler) GetItems(ctx *gin.Context) {
 // CompareItems godoc
 // @Summary      Compare two items
 // @Description  Records the result of a comparison between two items
-// @Router       /compare [post]
+// @Router       /comparison/compare [post]
 // @Accept       json
 // @Produce      json
 // @Param        compareRequest  body      dto.CompareRequest  true  "Comparison Request"
@@ -114,7 +114,7 @@ func (h *ComparisonHandler) CompareItems(ctx *gin.Context) {
 // GetLeaderboard godoc
 // @Summary      Get leaderboard
 // @Description  Retrieves a paginated leaderboard of items
-// @Router       /leaderboard [get]
+// @Router       /comparison/leaderboard [get]
 // @Produce      json
 // @Param        page   query     int  false  "Page number"  default(1)
 // @Param        limit  query     int  false  "Items per page"  default(10)
@@ -138,7 +138,7 @@ func (h *ComparisonHandler) GetLeaderboard(ctx *gin.Context) {
 // UploadImage godoc
 // @Summary      Upload an image
 // @Description  Uploads an image to the server
-// @Router       /upload [post]
+// @Router       /comparison/submit-contender [post]
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        image  formData  file  true  "Image file to upload"
@@ -179,7 +179,7 @@ func (h *ComparisonHandler) SubmitContender(ctx *gin.Context) {
 // GetTimeOfLatestSubmission godoc
 // @Summary      Get time of latest submission
 // @Description  Retrieves the time of the latest submission by the user
-// @Router       /latest-submission [get]
+// @Router       /comparison/latest-submission [get]
 // @Produce      json
 func (h *ComparisonHandler) GetTimeOfLatestSubmission(ctx *gin.Context) {
 	userId, ok := utils.GetUserID(ctx)

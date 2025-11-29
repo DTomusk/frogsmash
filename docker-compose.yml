@@ -48,7 +48,7 @@ services:
 
   web:
     build:
-      context: ./web
+      context: ./web 
       dockerfile: ./Dockerfile
     ports:
       - "5173:80"

@@ -28,10 +28,10 @@ func (r *RedisFixedWindowRateLimiter) RateLimitMiddleware(keyFn func(*gin.Contex
 		key := r.keyPrefix + ":" + clientId
 
 		val, err := r.client.IncrementAndGet(ctx.Request.Context(), key, r.windowSeconds)
-		// TODO: revisit
-		// if it fails, allow the request to go through
+
+		// Fail if redis error
 		if err != nil {
-			ctx.Next()
+			ctx.AbortWithStatus(429)
 			return
 		}
 

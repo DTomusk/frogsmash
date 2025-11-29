@@ -15,67 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/compare": {
-            "post": {
-                "description": "Records the result of a comparison between two items",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Compare two items",
-                "parameters": [
-                    {
-                        "description": "Comparison Request",
-                        "name": "compareRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CompareRequest"
-                        }
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/items": {
-            "get": {
-                "description": "Retrieves two distinct items for comparison",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get two items for comparison",
-                "responses": {}
-            }
-        },
-        "/leaderboard": {
-            "get": {
-                "description": "Retrieves a paginated leaderboard of items",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get leaderboard",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/login": {
+        "/auth/login": {
             "post": {
                 "description": "Logs in a user with email and password",
                 "consumes": [
@@ -106,7 +46,30 @@ const docTemplate = `{
                 }
             }
         },
-        "/refresh-token": {
+        "/auth/logout": {
+            "post": {
+                "description": "Logs out a user by clearing the refresh token cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "User logout",
+                "responses": {}
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "description": "Retrieves the currently authenticated user's information",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get current user",
+                "responses": {}
+            }
+        },
+        "/auth/refresh-token": {
             "post": {
                 "description": "Refreshes the JWT token using a refresh token",
                 "consumes": [
@@ -126,7 +89,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/register": {
+        "/auth/register": {
             "post": {
                 "description": "Registers a new user with email and password",
                 "consumes": [
@@ -150,20 +113,77 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/resend-verification": {
+        "/comparison/compare": {
             "post": {
-                "description": "Resends the verification email to the user",
+                "description": "Records the result of a comparison between two items",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Resend verification email",
+                "summary": "Compare two items",
+                "parameters": [
+                    {
+                        "description": "Comparison Request",
+                        "name": "compareRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CompareRequest"
+                        }
+                    }
+                ],
                 "responses": {}
             }
         },
-        "/upload": {
+        "/comparison/items": {
+            "get": {
+                "description": "Retrieves two distinct items for comparison",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get two items for comparison",
+                "responses": {}
+            }
+        },
+        "/comparison/latest-submission": {
+            "get": {
+                "description": "Retrieves the time of the latest submission by the user",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get time of latest submission",
+                "responses": {}
+            }
+        },
+        "/comparison/leaderboard": {
+            "get": {
+                "description": "Retrieves a paginated leaderboard of items",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get leaderboard",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/comparison/submit-contender": {
             "post": {
                 "description": "Uploads an image to the server",
                 "consumes": [
@@ -206,6 +226,32 @@ const docTemplate = `{
                         }
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/verify/resend-email-anonymous": {
+            "post": {
+                "description": "Resends the verification email to the user without authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Resend verification email (anonymous)",
+                "responses": {}
+            }
+        },
+        "/verify/resend-verification": {
+            "post": {
+                "description": "Resends the verification email to the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Resend verification email",
                 "responses": {}
             }
         }
@@ -278,7 +324,7 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "is_verified": {
+                "isVerified": {
                     "type": "boolean"
                 }
             }
