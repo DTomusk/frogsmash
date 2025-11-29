@@ -19,6 +19,17 @@ services:
     ports:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "yes"]
+
+  migrator:
+    build:
+      context: ./api
+      dockerfile: ./cmd/migrator/Dockerfile
+    env_file:
+      - ./api/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
     
   api:
     build:
@@ -35,6 +46,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      migrator:
+        condition: service_completed_successfully
 
   scoreupdater:
     build:
@@ -45,6 +58,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
 
   web:
     build:
