@@ -7,6 +7,7 @@ import (
 	user "frogsmash/internal/app/user/models"
 	"frogsmash/internal/app/verification/factories"
 	"frogsmash/internal/app/verification/models"
+	"frogsmash/internal/infrastructure/messages"
 	"time"
 )
 
@@ -38,6 +39,7 @@ type VerificationService interface {
 	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
 	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 	IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error)
+	messages.MessageHandler
 }
 
 type verificationService struct {
@@ -91,6 +93,25 @@ func (s *verificationService) ResendVerificationEmailToEmail(email string, ctx c
 
 	defer tx.Rollback()
 	err = s.GenerateAndSend(user.ID, email, ctx, tx)
+	if err != nil {
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *verificationService) HandleMessage(ctx context.Context, values map[string]interface{}, db shared.DBWithTxStarter) error {
+	userID := values["user_id"].(string)
+	email := values["email"].(string)
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+	err = s.GenerateAndSend(userID, email, ctx, tx)
 	if err != nil {
 		return err
 	}

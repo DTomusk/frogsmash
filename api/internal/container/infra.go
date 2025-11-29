@@ -14,6 +14,7 @@ type InfraServices struct {
 	DB            shared.DBWithTxStarter
 	UploadService storage.UploadService
 	EmailService  email.EmailService
+	Dispatcher    messages.Dispatcher
 	MessageClient messages.MessageClient
 }
 
@@ -56,8 +57,9 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
-	// TODO: make Redis address configurable
-	messageClient, err := messages.NewMessageClient(ctx, "redis:6379")
+	dispatcher := messages.NewDispatcher()
+
+	messageClient, err := messages.NewMessageClient(ctx, "redis:6379", dispatcher, dbWithTxStarter)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +68,7 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 		UploadService: uploadService,
 		EmailService:  emailService,
 		DB:            dbWithTxStarter,
+		Dispatcher:    dispatcher,
 		MessageClient: messageClient,
 	}, nil
 }

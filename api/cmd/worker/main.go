@@ -21,5 +21,5 @@ func main() {
 	}
 
 	messageClient := c.InfraServices.MessageClient
-	messageClient.SetUpAndRunWorker(ctx, "mystream", "mygroup", "consumer1")
+	messageClient.SetUpAndRunWorker(ctx)
 }

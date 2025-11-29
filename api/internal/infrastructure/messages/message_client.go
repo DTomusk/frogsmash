@@ -2,6 +2,7 @@ package messages
 
 import (
 	"context"
+	"frogsmash/internal/app/shared"
 	"log"
 	"time"
 
@@ -10,15 +11,20 @@ import (
 
 type MessageClient interface {
 	IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error)
-	SetUpAndRunWorker(ctx context.Context, streamName, groupName, consumerID string) error
+	SetUpAndRunWorker(ctx context.Context) error
 	EnqueueMessage(ctx context.Context, message map[string]interface{}) error
 }
 
 type messageClient struct {
-	client *redis.Client
+	client     *redis.Client
+	dispatcher Dispatcher
+	db         shared.DBWithTxStarter
+	streamName string
+	groupName  string
+	consumerID string
 }
 
-func NewMessageClient(ctx context.Context, redisAddress string) (MessageClient, error) {
+func NewMessageClient(ctx context.Context, redisAddress string, dispatcher Dispatcher, db shared.DBWithTxStarter) (MessageClient, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: redisAddress,
 	})
@@ -26,7 +32,14 @@ func NewMessageClient(ctx context.Context, redisAddress string) (MessageClient, 
 	if err != nil {
 		return nil, err
 	}
-	return &messageClient{client: rdb}, nil
+	return &messageClient{
+		client:     rdb,
+		dispatcher: dispatcher,
+		db:         db,
+		streamName: "mystream",
+		groupName:  "mygroup",
+		consumerID: "consumer1",
+	}, nil
 }
 
 func (r *messageClient) IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error) {
@@ -46,13 +59,13 @@ func (r *messageClient) IncrementAndGet(ctx context.Context, key string, expirat
 	return val, nil
 }
 
-func (r *messageClient) SetUpAndRunWorker(ctx context.Context, streamName, groupName, consumerID string) error {
+func (r *messageClient) SetUpAndRunWorker(ctx context.Context) error {
 	// This creates a stream if it doesn't exist and a consumer group for the stream
 	// $ means only consume new messages
 	err := r.client.XGroupCreateMkStream(
 		ctx,
-		streamName,
-		groupName,
+		r.streamName,
+		r.groupName,
 		"$",
 	).Err()
 	if err != nil && !isGroupExistsErr(err) {
@@ -63,9 +76,9 @@ func (r *messageClient) SetUpAndRunWorker(ctx context.Context, streamName, group
 
 	for {
 		msgs, err := r.client.XReadGroup(ctx, &redis.XReadGroupArgs{
-			Group:    groupName,
-			Consumer: consumerID,
-			Streams:  []string{streamName, ">"},
+			Group:    r.groupName,
+			Consumer: r.consumerID,
+			Streams:  []string{r.streamName, ">"},
 			Count:    1,
 			Block:    30 * time.Second,
 		}).Result()
@@ -81,14 +94,26 @@ func (r *messageClient) SetUpAndRunWorker(ctx context.Context, streamName, group
 		}
 
 		for _, msg := range msgs[0].Messages {
-			// TODO: process message
-			log.Printf("Redis: processing message ID %s with values %v", msg.ID, msg.Values)
-			// Acknowledge message
-			err = r.client.XAck(ctx, streamName, groupName, msg.ID).Err()
-			if err != nil {
-				log.Printf("Redis: error acknowledging message ID %s: %v", msg.ID, err)
-			}
+			r.processMessage(msg, ctx)
 		}
+	}
+}
+
+func (r *messageClient) processMessage(msg redis.XMessage, ctx context.Context) {
+	messageType, ok := msg.Values["type"].(string)
+	if !ok {
+		log.Printf("Redis: message ID %s missing type field or type field is not a string", msg.ID)
+		r.acknowledgeMessage(msg.ID, ctx)
+		return
+	}
+	r.dispatcher.DispatchMessage(ctx, messageType, msg.Values, r.db)
+	r.acknowledgeMessage(msg.ID, ctx)
+}
+
+func (r *messageClient) acknowledgeMessage(messageID string, ctx context.Context) {
+	err := r.client.XAck(ctx, r.streamName, r.groupName, messageID).Err()
+	if err != nil {
+		log.Printf("Redis: error acknowledging message ID %s: %v", messageID, err)
 	}
 }
 
