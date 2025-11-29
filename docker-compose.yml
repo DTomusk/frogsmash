@@ -30,6 +30,20 @@ services:
       db:
         condition: service_healthy
     restart: "no"
+
+  worker:
+    build:
+      context: ./api
+      dockerfile: ./cmd/worker/Dockerfile
+    env_file:
+      - ./api/.env
+    depends_on:
+      redis:
+        condition: service_started
+      db:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     
   api:
     build:
@@ -56,20 +70,6 @@ services:
     env_file:
       - ./api/.env
     depends_on:
-      db:
-        condition: service_healthy
-      migrator:
-        condition: service_completed_successfully
-
-  worker:
-    build:
-      context: ./api
-      dockerfile: ./cmd/worker/Dockerfile
-    env_file:
-      - ./api/.env
-    depends_on:
-      redis:
-        condition: service_started
       db:
         condition: service_healthy
       migrator:

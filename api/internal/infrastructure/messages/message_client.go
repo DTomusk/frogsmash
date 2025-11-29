@@ -55,7 +55,7 @@ func (r *messageClient) SetUpAndRunWorker(ctx context.Context, streamName, group
 		groupName,
 		"$",
 	).Err()
-	if err != nil && isGroupExistsErr(err) {
+	if err != nil && !isGroupExistsErr(err) {
 		log.Fatalf("Redis: failed to created grouop: %v", err)
 	}
 
