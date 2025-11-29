@@ -56,6 +56,7 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
+	// TODO: make Redis address configurable
 	redisClient, err := redis.NewRedisClient(ctx, "redis:6379")
 	if err != nil {
 		return nil, err
