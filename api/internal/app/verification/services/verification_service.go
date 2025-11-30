@@ -102,6 +102,7 @@ func (s *verificationService) ResendVerificationEmailToEmail(email string, ctx c
 	return nil
 }
 
+// TODO: this might know too much about messaging infrastructure
 func (s *verificationService) HandleMessage(ctx context.Context, values map[string]interface{}, db shared.DBWithTxStarter) error {
 	userID := values["user_id"].(string)
 	email := values["email"].(string)

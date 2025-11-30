@@ -120,10 +120,6 @@ func (s *authService) Register(email, password string, ctx context.Context, db s
 		return err
 	}
 
-	// err = s.verificationService.GenerateAndSend(id, email, ctx, db)
-	// if err != nil {
-	// 	return err
-	// }
 	if err := s.messageClient.EnqueueMessage(ctx, map[string]interface{}{
 		"type":    "send_verification_email",
 		"user_id": id,
