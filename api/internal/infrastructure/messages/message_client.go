@@ -43,20 +43,18 @@ func NewMessageClient(ctx context.Context, redisAddress string, dispatcher Dispa
 }
 
 func (r *messageClient) IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error) {
-	// If key doesn't exist, create and set to 1
-	val, err := r.client.Incr(ctx, key).Result()
-	if err != nil {
-		return 0, err
-	}
-	// Set expiration only when key is newly created
-	// Expiration is expirationSeconds after it gets created
-	if val == 1 {
-		err = r.client.Expire(ctx, key, time.Duration(expirationSeconds)*time.Second).Err()
-		if err != nil {
-			return 0, err
-		}
-	}
-	return val, nil
+	// Lua script to increment a key and set expiration if it's new
+	var incrWithExpireScript = redis.NewScript(`
+	local current = redis.call("INCR", KEYS[1])
+	if current == 1 then
+		redis.call("EXPIRE", KEYS[1], ARGV[1])
+	end
+	return current
+	`)
+
+	result, err := incrWithExpireScript.Run(ctx, r.client, []string{key}, expirationSeconds).Result()
+
+	return result.(int64), err
 }
 
 func (r *messageClient) SetUpAndRunWorker(ctx context.Context) error {
@@ -125,7 +123,7 @@ func isGroupExistsErr(err error) bool {
 func (r *messageClient) EnqueueMessage(ctx context.Context, message map[string]interface{}) error {
 	log.Printf("Enqueuing message %v", message)
 	_, err := r.client.XAdd(ctx, &redis.XAddArgs{
-		Stream: "mystream",
+		Stream: r.streamName,
 		Values: message,
 	}).Result()
 	return err

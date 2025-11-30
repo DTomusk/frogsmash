@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"frogsmash/internal/app/shared"
+	"log"
 )
 
 type MessageHandler interface {
@@ -30,6 +31,7 @@ func (d *dispatcher) RegisterHandler(messageType string, handler MessageHandler)
 }
 
 func (d *dispatcher) DispatchMessage(ctx context.Context, messageType string, values map[string]interface{}, db shared.DBWithTxStarter) error {
+	log.Printf("Dispatching message: %s", messageType)
 	handler, exists := d.handlers[messageType]
 	if !exists {
 		return fmt.Errorf("no handler registered for message type: %s", messageType)

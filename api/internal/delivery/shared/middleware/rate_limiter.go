@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"frogsmash/internal/infrastructure/messages"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,11 +32,13 @@ func (r *RedisFixedWindowRateLimiter) RateLimitMiddleware(keyFn func(*gin.Contex
 
 		// Fail if redis error
 		if err != nil {
+			log.Printf("Rate limiter error: %v", err)
 			ctx.AbortWithStatus(429)
 			return
 		}
 
 		if val > int64(r.limit) {
+			log.Printf("Rate limiter: client %s exceeded limit with value %d", clientId, val)
 			ctx.AbortWithStatus(429)
 			return
 		}
