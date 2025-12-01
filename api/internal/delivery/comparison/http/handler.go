@@ -30,7 +30,7 @@ type ComparisonHandler struct {
 	db                shared.DBTX
 }
 
-func NewComparisonHandler(c *container.Container) *ComparisonHandler {
+func NewComparisonHandler(c *container.APIContainer) *ComparisonHandler {
 	return &ComparisonHandler{
 		ComparisonService: c.Comparison.ComparisonService,
 		SubmissionService: c.Comparison.SubmissionService,

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterAuthRoutes(r *gin.Engine, c *container.Container) {
+func RegisterAuthRoutes(r *gin.Engine, c *container.APIContainer) {
 	authHandler := NewAuthHandler(c)
 
 	auth := r.Group("/auth")

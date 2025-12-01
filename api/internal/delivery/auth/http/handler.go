@@ -31,7 +31,7 @@ type AuthHandler struct {
 	db          shared.DBWithTxStarter
 }
 
-func NewAuthHandler(c *container.Container) *AuthHandler {
+func NewAuthHandler(c *container.APIContainer) *AuthHandler {
 	return &AuthHandler{
 		authService: c.Auth.AuthService,
 		userService: c.User.UserService,

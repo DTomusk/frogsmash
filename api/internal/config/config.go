@@ -19,7 +19,7 @@ type Config struct {
 func NewConfig() (*Config, error) {
 	if os.Getenv("ENV") != "production" {
 		// Load .env file in non-production environments (not running in docker)
-		if err := godotenv.Load(".env.production"); err != nil {
+		if err := godotenv.Load(); err != nil {
 			return nil, fmt.Errorf("error loading .env file: %v", err)
 		}
 	}

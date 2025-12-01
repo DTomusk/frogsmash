@@ -30,14 +30,14 @@ func main() {
 	appCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, err := container.NewContainer(cfg, appCtx)
+	c, err := container.NewBaseContainer(cfg, appCtx)
 	if err != nil {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
 	apiContainer := container.NewAPIContainer(c)
 
-	r := appHttp.SetupRoutes(apiContainer.Container)
+	r := appHttp.SetupRoutes(apiContainer)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.AppConfig.Port,

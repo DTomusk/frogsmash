@@ -5,7 +5,7 @@ import (
 	"frogsmash/internal/config"
 )
 
-type Container struct {
+type BaseContainer struct {
 	Auth          *Auth
 	Comparison    *Comparison
 	Config        *config.Config
@@ -14,7 +14,12 @@ type Container struct {
 	InfraServices *InfraServices
 }
 
-func NewContainer(cfg *config.Config, ctx context.Context) (*Container, error) {
+// Base container needs:
+// c.InfraServices.DB,
+// 		c.Comparison.EventsRepo,
+// 		c.Comparison.ItemsRepo,
+
+func NewBaseContainer(cfg *config.Config, ctx context.Context) (*BaseContainer, error) {
 	infraServices, err := NewInfraServices(cfg, ctx)
 	if err != nil {
 		return nil, err
@@ -22,11 +27,9 @@ func NewContainer(cfg *config.Config, ctx context.Context) (*Container, error) {
 
 	user := NewUser(cfg)
 	verification := NewVerification(cfg, user.UserService, infraServices.EmailService)
-	auth := NewAuth(cfg, user.UserService, infraServices.MessageProducer)
 	comparison := NewComparison(cfg, infraServices.DB, infraServices.UploadService, verification.VerificationService)
 
-	return &Container{
-		Auth:          auth,
+	return &BaseContainer{
 		Comparison:    comparison,
 		InfraServices: infraServices,
 		Verification:  verification,

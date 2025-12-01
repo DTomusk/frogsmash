@@ -6,11 +6,11 @@ import (
 )
 
 type WorkerContainer struct {
-	*Container
+	*BaseContainer
 	MessageConsumer messages.MessageConsumer
 }
 
-func NewWorkerContainer(c *Container, ctx context.Context) (*WorkerContainer, error) {
+func NewWorkerContainer(c *BaseContainer, ctx context.Context) (*WorkerContainer, error) {
 	dispatcher := messages.NewDispatcher()
 	dispatcher.RegisterHandler("send_verification_email", c.Verification.VerificationService)
 
@@ -25,7 +25,7 @@ func NewWorkerContainer(c *Container, ctx context.Context) (*WorkerContainer, er
 	}
 
 	return &WorkerContainer{
-		Container:       c,
+		BaseContainer:   c,
 		MessageConsumer: messageConsumer,
 	}, nil
 }

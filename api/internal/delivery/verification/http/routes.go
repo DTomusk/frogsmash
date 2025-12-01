@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterVerificationRoutes(r *gin.Engine, c *container.Container) {
+func RegisterVerificationRoutes(r *gin.Engine, c *container.APIContainer) {
 	verificationHandler := NewVerificationHandler(c)
 
 	verification := r.Group("/verify")

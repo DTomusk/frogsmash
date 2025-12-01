@@ -1,11 +1,15 @@
 package container
 
 type APIContainer struct {
-	*Container
+	*BaseContainer
+	*Auth
 }
 
-func NewAPIContainer(c *Container) *APIContainer {
+func NewAPIContainer(c *BaseContainer) *APIContainer {
+	auth := NewAuth(c.Config, c.User.UserService, c.InfraServices.MessageProducer)
+
 	return &APIContainer{
-		Container: c,
+		BaseContainer: c,
+		Auth:          auth,
 	}
 }

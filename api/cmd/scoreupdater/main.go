@@ -19,7 +19,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, err := container.NewContainer(cfg, ctx)
+	c, err := container.NewBaseContainer(cfg, ctx)
 	if err != nil {
 		log.Fatalf("Failed to create container: %v", err)
 	}

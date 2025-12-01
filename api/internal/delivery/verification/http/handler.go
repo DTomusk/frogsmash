@@ -24,7 +24,7 @@ type VerificationHandler struct {
 	db                  shared.DBWithTxStarter
 }
 
-func NewVerificationHandler(c *container.Container) *VerificationHandler {
+func NewVerificationHandler(c *container.APIContainer) *VerificationHandler {
 	return &VerificationHandler{
 		verificationService: c.Verification.VerificationService,
 		db:                  c.InfraServices.DB,

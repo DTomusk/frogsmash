@@ -15,7 +15,7 @@ func main() {
 	}
 
 	// TODO: consider lighter version of container for workers
-	c, err := container.NewContainer(cfg, ctx)
+	c, err := container.NewBaseContainer(cfg, ctx)
 	if err != nil {
 		log.Fatalf("Failed to create container: %v", err)
 	}

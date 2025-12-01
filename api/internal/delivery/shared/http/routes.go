@@ -15,7 +15,7 @@ import (
 	verificationHttp "frogsmash/internal/delivery/verification/http"
 )
 
-func SetupRoutes(c *container.Container) *gin.Engine {
+func SetupRoutes(c *container.APIContainer) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())

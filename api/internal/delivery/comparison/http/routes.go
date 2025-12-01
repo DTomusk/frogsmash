@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterComparisonRoutes(r *gin.Engine, c *container.Container) {
+func RegisterComparisonRoutes(r *gin.Engine, c *container.APIContainer) {
 	comparisonHandler := NewComparisonHandler(c)
 	comparison := r.Group("/comparison")
 

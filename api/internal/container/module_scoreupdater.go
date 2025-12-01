@@ -7,11 +7,11 @@ import (
 )
 
 type ScoreUpdaterContainer struct {
-	*Container
+	*BaseContainer
 	ScoreUpdater services.ScoreUpdater
 }
 
-func NewScoreUpdaterContainer(c *Container, cfg *config.Config) *ScoreUpdaterContainer {
+func NewScoreUpdaterContainer(c *BaseContainer, cfg *config.Config) *ScoreUpdaterContainer {
 	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 	scoreUpdater := services.NewScoreUpdater(
 		c.InfraServices.DB,
@@ -21,7 +21,7 @@ func NewScoreUpdaterContainer(c *Container, cfg *config.Config) *ScoreUpdaterCon
 		updateInterval)
 
 	return &ScoreUpdaterContainer{
-		Container:    c,
-		ScoreUpdater: scoreUpdater,
+		BaseContainer: c,
+		ScoreUpdater:  scoreUpdater,
 	}
 }
