@@ -13,26 +13,25 @@ type RedisClient interface {
 	AddMessage(ctx context.Context, message map[string]interface{}) error
 }
 
-type MessageService interface {
+type MessageConsumer interface {
 	SetUpAndRunWorker(ctx context.Context) error
-	EnqueueMessage(ctx context.Context, message map[string]interface{}) error
 }
 
-type messageService struct {
+type messageConsumer struct {
 	client     RedisClient
 	dispatcher Dispatcher
 	db         shared.DBWithTxStarter
 }
 
-func NewMessageService(ctx context.Context, client RedisClient, dispatcher Dispatcher, db shared.DBWithTxStarter) (MessageService, error) {
-	return &messageService{
+func NewMessageConsumer(ctx context.Context, client RedisClient, dispatcher Dispatcher, db shared.DBWithTxStarter) (MessageConsumer, error) {
+	return &messageConsumer{
 		client:     client,
 		dispatcher: dispatcher,
 		db:         db,
 	}, nil
 }
 
-func (r *messageService) SetUpAndRunWorker(ctx context.Context) error {
+func (r *messageConsumer) SetUpAndRunWorker(ctx context.Context) error {
 	err := r.client.InitStream(ctx)
 	if err != nil {
 		return err
@@ -59,7 +58,7 @@ func (r *messageService) SetUpAndRunWorker(ctx context.Context) error {
 	}
 }
 
-func (r *messageService) processMessage(msg *Message, ctx context.Context) {
+func (r *messageConsumer) processMessage(msg *Message, ctx context.Context) {
 	messageType, ok := msg.Values["type"].(string)
 	if !ok {
 		log.Printf("Redis: message ID %s missing type field or type field is not a string", msg.ID)
@@ -70,20 +69,9 @@ func (r *messageService) processMessage(msg *Message, ctx context.Context) {
 	r.acknowledgeMessage(msg.ID, ctx)
 }
 
-func (r *messageService) acknowledgeMessage(messageID string, ctx context.Context) {
+func (r *messageConsumer) acknowledgeMessage(messageID string, ctx context.Context) {
 	err := r.client.AcknowledgeMessage(messageID, ctx)
 	if err != nil {
 		log.Printf("Redis: error acknowledging message ID %s: %v", messageID, err)
 	}
-}
-
-func (r *messageService) EnqueueMessage(ctx context.Context, message map[string]interface{}) error {
-	log.Printf("Enqueuing message %v", message)
-	return r.client.AddMessage(ctx, message)
-}
-
-// TODO move model
-type Message struct {
-	ID     string
-	Values map[string]interface{}
 }

@@ -11,7 +11,7 @@ type Auth struct {
 	JwtService  services.TokenService
 }
 
-func NewAuth(cfg *config.Config, userService services.UserService, messageService services.MessageService) *Auth {
+func NewAuth(cfg *config.Config, userService services.UserService, messageService services.MessageProducer) *Auth {
 	refreshTokenRepo := repos.NewRefreshTokenRepo()
 	hasher := services.NewBCryptHasher()
 	jwtService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)

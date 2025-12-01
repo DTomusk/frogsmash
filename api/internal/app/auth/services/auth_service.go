@@ -28,7 +28,7 @@ type UserService interface {
 	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
 }
 
-type MessageService interface {
+type MessageProducer interface {
 	EnqueueMessage(ctx context.Context, message map[string]interface{}) error
 }
 
@@ -44,7 +44,7 @@ type authService struct {
 	hasher                   Hasher
 	tokenService             TokenService
 	userService              UserService
-	messageService           MessageService
+	messageProducer          MessageProducer
 	refreshTokenLifetimeDays int
 }
 
@@ -53,14 +53,14 @@ func NewAuthService(
 	hasher Hasher,
 	tokenService TokenService,
 	userService UserService,
-	messageService MessageService,
+	messageProducer MessageProducer,
 	refreshTokenLifetimeDays int) AuthService {
 	return &authService{
 		refreshTokenRepo:         refreshTokenRepo,
 		hasher:                   hasher,
 		tokenService:             tokenService,
 		userService:              userService,
-		messageService:           messageService,
+		messageProducer:          messageProducer,
 		refreshTokenLifetimeDays: refreshTokenLifetimeDays,
 	}
 }
@@ -120,7 +120,7 @@ func (s *authService) Register(email, password string, ctx context.Context, db s
 		return err
 	}
 
-	if err := s.messageService.EnqueueMessage(ctx, map[string]interface{}{
+	if err := s.messageProducer.EnqueueMessage(ctx, map[string]interface{}{
 		"type":    "send_verification_email",
 		"user_id": id,
 		"email":   email,

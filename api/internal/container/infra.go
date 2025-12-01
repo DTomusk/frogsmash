@@ -12,12 +12,11 @@ import (
 )
 
 type InfraServices struct {
-	DB             shared.DBWithTxStarter
-	UploadService  storage.UploadService
-	EmailService   email.EmailService
-	Dispatcher     messages.Dispatcher
-	MessageService messages.MessageService
-	RedisClient    redis.RedisClient
+	DB              shared.DBWithTxStarter
+	UploadService   storage.UploadService
+	EmailService    email.EmailService
+	RedisClient     redis.RedisClient
+	MessageProducer messages.MessageProducer
 }
 
 func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, error) {
@@ -59,21 +58,19 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
-	dispatcher := messages.NewDispatcher()
-
+	// TODO: make stream name, group name, consumer name configurable
 	redisClient := redis.NewRedisClient(cfg.MessageConfig.RedisAddress, "mystream", "mygroup", "consumer1")
 
-	messageService, err := messages.NewMessageService(ctx, redisClient, dispatcher, dbWithTxStarter)
+	messageProducer, err := messages.NewMessageProducer(redisClient)
 	if err != nil {
 		return nil, err
 	}
 
 	return &InfraServices{
-		UploadService:  uploadService,
-		EmailService:   emailService,
-		DB:             dbWithTxStarter,
-		Dispatcher:     dispatcher,
-		MessageService: messageService,
-		RedisClient:    redisClient,
+		UploadService:   uploadService,
+		EmailService:    emailService,
+		DB:              dbWithTxStarter,
+		RedisClient:     redisClient,
+		MessageProducer: messageProducer,
 	}, nil
 }
