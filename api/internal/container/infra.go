@@ -58,8 +58,7 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
-	// TODO: make stream name, group name, consumer name configurable
-	redisClient := redis.NewRedisClient(cfg.MessageConfig.RedisAddress, "mystream", "mygroup", "consumer1")
+	redisClient := redis.NewRedisClient(cfg.MessageConfig.RedisAddress, cfg.MessageConfig.StreamName, cfg.MessageConfig.GroupName, cfg.MessageConfig.ConsumerID)
 
 	messageProducer, err := messages.NewMessageProducer(redisClient)
 	if err != nil {

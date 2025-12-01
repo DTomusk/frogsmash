@@ -6,18 +6,12 @@ import (
 )
 
 type BaseContainer struct {
-	Auth          *Auth
 	Comparison    *Comparison
 	Config        *config.Config
 	Verification  *Verification
 	User          *User
 	InfraServices *InfraServices
 }
-
-// Base container needs:
-// c.InfraServices.DB,
-// 		c.Comparison.EventsRepo,
-// 		c.Comparison.ItemsRepo,
 
 func NewBaseContainer(cfg *config.Config, ctx context.Context) (*BaseContainer, error) {
 	infraServices, err := NewInfraServices(cfg, ctx)
