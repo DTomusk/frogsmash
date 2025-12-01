@@ -59,7 +59,7 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	dispatcher := messages.NewDispatcher()
 
-	messageClient, err := messages.NewMessageClient(ctx, "redis:6379", dispatcher, dbWithTxStarter)
+	messageClient, err := messages.NewMessageClient(ctx, cfg.MessageConfig.RedisAddress, dispatcher, dbWithTxStarter)
 	if err != nil {
 		return nil, err
 	}

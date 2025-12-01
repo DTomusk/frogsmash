@@ -11,6 +11,7 @@ type Config struct {
 	AppConfig      *AppConfig
 	DatabaseConfig *DatabaseConfig
 	MailConfig     *MailConfig
+	MessageConfig  *MessageConfig
 	StorageConfig  *StorageConfig
 	TokenConfig    *TokenConfig
 }
@@ -18,7 +19,7 @@ type Config struct {
 func NewConfig() (*Config, error) {
 	if os.Getenv("ENV") != "production" {
 		// Load .env file in non-production environments (not running in docker)
-		if err := godotenv.Load(); err != nil {
+		if err := godotenv.Load(".env.production"); err != nil {
 			return nil, fmt.Errorf("error loading .env file: %v", err)
 		}
 	}
@@ -27,6 +28,7 @@ func NewConfig() (*Config, error) {
 		AppConfig:      NewAppConfig(),
 		DatabaseConfig: NewDatabaseConfig(),
 		MailConfig:     NewMailConfig(),
+		MessageConfig:  NewMessageConfig(),
 		StorageConfig:  NewStorageConfig(),
 		TokenConfig:    NewTokenConfig(),
 	}
