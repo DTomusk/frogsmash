@@ -5,13 +5,14 @@ import (
 	"frogsmash/internal/app/comparison/services"
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/config"
-	"time"
 )
 
 type Comparison struct {
+	// TODO: we shouldn't be exposing repos here directly; refactor to services only
+	EventsRepo        repos.EventsRepo
+	ItemsRepo         repos.ItemsRepo
 	ComparisonService services.ComparisonService
 	SubmissionService services.SubmissionService
-	ScoreUpdater      services.ScoreUpdater
 }
 
 func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService services.UploadService, verificationService services.VerificationService) *Comparison {
@@ -20,15 +21,14 @@ func NewComparison(cfg *config.Config, db shared.DBWithTxStarter, uploadService 
 
 	itemsRepo := repos.NewItemsRepo()
 	comparisonService := services.NewComparisonService(itemsRepo, eventsService)
-	updateInterval := time.Duration(cfg.AppConfig.ScoreUpdateInterval) * time.Second
 
 	submissionRepo := repos.NewSubmissionRepo()
 	submissionService := services.NewSubmissionService(uploadService, submissionRepo, verificationService, cfg.AppConfig.TotalDataLimit)
 
-	scoreUpdater := services.NewScoreUpdater(db, eventsRepo, itemsRepo, cfg.AppConfig.KFactor, updateInterval)
 	return &Comparison{
+		EventsRepo:        eventsRepo,
+		ItemsRepo:         itemsRepo,
 		ComparisonService: comparisonService,
 		SubmissionService: submissionService,
-		ScoreUpdater:      scoreUpdater,
 	}
 }

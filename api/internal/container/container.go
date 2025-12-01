@@ -22,7 +22,7 @@ func NewContainer(cfg *config.Config, ctx context.Context) (*Container, error) {
 
 	user := NewUser(cfg)
 	verification := NewVerification(cfg, user.UserService, infraServices.EmailService)
-	auth := NewAuth(cfg, user.UserService, infraServices.MessageClient)
+	auth := NewAuth(cfg, user.UserService, infraServices.MessageService)
 	comparison := NewComparison(cfg, infraServices.DB, infraServices.UploadService, verification.VerificationService)
 
 	infraServices.Dispatcher.RegisterHandler("send_verification_email", verification.VerificationService)

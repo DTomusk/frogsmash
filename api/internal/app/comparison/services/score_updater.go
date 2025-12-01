@@ -12,7 +12,6 @@ import (
 
 type ScoreUpdater interface {
 	Run(ctx context.Context)
-	GetWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error)
 }
 
 type scoreUpdater struct {
@@ -54,7 +53,7 @@ func (su *scoreUpdater) handleEvent(ctx context.Context) {
 	}
 	log.Printf("Processing event ID: %s", event.ID)
 
-	winner, loser, err := su.GetWinnerAndLoser(event.WinnerID, event.LoserID, ctx)
+	winner, loser, err := su.getWinnerAndLoser(event.WinnerID, event.LoserID, ctx)
 	if err != nil {
 		log.Printf("Error getting winner and loser: %v", err)
 		err := su.EventRepo.SetEventFailed(event.ID, ctx, su.db)
@@ -97,7 +96,7 @@ func (su *scoreUpdater) handleEvent(ctx context.Context) {
 	log.Printf("Event ID %s processed successfully.", event.ID)
 }
 
-func (su *scoreUpdater) GetWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error) {
+func (su *scoreUpdater) getWinnerAndLoser(winnerId, loserId string, ctx context.Context) (*models.Item, *models.Item, error) {
 	winner, err := su.ItemsRepo.GetItemById(winnerId, ctx, su.db)
 	if err != nil {
 		log.Printf("Error fetching winner item: %v", err)

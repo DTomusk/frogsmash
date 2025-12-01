@@ -24,12 +24,14 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
+	scoreUpdaterContainer := container.NewScoreUpdaterContainer(c, cfg)
+
 	// Handle graceful shutdown
 	quitCh := make(chan os.Signal, 1)
 	signal.Notify(quitCh, syscall.SIGINT, syscall.SIGTERM)
 
 	// Start the score updater
-	go c.Comparison.ScoreUpdater.Run(ctx)
+	go scoreUpdaterContainer.ScoreUpdater.Run(ctx)
 	log.Println("ScoreUpdater running...")
 
 	<-quitCh

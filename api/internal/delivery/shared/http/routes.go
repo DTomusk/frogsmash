@@ -23,7 +23,7 @@ func SetupRoutes(c *container.Container) *gin.Engine {
 
 	// TODO: review and inject values, right now use 100 requests per minute per IP
 	rateLimiter := middleware.NewRedisFixedWindowRateLimiter(
-		c.InfraServices.MessageClient,
+		c.InfraServices.RedisClient,
 		100,
 		60,
 		"rate_limiter")

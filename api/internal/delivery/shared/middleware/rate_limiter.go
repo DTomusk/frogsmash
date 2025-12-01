@@ -1,20 +1,24 @@
 package middleware
 
 import (
-	"frogsmash/internal/infrastructure/messages"
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
 )
 
+type redisClient interface {
+	IncrementAndGet(ctx context.Context, key string, expirationSeconds int) (int64, error)
+}
+
 type RedisFixedWindowRateLimiter struct {
-	client        messages.MessageClient
+	client        redisClient
 	limit         int
 	windowSeconds int
 	keyPrefix     string
 }
 
-func NewRedisFixedWindowRateLimiter(client messages.MessageClient, limit int, windowSeconds int, keyPrefix string) *RedisFixedWindowRateLimiter {
+func NewRedisFixedWindowRateLimiter(client redisClient, limit int, windowSeconds int, keyPrefix string) *RedisFixedWindowRateLimiter {
 	return &RedisFixedWindowRateLimiter{
 		client:        client,
 		limit:         limit,

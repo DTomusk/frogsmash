@@ -20,6 +20,8 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
-	messageClient := c.InfraServices.MessageClient
-	messageClient.SetUpAndRunWorker(ctx)
+	workerContainer := container.NewWorkerContainer(c)
+
+	messageService := workerContainer.InfraServices.MessageService
+	messageService.SetUpAndRunWorker(ctx)
 }

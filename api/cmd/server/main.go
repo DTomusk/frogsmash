@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"frogsmash/internal/config"
 	"frogsmash/internal/container"
 	appHttp "frogsmash/internal/delivery/shared/http"
@@ -23,13 +22,6 @@ import (
 // @version 1.0
 // @description The API for comparing frogs and other things
 func main() {
-	// TODO: use elsewhere
-	verbose := flag.Bool("v", false, "enable verbose output")
-	flag.Parse()
-	if *verbose {
-		log.Println("Verbose mode enabled")
-	}
-
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -43,7 +35,9 @@ func main() {
 		log.Fatalf("Failed to create container: %v", err)
 	}
 
-	r := appHttp.SetupRoutes(c)
+	apiContainer := container.NewAPIContainer(c)
+
+	r := appHttp.SetupRoutes(apiContainer.Container)
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.AppConfig.Port,
