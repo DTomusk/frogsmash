@@ -1,8 +1,8 @@
 import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Paper, Typography } from "@mui/material";
-import type { LeaderboardItem } from "../../models/items";
+import type { LeaderboardItemResponse } from "../../dtos/leaderboardResponse";
 
 interface LeaderboardEntryProps {
-    item: LeaderboardItem;
+    item: LeaderboardItemResponse;
     onClick?: () => void;
 }
 

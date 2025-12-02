@@ -1,13 +1,13 @@
 import { Box, Button, Card, CardActions, CardMedia, IconButton, Modal, Tooltip, Typography } from "@mui/material";
-import type { LeaderboardItem } from "../../models/items";
 import { format } from 'date-fns';
 import InfoIcon from '@mui/icons-material/Info';
 import { Image } from 'mui-image'
+import type { LeaderboardItemResponse } from "../../dtos/leaderboardResponse";
 
 interface LeaderboardDetailModalProps {
     open: boolean;
     setOpen: (open: boolean) => void;
-    item: LeaderboardItem;
+    item: LeaderboardItemResponse;
 }
 
 function LeaderboardDetailModal({ open, setOpen, item }: LeaderboardDetailModalProps) {

@@ -4,14 +4,14 @@ import { LoadingSpinner } from "@/shared";
 import LeaderboardEntry from "../organisms/LeaderboardEntry";
 import { useState } from "react";
 import LeaderboardDetailModal from "../organisms/LeaderboardDetailModal";
-import type { LeaderboardItem } from "../../models/items";
+import type { LeaderboardItemResponse } from "../../dtos/leaderboardResponse";
 
 function LeaderboardPage() {
     const [page, setPage] = useState(1);
     const { data: leaderboardData, isLoading } = useLeaderboard(page, 10);
 
     const [open, setOpen] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<LeaderboardItem | null>(null);
+    const [selectedItem, setSelectedItem] = useState<LeaderboardItemResponse | null>(null);
 
   return <>
         <Typography variant="h3" sx={{mt: 4, mb: 2}}>Leaderboard</Typography>
