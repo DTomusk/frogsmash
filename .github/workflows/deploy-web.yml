@@ -1,0 +1,70 @@
+name: Deploy FrogSmash web
+
+# when deployments happen, either pushes to main or manual 
+on: 
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+# What permissions the workflow has, can read the repo, can upload the build and can authenticate 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# if there are multiple commits and multiple deployments are running, all but the latest will get cancelled 
+concurrency: 
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # what the job is called (build)
+  build:
+    # job runs on github's ubuntu server 
+    runs-on: ubuntu-latest
+
+    # sets the defaults for the following steps, namely making sure all run commands run inside the web directory 
+    defaults:
+      run: 
+        working-directory: web
+
+    steps:
+      # downloads the repo 
+      - name: Checkout 
+        uses: actions/checkout@v4
+
+      # installs node and enables caching to speed up subsequent builds 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      # runs npm install to install node modules
+      - name: Install deps
+        run: npm install
+
+      # builds dist (using vite) 
+      - name: Build
+        run: npm run build
+
+      # needed so the next job (deploy) has access to what this job built (which is the web)
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    # guarantees build order 
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
