@@ -7,15 +7,18 @@ function LandingPage() {
             <Box
             sx={{
                 width: "100%",
-                height: {xs: 200, sm: 400, md: 500, lg: 600, xl: 800},
+                height: {xs: 400, sm: 400, md: 500, lg: 600, xl: 800},
                 backgroundSize: "cover",
                 display: "flex",
-                backgroundImage: theme.palette.mode === 'light'
+                backgroundImage: {xs: "none", 
+                    sm:
+                    theme.palette.mode === 'light'
                     ? `url(/froggy_light.png)`
-                    : `url(/froggy_dark.png)`,
+                    : `url(/froggy_dark.png)`
+                }
             }}
             >
-            <Box sx={{ width: "50%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{ width: { xs: "100%", sm: "50%", md: "50%" }, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                 <Typography variant="h4" sx={{ textAlign: 'center', mt: 4, color: theme.palette.mode === 'light' ? 'black' : 'white' }}>
                     Compare frogs
                 </Typography>
@@ -28,7 +31,7 @@ function LandingPage() {
                 <LinkButton color={theme.palette.mode === 'light' ? 'primary' : 'secondary'} text="Start smashing!" to="/smash" />
             </Box>
         </Box>
-        <Box width="50%">
+        <Box width={{ xs: "90%", sm: "70%", md: "50%" }}>
             <Paper elevation={3} sx={{ p: 2 }}>
                 <Typography variant="h3" sx={{ textAlign: 'center', mb: 2, mt: 2 }}>
                     What is FrogSmash?
