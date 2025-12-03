@@ -35,7 +35,7 @@ export const darkTheme = createTheme({
             main: '#1f9408ff',
         },
         secondary: {
-            main: '#de8601ff',
+            main: '#d36a00ff',
         },
         background: {
             default: '#121212ff',
