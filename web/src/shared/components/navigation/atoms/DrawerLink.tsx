@@ -5,13 +5,14 @@ import { Link } from "react-router-dom";
 interface DrawerLinkProps {
     to: string;
     label: string;
+    onClick: () => void;
 }
 
-export function DrawerLink({ to, label }: DrawerLinkProps) {
+export function DrawerLink({ to, label, onClick }: DrawerLinkProps) {
     return (
         <Link to={to} style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem disablePadding>
-                <ListItemButton>
+                <ListItemButton onClick={onClick}>
                     <ListItemIcon>
                         <Home />
                     </ListItemIcon>
