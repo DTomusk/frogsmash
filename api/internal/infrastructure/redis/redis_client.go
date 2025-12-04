@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
 	"frogsmash/internal/infrastructure/messages"
 
 	"github.com/redis/go-redis/v9"
@@ -22,9 +23,12 @@ type redisClient struct {
 	consumerID string
 }
 
-func NewRedisClient(redisAddress string, streamName string, groupName string, consumerID string) RedisClient {
+func NewRedisClient(redisAddress, redisUsername, redisPassword, streamName, groupName, consumerID string) RedisClient {
 	rdb := redis.NewClient(&redis.Options{
-		Addr: redisAddress,
+		Addr:      redisAddress,
+		Username:  redisUsername,
+		Password:  redisPassword,
+		TLSConfig: &tls.Config{},
 	})
 	return &redisClient{
 		client:     rdb,

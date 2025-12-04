@@ -58,7 +58,14 @@ func NewInfraServices(cfg *config.Config, ctx context.Context) (*InfraServices, 
 
 	emailService := email.NewEmailService(emailClient, templateRenderer, cfg.AppConfig.AppURL)
 
-	redisClient := redis.NewRedisClient(cfg.MessageConfig.RedisAddress, cfg.MessageConfig.StreamName, cfg.MessageConfig.GroupName, cfg.MessageConfig.ConsumerID)
+	redisClient := redis.NewRedisClient(
+		cfg.MessageConfig.RedisAddress,
+		cfg.MessageConfig.RedisUsername,
+		cfg.MessageConfig.RedisPassword,
+		cfg.MessageConfig.StreamName,
+		cfg.MessageConfig.GroupName,
+		cfg.MessageConfig.ConsumerID,
+	)
 
 	messageProducer, err := messages.NewMessageProducer(redisClient)
 	if err != nil {
