@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for api-polished-smoke-4298 on 2025-12-04T18:57:42Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'api-polished-smoke-4298'
+primary_region = 'lhr'
+
+[build]
+  dockerfile = "cmd/worker/Dockerfile"
+  build-target = ""
+  context = "."
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

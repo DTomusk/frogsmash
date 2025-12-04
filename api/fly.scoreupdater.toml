@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for frogsmash-scoreupdater-cool-shape-3757 on 2025-12-01T23:36:56Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'frogsmash-scoreupdater-cool-shape-3757'
+primary_region = 'lhr'
+
+[build]
+  dockerfile = "cmd/scoreupdater/Dockerfile"
+  build-target = ""
+  context = "."
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
