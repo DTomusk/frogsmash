@@ -6,6 +6,8 @@ import { useAuth, useSnackbar } from "@/app/providers";
 import { FormWrapper, EmailField, StyledLink } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 import type { LoginResponse } from "../../dtos/loginResponse";
+import GoogleSignInButton from "../atoms/GoogleSignInButton";
+import { useGoogleLogin } from "../../hooks/useGoogleLogin";
 
 interface LoginData {
     email: string;
@@ -20,6 +22,7 @@ function LoginPage() {
     } = useForm<LoginData>();
 
     const { mutate: login, isPending } = useLogin();
+    const { mutate: googleLogin } = useGoogleLogin();
     const { login: authLogin } = useAuth();
     const { showSnackbar } = useSnackbar();
     const navigate = useNavigate();
@@ -36,6 +39,21 @@ function LoginPage() {
             }
         });
     };
+
+    function handleLogin(credential: string) {
+        console.log("Google ID Token:", credential);
+
+        googleLogin({ idToken: credential }, {
+            onSuccess: (response: LoginResponse) => {
+                authLogin(response.jwt, response.user);
+                showSnackbar({ message: "Login successful, welcome back!🎉", severity: "success" });
+                navigate("/smash");
+            },
+            onError: (err: any) => {
+                showSnackbar({ message: err.message || "Google Login failed", severity: "error" });
+            }
+        });
+    }
 
     return <>
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -57,6 +75,7 @@ function LoginPage() {
             <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
                 <Typography variant="h6">Login</Typography>
             </Button>
+            <GoogleSignInButton onLogin={handleLogin} />
         </FormWrapper>
     </>;
 }

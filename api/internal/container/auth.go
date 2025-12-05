@@ -15,6 +15,7 @@ func NewAuth(cfg *config.Config, userService services.UserService, messageServic
 	refreshTokenRepo := repos.NewRefreshTokenRepo()
 	hasher := services.NewBCryptHasher()
 	jwtService := services.NewJwtService([]byte(cfg.TokenConfig.JWTSecret), cfg.TokenConfig.TokenLifetimeMinutes)
+	googleService := services.NewGoogleService(cfg.AppConfig.GoogleClientID)
 
 	authService := services.NewAuthService(
 		refreshTokenRepo,
@@ -22,6 +23,7 @@ func NewAuth(cfg *config.Config, userService services.UserService, messageServic
 		jwtService,
 		userService,
 		messageService,
+		googleService,
 		cfg.TokenConfig.RefreshTokenLifetimeDays,
 	)
 

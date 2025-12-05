@@ -15,6 +15,37 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/google-login": {
+            "post": {
+                "description": "Logs in a user using Google ID token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Google login",
+                "parameters": [
+                    {
+                        "description": "Google ID token payload",
+                        "name": "token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.GoogleLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserLoginResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Logs in a user with email and password",
@@ -269,6 +300,18 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GoogleLoginRequest": {
+            "description": "Request payload for Google login",
+            "type": "object",
+            "required": [
+                "idToken"
+            ],
+            "properties": {
+                "idToken": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UserLoginRequest": {
             "description": "Request payload for user login",
             "type": "object",
@@ -354,6 +397,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "The API for comparing frogs and other things",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

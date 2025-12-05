@@ -28,3 +28,9 @@ type UserResponse struct {
 	Email      string `json:"email"`
 	IsVerified bool   `json:"isVerified"`
 }
+
+// GoogleLoginRequest godoc
+// @Description  Request payload for Google login
+type GoogleLoginRequest struct {
+	IdToken string `json:"idToken" binding:"required"`
+}

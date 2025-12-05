@@ -26,6 +26,7 @@ type UserService interface {
 	CreateNewUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
 	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*user.User, error)
 	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type MessageProducer interface {
@@ -37,6 +38,7 @@ type AuthService interface {
 	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
 	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
 	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
 
 type authService struct {
@@ -46,6 +48,7 @@ type authService struct {
 	userService              UserService
 	messageProducer          MessageProducer
 	refreshTokenLifetimeDays int
+	googleService            GoogleService
 }
 
 func NewAuthService(
@@ -54,6 +57,7 @@ func NewAuthService(
 	tokenService TokenService,
 	userService UserService,
 	messageProducer MessageProducer,
+	googleService GoogleService,
 	refreshTokenLifetimeDays int) AuthService {
 	return &authService{
 		refreshTokenRepo:         refreshTokenRepo,
@@ -61,6 +65,7 @@ func NewAuthService(
 		tokenService:             tokenService,
 		userService:              userService,
 		messageProducer:          messageProducer,
+		googleService:            googleService,
 		refreshTokenLifetimeDays: refreshTokenLifetimeDays,
 	}
 }
@@ -180,4 +185,51 @@ func (s *authService) rotateRefreshTokens(db shared.TxStarter, ctx context.Conte
 		return err
 	}
 	return nil
+}
+
+func (s *authService) GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
+	email, err := s.googleService.VerifyIDToken(idToken, ctx)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	u, err := s.userService.GetUserByEmail(email, ctx, db)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	if u == nil {
+		userID, err := s.userService.CreateNewUser(email, "", ctx, db)
+		if err != nil {
+			return "", nil, nil, err
+		}
+
+		u, err = s.userService.GetUserByUserID(userID, ctx, db)
+		if err != nil {
+			return "", nil, nil, err
+		}
+	}
+
+	if !u.IsVerified {
+		err = s.userService.SetUserIsVerified(u.ID, true, ctx, db)
+		if err != nil {
+			return "", nil, nil, err
+		}
+	}
+
+	jwt, err := s.tokenService.GenerateToken(u.ID, u.IsVerified)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	refreshToken, err := factories.GenerateRefreshToken(u.ID, s.refreshTokenLifetimeDays)
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	if err := s.rotateRefreshTokens(db, ctx, refreshToken); err != nil {
+		return "", nil, nil, err
+	}
+
+	return jwt, refreshToken, u, nil
 }

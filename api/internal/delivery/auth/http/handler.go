@@ -19,6 +19,7 @@ type AuthService interface {
 	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
 	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
+	GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
 
 type UserService interface {
@@ -218,7 +219,38 @@ func setRefreshTokenCookie(ctx *gin.Context, refreshToken *models.RefreshToken) 
 		"/",
 		"",
 		// TODO: move to https in production
-		false,
+		true,
 		true,
 	)
+}
+
+func (h *AuthHandler) GoogleLogin(ctx *gin.Context) {
+	var req dto.GoogleLoginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(400, sharedDto.Response{
+			Error: "Invalid request payload",
+			Code:  sharedDto.InvalidRequestCode,
+		})
+		return
+	}
+	jwt, refreshToken, user, err := h.authService.GoogleLogin(req.IdToken, ctx.Request.Context(), h.db)
+	if err != nil {
+		ctx.JSON(500, sharedDto.Response{
+			Error: err.Error(),
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+
+	setRefreshTokenCookie(ctx, refreshToken)
+
+	res := dto.UserLoginResponse{
+		JWT: jwt,
+		User: dto.UserResponse{
+			ID:         user.ID,
+			Email:      user.Email,
+			IsVerified: user.IsVerified,
+		},
+	}
+	ctx.JSON(200, res)
 }

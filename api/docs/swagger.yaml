@@ -7,6 +7,14 @@ definitions:
       winner_id:
         type: string
     type: object
+  dto.GoogleLoginRequest:
+    description: Request payload for Google login
+    properties:
+      idToken:
+        type: string
+    required:
+    - idToken
+    type: object
   dto.UserLoginRequest:
     description: Request payload for user login
     properties:
@@ -62,6 +70,26 @@ info:
   title: Frog Smash API
   version: "1.0"
 paths:
+  /auth/google-login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user using Google ID token
+      parameters:
+      - description: Google ID token payload
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GoogleLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserLoginResponse'
+      summary: Google login
   /auth/login:
     post:
       consumes:
