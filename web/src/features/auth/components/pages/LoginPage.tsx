@@ -75,6 +75,7 @@ function LoginPage() {
             <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
                 <Typography variant="h6">Login</Typography>
             </Button>
+            <Typography variant="body1" sx={{ my: 2 }}>Or, alternatively, log in with Google:</Typography>
             <GoogleSignInButton onLogin={handleLogin} />
         </FormWrapper>
     </>;
