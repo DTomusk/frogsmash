@@ -16,6 +16,7 @@ func RegisterAuthRoutes(r *gin.Engine, c *container.APIContainer) {
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/logout", authHandler.Logout)
 	auth.POST("/refresh-token", authHandler.RefreshToken)
+	auth.POST("/google-login", authHandler.GoogleLogin)
 
 	protected := auth.Group("/")
 	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))

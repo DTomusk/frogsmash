@@ -8,6 +8,7 @@ type AppConfig struct {
 	TotalDataLimit      int64
 	Port                string
 	ScoreUpdateInterval int
+	GoogleClientID      string
 }
 
 func NewAppConfig() *AppConfig {
@@ -19,5 +20,6 @@ func NewAppConfig() *AppConfig {
 		TotalDataLimit:      getInt64("TOTAL_DATA_LIMIT_GB") * 1024 * 1024 * 1024, // Convert GB to bytes
 		Port:                getEnv("PORT"),
 		ScoreUpdateInterval: getInt("SCORE_UPDATE_INTERVAL_SECONDS"),
+		GoogleClientID:      getEnv("GOOGLE_CLIENT_ID"),
 	}
 }
