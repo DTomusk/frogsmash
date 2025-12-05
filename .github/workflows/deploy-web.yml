@@ -47,6 +47,8 @@ jobs:
 
       # builds dist (using vite) 
       - name: Build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
       # needed so the next job (deploy) has access to what this job built (which is the web)
