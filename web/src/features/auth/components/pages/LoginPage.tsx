@@ -6,6 +6,7 @@ import { useAuth, useSnackbar } from "@/app/providers";
 import { FormWrapper, EmailField, StyledLink } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 import type { LoginResponse } from "../../dtos/loginResponse";
+import GoogleSignInButton from "../atoms/GoogleSignInButton";
 
 interface LoginData {
     email: string;
@@ -37,6 +38,17 @@ function LoginPage() {
         });
     };
 
+    function handleLogin(credential: string) {
+        console.log("Google ID Token:", credential);
+
+        // Send to backend
+        // fetch("http://localhost:8080/api/auth/google", {
+        // method: "POST",
+        // headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({ credential }),
+        // });
+    }
+
     return <>
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
             <Typography variant="h3">Login</Typography>
@@ -57,6 +69,7 @@ function LoginPage() {
             <Button type="submit" variant="contained" color="primary" fullWidth loading={isPending} disabled={isPending || Object.keys(errors).length > 0}>
                 <Typography variant="h6">Login</Typography>
             </Button>
+            <GoogleSignInButton onLogin={handleLogin} />
         </FormWrapper>
     </>;
 }
