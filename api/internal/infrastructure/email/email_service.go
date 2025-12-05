@@ -23,7 +23,7 @@ func NewEmailService(emailClient EmailClient, templateRenderer *TemplateRenderer
 }
 
 func (s *emailService) SendVerificationEmail(toEmail, verificationCode string) error {
-	link := s.appUrl + "/verify?code=" + verificationCode
+	link := s.appUrl + "/#/verify?code=" + verificationCode
 	subject := "FrogSmash - Verify your email"
 
 	data := map[string]string{

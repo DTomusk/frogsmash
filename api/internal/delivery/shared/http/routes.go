@@ -21,6 +21,15 @@ func SetupRoutes(c *container.APIContainer) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(middleware.MaxBodySize(c.Config.AppConfig.MaxFileSize + 1<<20))
 
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{c.Config.AppConfig.AllowedOrigin},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// TODO: review and inject values, right now use 100 requests per minute per IP
 	rateLimiter := middleware.NewRedisFixedWindowRateLimiter(
 		c.InfraServices.RedisClient,
@@ -30,15 +39,6 @@ func SetupRoutes(c *container.APIContainer) *gin.Engine {
 	r.Use(rateLimiter.RateLimitMiddleware(func(ctx *gin.Context) string {
 		// Use client IP as the key
 		return ctx.ClientIP()
-	}))
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{c.Config.AppConfig.AllowedOrigin},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
 	}))
 
 	r.GET("/ping", func(ctx *gin.Context) {

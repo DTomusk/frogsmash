@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"frogsmash/internal/infrastructure/messages"
 
 	"github.com/redis/go-redis/v9"
@@ -103,7 +104,37 @@ func (r *redisClient) IncrementAndGet(ctx context.Context, key string, expiratio
 	return current
 	`)
 
-	result, err := incrWithExpireScript.Run(ctx, r.client, []string{key}, expirationSeconds).Result()
+	res, err := incrWithExpireScript.Run(ctx, r.client, []string{key}, expirationSeconds).Result()
+	if err != nil {
+		return 0, err
+	}
 
-	return result.(int64), err
+	num, err := convertToInt64(res)
+	if err != nil {
+		return 0, fmt.Errorf("unexpected type %T for script result", res)
+	}
+
+	return num, nil
+
+}
+
+// TODO: move to a shared utils package
+func convertToInt64(value interface{}) (int64, error) {
+	switch v := value.(type) {
+	case int64:
+		return v, nil
+	case int:
+		return int64(v), nil
+	case float64:
+		return int64(v), nil
+	case string:
+		var parsed int64
+		_, err := fmt.Sscan(v, &parsed)
+		if err != nil {
+			return 0, err
+		}
+		return parsed, nil
+	default:
+		return 0, fmt.Errorf("cannot convert %T to int64", value)
+	}
 }
