@@ -7,6 +7,7 @@ import { FormWrapper, EmailField, StyledLink } from "@/shared";
 import PasswordField from "../atoms/PasswordField";
 import type { LoginResponse } from "../../dtos/loginResponse";
 import GoogleSignInButton from "../atoms/GoogleSignInButton";
+import { useGoogleLogin } from "../../hooks/useGoogleLogin";
 
 interface LoginData {
     email: string;
@@ -21,6 +22,7 @@ function LoginPage() {
     } = useForm<LoginData>();
 
     const { mutate: login, isPending } = useLogin();
+    const { mutate: googleLogin } = useGoogleLogin();
     const { login: authLogin } = useAuth();
     const { showSnackbar } = useSnackbar();
     const navigate = useNavigate();
@@ -41,12 +43,16 @@ function LoginPage() {
     function handleLogin(credential: string) {
         console.log("Google ID Token:", credential);
 
-        // Send to backend
-        // fetch("http://localhost:8080/api/auth/google", {
-        // method: "POST",
-        // headers: { "Content-Type": "application/json" },
-        // body: JSON.stringify({ credential }),
-        // });
+        googleLogin({ idToken: credential }, {
+            onSuccess: (response: LoginResponse) => {
+                authLogin(response.jwt, response.user);
+                showSnackbar({ message: "Login successful, welcome back!🎉", severity: "success" });
+                navigate("/smash");
+            },
+            onError: (err: any) => {
+                showSnackbar({ message: err.message || "Google Login failed", severity: "error" });
+            }
+        });
     }
 
     return <>
