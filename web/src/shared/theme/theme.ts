@@ -32,7 +32,7 @@ export const darkTheme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#1f9408ff',
+            main: '#3ab223ff',
         },
         secondary: {
             main: '#d36a00ff',
