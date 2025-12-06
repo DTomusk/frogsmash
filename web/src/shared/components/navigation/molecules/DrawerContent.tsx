@@ -2,7 +2,10 @@ import { Box, Divider, IconButton, List } from "@mui/material";
 import ThemeSwitch from "./ThemeSwitch";
 import { useAuth } from "@/app/providers";
 import { DrawerLink, DrawerButton } from "../atoms/DrawerLink";
-import { Close } from "@mui/icons-material";
+import { Close, Home } from "@mui/icons-material";
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import UploadIcon from '@mui/icons-material/Upload';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface DrawerContentProps {
     onClick: () => void;
@@ -23,14 +26,14 @@ function DrawerContent({ onClick }: DrawerContentProps) {
             </Box>
             <Divider />
             <List>
-                <DrawerLink to='/' label='Home' onClick={onClick} />
+                <DrawerLink to='/' label='Home' onClick={onClick} ><Home /></DrawerLink>
                 {token ? (
                     <>
-                    <DrawerLink to='/leaderboard' label='Leaderboard' onClick={onClick} />
-                    <DrawerLink to='/upload' label='Upload' onClick={onClick} />
-                    <DrawerButton onClick={logoutClick} label='Logout'/>
+                    <DrawerLink to='/leaderboard' label='Leaderboard' onClick={onClick} ><EmojiEventsIcon /></DrawerLink>
+                    <DrawerLink to='/upload' label='Upload' onClick={onClick} ><UploadIcon /></DrawerLink>
+                    <DrawerButton onClick={logoutClick} label='Logout'><PersonIcon  /></DrawerButton>
                 </>) : <>
-                    <DrawerLink to='/login' label='Login' onClick={onClick} />
+                    <DrawerLink to='/login' label='Login' onClick={onClick} ><PersonIcon /></DrawerLink>
                 </>}
                 <ThemeSwitch />
             </List>
