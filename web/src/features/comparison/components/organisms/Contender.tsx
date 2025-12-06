@@ -22,7 +22,19 @@ function Contender({ imageUrl, name, onClick, variant }: ContenderProps) {
         <Paper elevation={3} sx={{borderRadius: 2, overflow: 'hidden', width: 250, height: 250 }}>
             <Image src={imageUrl} alt={name} />
         </Paper>
-        <Paper elevation={10} sx={{ backgroundColor: variant === 'left' ? 'primary.main' : 'secondary.main', width: '80%', py: 2, display: 'flex', justifyContent: 'center', mt: -5, zIndex: 1, borderRadius: 4 }}>
+        <Paper elevation={10} 
+        sx={{ 
+            backgroundColor: variant === 'left' 
+            ? 'primary.main' 
+            : 'secondary.main', 
+            width: 'fit-content', 
+            minWidth: '80%', 
+            py: 2, 
+            display: 'flex', 
+            justifyContent: 'center', 
+            mt: -5, 
+            zIndex: 1, 
+            borderRadius: 4 }}>
             <Typography variant="h4" color="white">{name}</Typography>
         </Paper>
     </Box>
