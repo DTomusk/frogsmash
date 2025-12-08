@@ -16,7 +16,7 @@ const lightBookTheme = createTheme({
     typography: typography,
     palette: {
         primary: {
-            main: '#802b1cff',
+            main: '#981a0fff',
         },
         secondary: {
             main: '#114acfff',
@@ -32,10 +32,10 @@ const darkBookTheme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#1f9408ff',
+            main: '#981a0fff',
         },
         secondary: {
-            main: '#d36a00ff',
+            main: '#133ea3ff',
         },
         background: {
             default: '#121212ff',
