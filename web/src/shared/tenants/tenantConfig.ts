@@ -7,6 +7,9 @@ export interface TenantConfig {
   titleImageText1: string;
   titleImageText2: string;
   titleImageText3: string;
+  comparisonTitle: string;
+  leaderboardSubtitle: string;
+  uploadSubtitle: string;
 }
 
 export const tenantConfigMap: Record<string, TenantConfig> = {

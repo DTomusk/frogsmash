@@ -5,6 +5,7 @@ import { useSnackbar } from "@/app/providers";
 import { FormWrapper } from "@/shared";
 import FileUploadButton from "../molecules/FileUploadButton";
 import TomorrowCountdown from "../molecules/TomorrowCountdown";
+import { useTenant } from "@/app/providers/TenantProvider";
 
 function UploadPage() {
     const { mutate: upload, isPending } = useUpload();
@@ -12,6 +13,8 @@ function UploadPage() {
     const { showSnackbar } = useSnackbar();
     const { mutate: getLatestUploadTime } = useLatestUploadTime();
     const [uploadedToday, setUploadedToday] = useState(false);
+
+    const config = useTenant();
 
     useEffect(() => {
         getLatestUploadTime(undefined, {
@@ -75,7 +78,7 @@ function UploadPage() {
         <Typography variant="h3" sx={{ mb: 2}}>Submit a contender</Typography>
         {uploadedToday? <TomorrowCountdown onFinish={() => setUploadedToday(false)} />:
         <>
-        <Typography variant="subtitle1" sx={{mb: 2}}>Does your champion have what it takes to take on the mighty frogs?🐸 Submit an image of anything of your choosing for the chance to have them appear alongside the frogs on the battlefield and let the people decide whether they triumph or fall.</Typography>
+        <Typography variant="subtitle1" sx={{mb: 2}}>{config.uploadSubtitle}</Typography>
         <FileUploadButton
             onChange={handleFileChange}
             isPending={isPending}

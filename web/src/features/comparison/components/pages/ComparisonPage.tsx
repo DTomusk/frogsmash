@@ -3,10 +3,12 @@ import { useItems } from "../../hooks/useItems"
 import Contender from "../organisms/Contender";
 import { useComparison } from "../../hooks/useComparison";
 import { LoadingSpinner, ErrorMessage } from "@/shared";
+import { useTenant } from "@/app/providers/TenantProvider";
 
 function Comparison() {
   const { isPending, error, data, refetch } = useItems();
   const { mutate: compareItems } = useComparison();
+  const config = useTenant();
 
   if (isPending) {
     return <LoadingSpinner />;
@@ -32,7 +34,7 @@ function Comparison() {
 
   return (
     <Box>
-        <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>Ribbit ribbit? Ribbit.</Typography>
+        <Typography variant="h4" sx={{ textAlign: 'center', mb: 4 }}>{config.comparisonTitle}</Typography>
         <Box sx={{ display: 'flex', gap: 4, justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' } }}>
             <Contender imageUrl={left_item.image_url} name={left_item.name} onClick={() => handleComparison(left_item.id, right_item.id)} variant="left" />
             <Typography variant="h3" sx={{ alignSelf: 'center' }}>VS</Typography>

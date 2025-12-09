@@ -5,6 +5,7 @@ import LeaderboardEntry from "../organisms/LeaderboardEntry";
 import { useState } from "react";
 import LeaderboardDetailModal from "../organisms/LeaderboardDetailModal";
 import type { LeaderboardItemResponse } from "../../dtos/leaderboardResponse";
+import { useTenant } from "@/app/providers/TenantProvider";
 
 function LeaderboardPage() {
     const [page, setPage] = useState(1);
@@ -13,9 +14,11 @@ function LeaderboardPage() {
     const [open, setOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<LeaderboardItemResponse | null>(null);
 
+    const config = useTenant();
+
   return <>
         <Typography variant="h3" sx={{mt: 4, mb: 2}}>Leaderboard</Typography>
-        <Typography variant="subtitle1" sx={{mb: 2}}>🐸See who the strongest contenders are!🐸</Typography>
+        <Typography variant="subtitle1" sx={{mb: 2}}>{config.leaderboardSubtitle}</Typography>
         {isLoading && <LoadingSpinner />}
         {!isLoading && (<>
             <List sx={{ width: { xs: '100%', sm: '80%', md: '60%' }, mt: 4, mb: 4 }}>
