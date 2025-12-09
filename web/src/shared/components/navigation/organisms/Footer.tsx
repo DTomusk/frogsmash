@@ -1,7 +1,9 @@
+import { useTenant } from "@/app/providers/TenantProvider";
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 function Footer() {
+    const config = useTenant();
   return (
     <Box component='footer'
     sx={{
@@ -25,7 +27,7 @@ function Footer() {
             </Link>
         </Box>
         <Typography variant="body2" color="primary.contrastText" align="center" sx={{ py: 2, mx: 4 }}>
-            © {new Date().getFullYear()} FrogSmash. All rights reserved.
+            © {new Date().getFullYear()} {config.tenantKey === "book" ? "BookSmash" : "FrogSmash"}. All rights reserved.
         </Typography>
     </Box>
   );

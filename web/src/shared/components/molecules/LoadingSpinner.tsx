@@ -1,3 +1,4 @@
+import { useTenant } from "@/app/providers/TenantProvider";
 import { Box, keyframes, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -9,6 +10,8 @@ const spin = keyframes`
 function LoadingSpinner() {
     // State of dots in loading text
     const [dots, setDots] = useState("");
+
+    const config = useTenant();
 
     useEffect(() => {
         // Update dots every 500ms
@@ -23,7 +26,11 @@ function LoadingSpinner() {
         flexDirection="column" 
         alignItems="center"
         sx={{ width: '8ch'}}>
-        <Box sx={{ display: 'inline-block', animation: `${spin} 1s linear infinite`, fontSize: 64 }} >🐸</Box>
+        {config.tenantKey === "book" ? (
+            <Box sx={{ display: 'inline-block', animation: `${spin} 1s linear infinite`, fontSize: 64 }} >📕</Box>
+        ) : (
+            <Box sx={{ display: 'inline-block', animation: `${spin} 1s linear infinite`, fontSize: 64 }} >🐸</Box>
+        )}
         <Typography variant="h6" sx={{ textAlign: 'center', mt: 2, width: '100%' }}>Loading{dots}</Typography>
     </Box>;
 }
