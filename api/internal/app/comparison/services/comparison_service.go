@@ -8,18 +8,18 @@ import (
 )
 
 type ItemsRepo interface {
-	GetRandomItems(numberOfItems int, ctx context.Context, db shared.DBTX) ([]models.Item, error)
+	GetRandomItems(numberOfItems int, tenantID string, ctx context.Context, db shared.DBTX) ([]models.Item, error)
 	GetItemsByIds(ids []string, ctx context.Context, db shared.DBTX) ([]*models.Item, error)
 	GetItemById(id string, ctx context.Context, db shared.DBTX) (*models.Item, error)
 	UpdateItemScore(itemID string, newScore float64, ctx context.Context, db shared.DBTX) error
-	GetLeaderboardItems(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error)
-	GetTotalItemCount(ctx context.Context, db shared.DBTX) (int, error)
+	GetLeaderboardItems(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error)
+	GetTotalItemCount(tenantID string, ctx context.Context, db shared.DBTX) (int, error)
 }
 
 type ComparisonService interface {
-	GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error)
+	GetComparisonItems(ctx context.Context, db shared.DBTX, tenantID string) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
-	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
+	GetLeaderboardPage(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
 type comparisonService struct {
@@ -31,8 +31,8 @@ func NewComparisonService(repo ItemsRepo, eventsService EventsService) Compariso
 	return &comparisonService{Repo: repo, EventsService: eventsService}
 }
 
-func (s *comparisonService) GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error) {
-	items, err := s.Repo.GetRandomItems(2, ctx, db)
+func (s *comparisonService) GetComparisonItems(ctx context.Context, db shared.DBTX, tenantID string) (*models.Item, *models.Item, error) {
+	items, err := s.Repo.GetRandomItems(2, tenantID, ctx, db)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,15 +58,15 @@ func (s *comparisonService) CompareItems(winnerId, loserId, userId string, ctx c
 	return s.EventsService.LogEvent(winnerId, loserId, userId, ctx, db)
 }
 
-func (s *comparisonService) GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error) {
+func (s *comparisonService) GetLeaderboardPage(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error) {
 	// Placeholder implementation, replace with repo call
 	var items []*models.LeaderboardItem
-	items, err := s.Repo.GetLeaderboardItems(limit, offset, ctx, db)
+	items, err := s.Repo.GetLeaderboardItems(limit, offset, tenantID, ctx, db)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	total, err := s.Repo.GetTotalItemCount(ctx, db)
+	total, err := s.Repo.GetTotalItemCount(tenantID, ctx, db)
 	if err != nil {
 		return nil, 0, err
 	}

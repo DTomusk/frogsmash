@@ -14,3 +14,6 @@ There are two web services, a prod one that uses npm build and nginx, and a dev 
 
 # Swagger: 
 Run `swag init -g .\cmd\server\main.go` to update swagger docs. Make sure to annotate endpoints and dtos so they show up correctly. Running this may cause some invalid delims to appear in the docs file, just delete those. I don't know what to do about that yet. 
+
+# Fly.io:
+Deploy an instance like thus from the api folder: `fly deploy --config fly.server.toml`

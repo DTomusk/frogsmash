@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"frogsmash/internal/app/comparison/models"
 	"frogsmash/internal/app/shared"
 	"frogsmash/internal/container"
@@ -14,9 +15,9 @@ import (
 )
 
 type ComparisonService interface {
-	GetComparisonItems(ctx context.Context, db shared.DBTX) (*models.Item, *models.Item, error)
+	GetComparisonItems(ctx context.Context, db shared.DBTX, tenantID string) (*models.Item, *models.Item, error)
 	CompareItems(winnerId, loserId, userId string, ctx context.Context, db shared.DBTX) error
-	GetLeaderboardPage(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
+	GetLeaderboardPage(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, int, error)
 }
 
 type SubmissionService interface {
@@ -44,7 +45,16 @@ func NewComparisonHandler(c *container.APIContainer) *ComparisonHandler {
 // @Router       /comparison/items [get]
 // @Produce      json
 func (h *ComparisonHandler) GetItems(ctx *gin.Context) {
-	item1, item2, err := h.ComparisonService.GetComparisonItems(ctx.Request.Context(), h.db)
+	tenantKey, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+	fmt.Printf("Tenant ID: %s\n", tenantKey.(string))
+	item1, item2, err := h.ComparisonService.GetComparisonItems(ctx.Request.Context(), h.db, tenantKey.(string))
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to get items: " + err.Error(),
@@ -119,9 +129,18 @@ func (h *ComparisonHandler) CompareItems(ctx *gin.Context) {
 // @Param        page   query     int  false  "Page number"  default(1)
 // @Param        limit  query     int  false  "Items per page"  default(10)
 func (h *ComparisonHandler) GetLeaderboard(ctx *gin.Context) {
+	tenantKey, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
+	fmt.Printf("Tenant ID: %s\n", tenantKey.(string))
 	p := utils.NewPagination(ctx)
 
-	items, total, err := h.ComparisonService.GetLeaderboardPage(p.Limit, p.Offset, ctx.Request.Context(), h.db)
+	items, total, err := h.ComparisonService.GetLeaderboardPage(p.Limit, p.Offset, tenantKey.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to get leaderboard: " + err.Error(),
