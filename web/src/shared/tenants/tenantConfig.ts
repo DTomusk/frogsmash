@@ -10,6 +10,7 @@ export interface TenantConfig {
   comparisonTitle: string;
   leaderboardSubtitle: string;
   uploadSubtitle: string;
+  appTitle: string;
 }
 
 export const tenantConfigMap: Record<string, TenantConfig> = {
