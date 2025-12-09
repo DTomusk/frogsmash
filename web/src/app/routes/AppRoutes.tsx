@@ -4,8 +4,10 @@ import { LoginPage, RegistrationPage } from "@/features/auth";
 import { ComparisonPage, LeaderboardPage, UploadPage } from "@/features/comparison";
 import { VerificationPage, VerificationRequiredPage } from "@/features/verification";
 import { LandingPage, LoadingPage, NotFoundPage, Template } from "@/shared";
+import { useTenant } from "../providers/TenantProvider";
 
 export function AppRoutes() {
+  const config = useTenant();
   return (
     <Routes>
       <Route element={<Template />}>
@@ -22,7 +24,7 @@ export function AppRoutes() {
         </Route>
 
         <Route element={<ProtectedRoute requireVerified />}>
-          <Route path="/upload" element={<UploadPage />} />
+          {config.tenantKey === "frog" && <Route path="/upload" element={<UploadPage />} />}
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

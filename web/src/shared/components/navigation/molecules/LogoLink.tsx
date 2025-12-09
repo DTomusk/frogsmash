@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 function LogoLink() {
     const config = useTenant();
 
-    return (<Link to='/smash' style={{ textDecoration: 'none', color: 'inherit' }}>
+    return (<Link to='/' style={{ textDecoration: 'none', color: 'inherit' }}>
                 <Typography variant='h4'>
                     {config.title}
                 </Typography>
