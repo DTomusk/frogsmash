@@ -19,7 +19,7 @@ const lightBookTheme = createTheme({
             main: '#981a0fff',
         },
         secondary: {
-            main: '#114acfff',
+            main: '#981a0fff',
         },
         background: {
             default: '#f0f0f0ff',
@@ -35,13 +35,10 @@ const darkBookTheme = createTheme({
             main: '#981a0fff',
         },
         secondary: {
-            main: '#133ea3ff',
+            main: '#981a0fff',
         },
         background: {
             default: '#121212ff',
-        },
-        success: {
-            main: '#257829ff',
         },
     },
 });
