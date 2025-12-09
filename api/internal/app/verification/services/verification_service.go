@@ -17,9 +17,9 @@ var (
 )
 
 type UserService interface {
-	GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error)
-	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*user.User, error)
-	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
+	GetUserEmail(userID, tenantID string, ctx context.Context, db shared.DBTX) (string, error)
+	GetUserByEmail(email, tenantID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	SetUserIsVerified(userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type VerificationRepo interface {
@@ -34,10 +34,10 @@ type EmailService interface {
 }
 
 type VerificationService interface {
-	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
-	ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmail(userID, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmailToEmail(email, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
 	GenerateAndSend(userID, email string, ctx context.Context, db shared.DBTX) error
-	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
+	VerifyUser(code, userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 	IsUserVerified(userID string, ctx context.Context, db shared.DBTX) (bool, error)
 	messages.MessageHandler
 }
@@ -60,8 +60,8 @@ func NewVerificationService(userService UserService, verificationRepo Verificati
 	}
 }
 
-func (s *verificationService) ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
-	email, err := s.userService.GetUserEmail(userID, ctx, db)
+func (s *verificationService) ResendVerificationEmail(userID, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error {
+	email, err := s.userService.GetUserEmail(userID, tenantID, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -81,8 +81,8 @@ func (s *verificationService) ResendVerificationEmail(userID string, ctx context
 	return nil
 }
 
-func (s *verificationService) ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error {
-	user, err := s.userService.GetUserByEmail(email, ctx, db)
+func (s *verificationService) ResendVerificationEmailToEmail(email, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error {
+	user, err := s.userService.GetUserByEmail(email, tenantID, ctx, db)
 	if err != nil || user == nil {
 		return err
 	}
@@ -144,14 +144,14 @@ func (s *verificationService) GenerateAndSend(userID, email string, ctx context.
 	return err
 }
 
-func (s *verificationService) VerifyUser(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) VerifyUser(code, loggedInUserID, tenantID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
 	if loggedInUserID == "" {
-		return s.verifyAnonymous(code, ctx, db)
+		return s.verifyAnonymous(code, tenantID, ctx, db)
 	}
-	return s.verifyLoggedIn(code, loggedInUserID, isVerified, ctx, db)
+	return s.verifyLoggedIn(code, loggedInUserID, tenantID, isVerified, ctx, db)
 }
 
-func (s *verificationService) verifyAnonymous(code string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) verifyAnonymous(code, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	codeModel, err := s.verificationRepo.GetVerificationCode(code, ctx, db)
 	if err != nil {
 		return err
@@ -160,10 +160,10 @@ func (s *verificationService) verifyAnonymous(code string, ctx context.Context, 
 		return ErrInvalidVerificationCode
 	}
 
-	return s.verificationTransaction(codeModel.UserID, ctx, db)
+	return s.verificationTransaction(codeModel.UserID, tenantID, ctx, db)
 }
 
-func (s *verificationService) verifyLoggedIn(code, loggedInUserID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) verifyLoggedIn(code, loggedInUserID, tenantID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error {
 	// Do nothing if the calling user is verified already
 	if isVerified {
 		return ErrAlreadyVerified
@@ -179,24 +179,23 @@ func (s *verificationService) verifyLoggedIn(code, loggedInUserID string, isVeri
 
 	// If the logged-in user is the same as the code user, verify directly and expose any errors
 	if loggedInUserID == codeModel.UserID {
-		return s.verificationTransaction(codeModel.UserID, ctx, db)
+		return s.verificationTransaction(codeModel.UserID, tenantID, ctx, db)
 	}
 
 	// If the logged-in user is different, just verify the code user without exposing errors
-	_ = s.verificationTransaction(codeModel.UserID, ctx, db)
-
+	_ = s.verificationTransaction(codeModel.UserID, tenantID, ctx, db)
 	// In the case that the logged in user is different, always return invalid code to avoid information leakage
 	return ErrInvalidVerificationCode
 }
 
-func (s *verificationService) verificationTransaction(userID string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *verificationService) verificationTransaction(userID, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	err = s.userService.SetUserIsVerified(userID, true, ctx, tx)
+	err = s.userService.SetUserIsVerified(userID, tenantID, true, ctx, tx)
 	if err != nil {
 		return err
 	}

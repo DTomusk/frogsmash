@@ -15,15 +15,15 @@ import (
 )
 
 type AuthService interface {
-	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Login(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
-	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
-	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
-	GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	RefreshToken(refreshToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Register(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
+	GoogleLogin(idToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
 
 type UserService interface {
-	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	GetUserByUserID(userID, tenantID string, ctx context.Context, db shared.DBTX) (*user.User, error)
 }
 
 type AuthHandler struct {
@@ -46,6 +46,14 @@ func NewAuthHandler(c *container.APIContainer) *AuthHandler {
 // @Router       /auth/me [get]
 // @Produce      json
 func (h *AuthHandler) GetMe(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	sub, exists := utils.GetUserID(ctx)
 	if !exists || sub == "" {
 		ctx.JSON(401, sharedDto.Response{
@@ -54,7 +62,7 @@ func (h *AuthHandler) GetMe(ctx *gin.Context) {
 		})
 		return
 	}
-	user, err := h.userService.GetUserByUserID(sub, ctx.Request.Context(), h.db)
+	user, err := h.userService.GetUserByUserID(sub, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Failed to retrieve user",
@@ -77,6 +85,14 @@ func (h *AuthHandler) GetMe(ctx *gin.Context) {
 // @Produce      json
 // @Param        user  body  dto.UserRegistrationRequest  true  "User registration payload"
 func (h *AuthHandler) Register(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	var req dto.UserRegistrationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(400, sharedDto.Response{
@@ -85,7 +101,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 		})
 		return
 	}
-	err := h.authService.Register(req.Email, req.Password, ctx.Request.Context(), h.db)
+	err := h.authService.Register(req.Email, req.Password, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
@@ -108,7 +124,14 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 // @Param        user  body  dto.UserLoginRequest  true  "User login payload"
 // @Success      200   {object}  dto.UserLoginResponse
 func (h *AuthHandler) Login(ctx *gin.Context) {
-	// Implementation for user login
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	var req dto.UserLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(400, sharedDto.Response{
@@ -117,7 +140,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	jwt, refreshToken, user, err := h.authService.Login(req.Email, req.Password, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.authService.Login(req.Email, req.Password, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: "Invalid credentials",
@@ -181,6 +204,14 @@ func (h *AuthHandler) Logout(ctx *gin.Context) {
 // @Produce      json
 // @Success      200    {object}  dto.UserLoginResponse
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	cookie, err := ctx.Cookie("refresh_token")
 	if err != nil {
 		ctx.JSON(400, sharedDto.Response{
@@ -189,7 +220,7 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 		})
 		return
 	}
-	jwt, refreshToken, user, err := h.authService.RefreshToken(cookie, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.authService.RefreshToken(cookie, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
@@ -225,6 +256,14 @@ func setRefreshTokenCookie(ctx *gin.Context, refreshToken *models.RefreshToken) 
 }
 
 func (h *AuthHandler) GoogleLogin(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	var req dto.GoogleLoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(400, sharedDto.Response{
@@ -233,7 +272,7 @@ func (h *AuthHandler) GoogleLogin(ctx *gin.Context) {
 		})
 		return
 	}
-	jwt, refreshToken, user, err := h.authService.GoogleLogin(req.IdToken, ctx.Request.Context(), h.db)
+	jwt, refreshToken, user, err := h.authService.GoogleLogin(req.IdToken, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),

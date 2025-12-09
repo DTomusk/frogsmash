@@ -12,18 +12,18 @@ type UserFactory interface {
 }
 
 type UserRepo interface {
-	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error)
-	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error)
-	CreateUser(user *models.User, ctx context.Context, db shared.DBTX) error
-	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
+	GetUserByUserID(userID, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	GetUserByEmail(email, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	CreateUser(user *models.User, tenantID string, ctx context.Context, db shared.DBTX) error
+	SetUserIsVerified(userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type UserService interface {
-	CreateNewUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
-	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error)
-	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error)
-	GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error)
-	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
+	CreateNewUser(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
+	GetUserByEmail(email, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	GetUserByUserID(userID, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error)
+	GetUserEmail(userID, tenantID string, ctx context.Context, db shared.DBTX) (string, error)
+	SetUserIsVerified(userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type userService struct {
@@ -38,9 +38,9 @@ func NewUserService(userFactory UserFactory, userRepo UserRepo) UserService {
 	}
 }
 
-func (s *userService) CreateNewUser(email, hashedPassword string, ctx context.Context, db shared.DBWithTxStarter) (string, error) {
+func (s *userService) CreateNewUser(email, hashedPassword, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, error) {
 	// Check email not in use
-	existingUser, err := s.userRepo.GetUserByEmail(email, ctx, db)
+	existingUser, err := s.userRepo.GetUserByEmail(email, tenantID, ctx, db)
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (s *userService) CreateNewUser(email, hashedPassword string, ctx context.Co
 
 	defer tx.Rollback()
 
-	err = s.userRepo.CreateUser(newUser, ctx, tx)
+	err = s.userRepo.CreateUser(newUser, tenantID, ctx, tx)
 	if err != nil {
 		return "", err
 	}
@@ -72,16 +72,16 @@ func (s *userService) CreateNewUser(email, hashedPassword string, ctx context.Co
 	return newUser.ID, nil
 }
 
-func (s *userService) GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*models.User, error) {
-	return s.userRepo.GetUserByEmail(email, ctx, db)
+func (s *userService) GetUserByEmail(email, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error) {
+	return s.userRepo.GetUserByEmail(email, tenantID, ctx, db)
 }
 
-func (s *userService) GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*models.User, error) {
-	return s.userRepo.GetUserByUserID(userID, ctx, db)
+func (s *userService) GetUserByUserID(userID, tenantID string, ctx context.Context, db shared.DBTX) (*models.User, error) {
+	return s.userRepo.GetUserByUserID(userID, tenantID, ctx, db)
 }
 
-func (s *userService) GetUserEmail(userID string, ctx context.Context, db shared.DBTX) (string, error) {
-	user, err := s.userRepo.GetUserByUserID(userID, ctx, db)
+func (s *userService) GetUserEmail(userID, tenantID string, ctx context.Context, db shared.DBTX) (string, error) {
+	user, err := s.userRepo.GetUserByUserID(userID, tenantID, ctx, db)
 	if err != nil {
 		return "", err
 	}
@@ -91,6 +91,6 @@ func (s *userService) GetUserEmail(userID string, ctx context.Context, db shared
 	return user.Email, nil
 }
 
-func (s *userService) SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error {
-	return s.userRepo.SetUserIsVerified(userID, isVerified, ctx, db)
+func (s *userService) SetUserIsVerified(userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBTX) error {
+	return s.userRepo.SetUserIsVerified(userID, tenantID, isVerified, ctx, db)
 }
