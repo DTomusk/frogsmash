@@ -12,15 +12,18 @@ func RegisterAuthRoutes(r *gin.Engine, c *container.APIContainer) {
 
 	auth := r.Group("/auth")
 
-	auth.POST("/register", authHandler.Register)
-	auth.POST("/login", authHandler.Login)
-	auth.POST("/logout", authHandler.Logout)
-	auth.POST("/refresh-token", authHandler.RefreshToken)
-	auth.POST("/google-login", authHandler.GoogleLogin)
-
-	protected := auth.Group("/")
-	protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
+	tenant := auth.Group("/")
+	tenant.Use(middleware.TenantMiddleware())
 	{
-		protected.GET("/me", authHandler.GetMe)
+		tenant.POST("/register", authHandler.Register)
+		tenant.POST("/login", authHandler.Login)
+		tenant.POST("/logout", authHandler.Logout)
+		tenant.POST("/refresh-token", authHandler.RefreshToken)
+		tenant.POST("/google-login", authHandler.GoogleLogin)
+		protected := tenant.Group("/")
+		protected.Use(middleware.AuthMiddleware(c.Auth.JwtService))
+		{
+			protected.GET("/me", authHandler.GetMe)
+		}
 	}
 }
