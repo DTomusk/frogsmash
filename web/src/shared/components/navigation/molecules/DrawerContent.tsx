@@ -40,7 +40,7 @@ function DrawerContent({ onClick }: DrawerContentProps) {
                 </>) : <>
                     <DrawerLink to='/login' label='Login' onClick={onClick} ><PersonIcon /></DrawerLink>
                 </>}
-                {config.tenantKey === "frog" && <ThemeSwitch />}
+                <ThemeSwitch />
             </List>
         </Box>);
 }

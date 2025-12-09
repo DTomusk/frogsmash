@@ -16,7 +16,9 @@ export default function TitleImage() {
                 backgroundImage: {xs: "none", 
                     sm:
                     config.tenantKey === "book" ? 
-                    `url(/thinker_light.png)` :
+                    theme.palette.mode === 'light'
+                    ? `url(/thinker_light.png)`
+                    : `url(/thinker_dark.png)` :
                     theme.palette.mode === 'light'
                     ? `url(/froggy_light.png)`
                     : `url(/froggy_dark.png)`

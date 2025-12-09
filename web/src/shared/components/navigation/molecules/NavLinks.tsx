@@ -21,7 +21,7 @@ function NavLinks() {
                 <NavLink to='/login' label='Login' />
                 </>
             )}
-            {config.tenantKey === "frog" && <ThemeSwitch />}
+            <ThemeSwitch />
         </Box>
     );
 }
