@@ -15,6 +15,8 @@ export default function TitleImage() {
                 backgroundColor: theme.palette.mode === 'light' ? 'white' : 'primary.dark',
                 backgroundImage: {xs: "none", 
                     sm:
+                    config.tenantKey === "book" ? 
+                    `url(/thinker_light.png)` :
                     theme.palette.mode === 'light'
                     ? `url(/froggy_light.png)`
                     : `url(/froggy_dark.png)`
