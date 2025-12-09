@@ -1,0 +1,2 @@
+ALTER TABLE users DROP COLUMN IF EXISTS tenant_key;
+ALTER TABLE items DROP COLUMN IF EXISTS tenant_key;

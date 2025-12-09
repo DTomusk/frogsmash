@@ -12,7 +12,7 @@ const typography = {
     h6: { fontFamily: headingFont},
 };
 
-export const lightTheme = createTheme({
+const lightFrogTheme = createTheme({
     typography: typography,
     palette: {
         primary: {
@@ -27,7 +27,7 @@ export const lightTheme = createTheme({
     },
 });
 
-export const darkTheme = createTheme({
+const darkFrogTheme = createTheme({
     typography: typography,
     palette: {
         mode: 'dark',
@@ -46,3 +46,7 @@ export const darkTheme = createTheme({
     },
 });
 
+export const frogThemes = {
+  light: lightFrogTheme,
+  dark: darkFrogTheme,
+};

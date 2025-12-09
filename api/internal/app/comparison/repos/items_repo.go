@@ -10,12 +10,12 @@ import (
 )
 
 type ItemsRepo interface {
-	GetRandomItems(numberOfItems int, ctx context.Context, db shared.DBTX) ([]models.Item, error)
+	GetRandomItems(numberOfItems int, tenantID string, ctx context.Context, db shared.DBTX) ([]models.Item, error)
 	GetItemById(id string, ctx context.Context, db shared.DBTX) (*models.Item, error)
 	GetItemsByIds(ids []string, ctx context.Context, db shared.DBTX) ([]*models.Item, error)
 	UpdateItemScore(itemID string, newScore float64, ctx context.Context, db shared.DBTX) error
-	GetLeaderboardItems(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error)
-	GetTotalItemCount(ctx context.Context, db shared.DBTX) (int, error)
+	GetLeaderboardItems(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error)
+	GetTotalItemCount(tenantID string, ctx context.Context, db shared.DBTX) (int, error)
 }
 
 type itemsRepo struct{}
@@ -24,10 +24,10 @@ func NewItemsRepo() ItemsRepo {
 	return &itemsRepo{}
 }
 
-func (r *itemsRepo) GetRandomItems(numberOfItems int, ctx context.Context, db shared.DBTX) ([]models.Item, error) {
+func (r *itemsRepo) GetRandomItems(numberOfItems int, tenantID string, ctx context.Context, db shared.DBTX) ([]models.Item, error) {
 	var items []models.Item
-	query := "SELECT id, name, image_url, score FROM items ORDER BY RANDOM() LIMIT $1"
-	rows, err := db.QueryContext(ctx, query, numberOfItems)
+	query := "SELECT id, name, image_url, score FROM items WHERE tenant_key = $1 ORDER BY RANDOM() LIMIT $2"
+	rows, err := db.QueryContext(ctx, query, tenantID, numberOfItems)
 	if err != nil {
 		return nil, err
 	}
@@ -82,10 +82,10 @@ func (r *itemsRepo) UpdateItemScore(itemID string, newScore float64, ctx context
 	return err
 }
 
-func (r *itemsRepo) GetLeaderboardItems(limit int, offset int, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error) {
+func (r *itemsRepo) GetLeaderboardItems(limit int, offset int, tenantID string, ctx context.Context, db shared.DBTX) ([]*models.LeaderboardItem, error) {
 	var items []*models.LeaderboardItem
-	query := "SELECT id, name, image_url, score, RANK() OVER (ORDER BY score DESC) as rank, created_at, license FROM items ORDER BY score DESC LIMIT $1 OFFSET $2"
-	rows, err := db.QueryContext(ctx, query, limit, offset)
+	query := "SELECT id, name, image_url, score, RANK() OVER (ORDER BY score DESC) as rank, created_at, license FROM items WHERE tenant_key = $1 ORDER BY score DESC LIMIT $2 OFFSET $3"
+	rows, err := db.QueryContext(ctx, query, tenantID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -101,10 +101,10 @@ func (r *itemsRepo) GetLeaderboardItems(limit int, offset int, ctx context.Conte
 	return items, nil
 }
 
-func (r *itemsRepo) GetTotalItemCount(ctx context.Context, db shared.DBTX) (int, error) {
+func (r *itemsRepo) GetTotalItemCount(tenantID string, ctx context.Context, db shared.DBTX) (int, error) {
 	var count int
-	query := "SELECT COUNT(*) FROM items"
-	row := db.QueryRowContext(ctx, query)
+	query := "SELECT COUNT(*) FROM items wHERE tenant_key = $1"
+	row := db.QueryRowContext(ctx, query, tenantID)
 	if err := row.Scan(&count); err != nil {
 		if err == sql.ErrNoRows {
 			return 0, nil

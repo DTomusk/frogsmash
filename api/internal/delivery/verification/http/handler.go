@@ -14,9 +14,9 @@ import (
 )
 
 type VerificationService interface {
-	ResendVerificationEmail(userID string, ctx context.Context, db shared.DBWithTxStarter) error
-	ResendVerificationEmailToEmail(email string, ctx context.Context, db shared.DBWithTxStarter) error
-	VerifyUser(code, userID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmail(userID, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
+	ResendVerificationEmailToEmail(email, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
+	VerifyUser(code, userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBWithTxStarter) error
 }
 
 type VerificationHandler struct {
@@ -38,6 +38,14 @@ func NewVerificationHandler(c *container.APIContainer) *VerificationHandler {
 // @Accept       json
 // @Produce      json
 func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	user_id, ok := utils.GetUserID(ctx)
 	if !ok {
 		ctx.JSON(401, sharedDto.Response{
@@ -47,7 +55,7 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 		return
 	}
 
-	err := h.verificationService.ResendVerificationEmail(user_id, ctx.Request.Context(), h.db)
+	err := h.verificationService.ResendVerificationEmail(user_id, tenantID.(string), ctx.Request.Context(), h.db)
 	if err != nil {
 		ctx.JSON(500, sharedDto.Response{
 			Error: err.Error(),
@@ -67,6 +75,14 @@ func (h *VerificationHandler) ResendVerificationEmail(ctx *gin.Context) {
 // @Accept       json
 // @Produce      json
 func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	var req dto.ResendVerificationEmailRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil || req.Email == "" {
 		ctx.JSON(400, sharedDto.Response{
@@ -77,7 +93,7 @@ func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context)
 	}
 
 	// Ignore error to prevent email enumeration attacks
-	_ = h.verificationService.ResendVerificationEmailToEmail(req.Email, ctx.Request.Context(), h.db)
+	_ = h.verificationService.ResendVerificationEmailToEmail(req.Email, tenantID.(string), ctx.Request.Context(), h.db)
 
 	ctx.JSON(200, sharedDto.Response{
 		Message: "Verification email resent successfully",
@@ -92,6 +108,14 @@ func (h *VerificationHandler) ResendVerificationEmailAnonymous(ctx *gin.Context)
 // @Produce      json
 // @Param        code  body  dto.VerificationRequest  true  "Verification code payload"
 func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
+	tenantID, exists := ctx.Get("tenant_id")
+	if !exists {
+		ctx.JSON(500, sharedDto.Response{
+			Error: "Tenant ID not found in context",
+			Code:  sharedDto.InternalServerErrorCode,
+		})
+		return
+	}
 	var req dto.VerificationRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil || req.Code == "" {
 		ctx.JSON(400, sharedDto.Response{
@@ -103,7 +127,7 @@ func (h *VerificationHandler) VerifyUser(ctx *gin.Context) {
 
 	claims, hasClaims := utils.GetClaims(ctx)
 
-	err := h.verificationService.VerifyUser(req.Code, claims.Sub, hasClaims && claims.IsVerified, ctx.Request.Context(), h.db)
+	err := h.verificationService.VerifyUser(req.Code, claims.Sub, tenantID.(string), hasClaims && claims.IsVerified, ctx.Request.Context(), h.db)
 
 	switch {
 	case err == nil:

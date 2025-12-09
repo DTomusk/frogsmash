@@ -23,10 +23,10 @@ type Hasher interface {
 }
 
 type UserService interface {
-	CreateNewUser(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
-	GetUserByEmail(email string, ctx context.Context, db shared.DBTX) (*user.User, error)
-	GetUserByUserID(userID string, ctx context.Context, db shared.DBTX) (*user.User, error)
-	SetUserIsVerified(userID string, isVerified bool, ctx context.Context, db shared.DBTX) error
+	CreateNewUser(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, error)
+	GetUserByEmail(email, tenantID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	GetUserByUserID(userID, tenantID string, ctx context.Context, db shared.DBTX) (*user.User, error)
+	SetUserIsVerified(userID, tenantID string, isVerified bool, ctx context.Context, db shared.DBTX) error
 }
 
 type MessageProducer interface {
@@ -34,11 +34,11 @@ type MessageProducer interface {
 }
 
 type AuthService interface {
-	Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Login(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 	Logout(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) error
-	Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error
-	RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
-	GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	Register(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error
+	RefreshToken(refreshToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
+	GoogleLogin(idToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error)
 }
 
 type authService struct {
@@ -70,9 +70,9 @@ func NewAuthService(
 	}
 }
 
-func (s *authService) Login(email, password string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
+func (s *authService) Login(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
 	// Get the user by email
-	user, err := s.userService.GetUserByEmail(email, ctx, db)
+	user, err := s.userService.GetUserByEmail(email, tenantID, ctx, db)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -115,12 +115,12 @@ func (s *authService) Logout(refreshToken string, ctx context.Context, db shared
 	return nil
 }
 
-func (s *authService) Register(email, password string, ctx context.Context, db shared.DBWithTxStarter) error {
+func (s *authService) Register(email, password, tenantID string, ctx context.Context, db shared.DBWithTxStarter) error {
 	hashedPassword, err := s.hasher.HashPassword(password)
 	if err != nil {
 		return err
 	}
-	id, err := s.userService.CreateNewUser(email, hashedPassword, ctx, db)
+	id, err := s.userService.CreateNewUser(email, hashedPassword, tenantID, ctx, db)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (s *authService) Register(email, password string, ctx context.Context, db s
 	return nil
 }
 
-func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
+func (s *authService) RefreshToken(refreshToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
 	// Get existing token (the one matching the provided refresh token)
 	token, err := s.refreshTokenRepo.GetRefreshToken(refreshToken, ctx, db)
 	if err != nil {
@@ -146,7 +146,7 @@ func (s *authService) RefreshToken(refreshToken string, ctx context.Context, db 
 	if token == nil || token.Revoked || token.ExpiresAt.Before(time.Now()) {
 		return "", nil, nil, fmt.Errorf("invalid refresh token")
 	}
-	user, err := s.userService.GetUserByUserID(token.UserID, ctx, db)
+	user, err := s.userService.GetUserByUserID(token.UserID, tenantID, ctx, db)
 	if err != nil {
 		return "", nil, nil, err
 	}
@@ -187,31 +187,31 @@ func (s *authService) rotateRefreshTokens(db shared.TxStarter, ctx context.Conte
 	return nil
 }
 
-func (s *authService) GoogleLogin(idToken string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
+func (s *authService) GoogleLogin(idToken, tenantID string, ctx context.Context, db shared.DBWithTxStarter) (string, *models.RefreshToken, *user.User, error) {
 	email, err := s.googleService.VerifyIDToken(idToken, ctx)
 	if err != nil {
 		return "", nil, nil, err
 	}
 
-	u, err := s.userService.GetUserByEmail(email, ctx, db)
+	u, err := s.userService.GetUserByEmail(email, tenantID, ctx, db)
 	if err != nil {
 		return "", nil, nil, err
 	}
 
 	if u == nil {
-		userID, err := s.userService.CreateNewUser(email, "", ctx, db)
+		userID, err := s.userService.CreateNewUser(email, "", tenantID, ctx, db)
 		if err != nil {
 			return "", nil, nil, err
 		}
 
-		u, err = s.userService.GetUserByUserID(userID, ctx, db)
+		u, err = s.userService.GetUserByUserID(userID, tenantID, ctx, db)
 		if err != nil {
 			return "", nil, nil, err
 		}
 	}
 
 	if !u.IsVerified {
-		err = s.userService.SetUserIsVerified(u.ID, true, ctx, db)
+		err = s.userService.SetUserIsVerified(u.ID, tenantID, true, ctx, db)
 		if err != nil {
 			return "", nil, nil, err
 		}

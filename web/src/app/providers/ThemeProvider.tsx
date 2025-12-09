@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider, useMediaQuery } from "@mui/material";
 import { createContext, useContext, useEffect, useMemo, useState, type FC, type ReactNode } from "react";
-import { darkTheme, lightTheme } from "@/shared";
+import { tenantThemeMap } from "@/shared/theme";
 
 type ColorMode = 'light' | 'dark';
 
@@ -47,10 +47,16 @@ export const AppThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
         });
     };
 
-    const theme = useMemo(
-        () => (mode === "light" ? lightTheme : darkTheme), 
-        [mode]
-    );
+    const tenant = import.meta.env.VITE_TENANT ?? "frog";
+
+    const theme = useMemo(() => {
+        const tenantThemes = tenantThemeMap[tenant];
+        if (!tenantThemes) {
+            return tenantThemeMap.frog[mode];
+        }
+        return tenantThemes[mode];
+    }, [tenant, mode]);
+
 
     return (
         <ThemeContext.Provider value={{ mode, toggleColorMode }}>

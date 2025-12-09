@@ -1,0 +1,3 @@
+ALTER TABLE users ADD COLUMN tenant_key TEXT NOT NULL DEFAULT 'frog';
+
+ALTER TABLE items ADD COLUMN tenant_key TEXT NOT NULL DEFAULT 'frog';

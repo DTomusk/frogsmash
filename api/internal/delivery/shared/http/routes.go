@@ -31,15 +31,15 @@ func SetupRoutes(c *container.APIContainer) *gin.Engine {
 	}))
 
 	// TODO: review and inject values, right now use 100 requests per minute per IP
-	rateLimiter := middleware.NewRedisFixedWindowRateLimiter(
-		c.InfraServices.RedisClient,
-		100,
-		60,
-		"rate_limiter")
-	r.Use(rateLimiter.RateLimitMiddleware(func(ctx *gin.Context) string {
-		// Use client IP as the key
-		return ctx.ClientIP()
-	}))
+	// rateLimiter := middleware.NewRedisFixedWindowRateLimiter(
+	// 	c.InfraServices.RedisClient,
+	// 	100,
+	// 	60,
+	// 	"rate_limiter")
+	// r.Use(rateLimiter.RateLimitMiddleware(func(ctx *gin.Context) string {
+	// 	// Use client IP as the key
+	// 	return ctx.ClientIP()
+	// }))
 
 	r.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
