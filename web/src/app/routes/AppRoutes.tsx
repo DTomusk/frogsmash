@@ -6,6 +6,7 @@ import { VerificationPage, VerificationRequiredPage } from "@/features/verificat
 import { LandingPage, LoadingPage, NotFoundPage, Template } from "@/shared";
 import { useTenant } from "../providers/TenantProvider";
 import PrivacyPolicyPage from "@/shared/components/pages/PrivacyPolicyPage";
+import TermsAndConditionsPage from "@/shared/components/pages/TermsAndConditionsPage";
 
 export function AppRoutes() {
   const config = useTenant();
@@ -18,6 +19,7 @@ export function AppRoutes() {
         <Route path="/verify" element={<VerificationPage />} />
         <Route path="/loading" element={<LoadingPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsAndConditionsPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/smash" element={<ComparisonPage />} />
