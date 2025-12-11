@@ -5,6 +5,7 @@ import { ComparisonPage, LeaderboardPage, UploadPage } from "@/features/comparis
 import { VerificationPage, VerificationRequiredPage } from "@/features/verification";
 import { LandingPage, LoadingPage, NotFoundPage, Template } from "@/shared";
 import { useTenant } from "../providers/TenantProvider";
+import PrivacyPolicyPage from "@/shared/components/pages/PrivacyPolicyPage";
 
 export function AppRoutes() {
   const config = useTenant();
@@ -16,6 +17,7 @@ export function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verify" element={<VerificationPage />} />
         <Route path="/loading" element={<LoadingPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/smash" element={<ComparisonPage />} />

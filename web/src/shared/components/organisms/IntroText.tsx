@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, useTheme } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import Quote from "../molecules/Quote";
 import { FROGSMASH_RULE_CONTENT, FROGSMASH_RULE_EXPLANATION_CONTENT, LIST_ITEM_1, LIST_ITEM_2, LIST_ITEM_3, LIST_ITEM_4, LIST_ITEM_5, LIST_ITEM_6, NO, QUOTE_1, QUOTE_2, WHAT_IS_FROGSMASH_CONTENT_1, WHAT_IS_FROGSMASH_CONTENT_1_2, WHAT_IS_FROGSMASH_CONTENT_1_3, WHAT_IS_FROGSMASH_CONTENT_1_4, WHAT_IS_FROGSMASH_CONTENT_1_5, WHAT_IS_FROGSMASH_CONTENT_2, WHAT_IS_FROGSMASH_CONTENT_2_1, WHAT_IS_FROGSMASH_CONTENT_2_2 } from "../content";
 import LinkButton from "../atoms/LinkButton";

@@ -6,7 +6,7 @@ interface BodyTextProps {
 
 export default function BodyText({ text }: BodyTextProps) {
     return (
-        <Typography variant="h4" sx={{ textAlign: 'center', mt: 4, mx: 2 }}>
+        <Typography variant="body1" sx={{ textAlign: 'center', mt: 4, mx: 2 }}>
             {text}
         </Typography>
     );
