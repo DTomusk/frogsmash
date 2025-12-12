@@ -19,7 +19,7 @@ function Contender({ imageUrl, name, onClick, variant }: ContenderProps) {
           cursor: "pointer",
         },
       }}>
-        <Paper elevation={3} sx={{borderRadius: 2, overflow: 'hidden', width: 250, height: 250 }}>
+        <Paper elevation={3} sx={{borderRadius: 2, overflow: 'hidden', width: {xs: 200, sm: 250, md: 300, lg: 350}, height: {xs: 200, sm: 250, md: 300, lg: 350}}}>
             <Image src={imageUrl} alt={name} />
         </Paper>
         <Paper elevation={10} 
@@ -29,7 +29,8 @@ function Contender({ imageUrl, name, onClick, variant }: ContenderProps) {
             : 'secondary.main', 
             width: 'fit-content', 
             minWidth: '80%', 
-            py: 2, 
+            px: 2, 
+            py: {xs: 1, sm: 2},
             display: 'flex', 
             justifyContent: 'center', 
             mt: -5, 

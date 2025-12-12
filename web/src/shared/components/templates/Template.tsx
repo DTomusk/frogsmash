@@ -7,7 +7,7 @@ function Template() {
     return (
          <Box sx={{ display: 'flex', flexDirection: 'column', width: '100vw', minHeight: '100vh' }}>
             <NavBar />
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", flexGrow: 1, mt: { xs: 6, sm: 8 }, mb: 4 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", flexGrow: 1, mt: { xs: 8, sm: 12, xl: 16 }, mb: 4 }}>
                 <Outlet />
             </Box>
             <Footer />
