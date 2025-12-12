@@ -11,4 +11,8 @@ INSERT INTO items (name, image_url, score, license, tenant_key) VALUES
 ('Things Fall Apart', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/things_fall_apart.png', 1000.0000, 'Submitted by user', 'book'),
 ('Candide', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0005.jpg', 1000.0000, 'Submitted by user', 'book'),
 ('The Reader', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0004.jpg', 1000.0000, 'Submitted by user', 'book'),
-("Giovanni\'s Room", 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0003.jpg', 1000.0000, 'Submitted by user', 'book');
+('Giovanni''s Room', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0003.jpg', 1000.0000, 'Submitted by user', 'book'),
+('Convenience Store Woman', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0006.jpg', 1000.0000, 'Submitted by user', 'book'),
+('Slaughterhouse-Five', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/slaughterhouse_5.png', 1000.0000, 'Submitted by user', 'book'),
+('The White Tiger', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/the_white_tiger.png', 1000.0000, 'Submitted by user', 'book'),
+('This Is Going To Hurt', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/this_is_going_to_hurt.png', 1000.0000, 'Submitted by user', 'book');
