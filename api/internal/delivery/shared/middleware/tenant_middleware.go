@@ -12,6 +12,8 @@ func TenantMiddleware() gin.HandlerFunc {
 		// TODO: use real origins in production
 		switch origin {
 		case "https://frogsmash.co.uk":
+			tenantID = "frog"
+		case "https://spicklepickle.xyz":
 			tenantID = "book"
 		default:
 			tenantID = "frog"
