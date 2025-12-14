@@ -1,5 +1,5 @@
 export const passwordRules = {
-  minLength: (pw: string) => pw.length >= 8,
+  minLength: (pw: string) => pw.length >= 12,
   lowerCase: (pw: string) => /[a-z]/.test(pw),
   upperCase: (pw: string) => /[A-Z]/.test(pw),
   number: (pw: string) => /\d/.test(pw),

@@ -15,4 +15,8 @@ INSERT INTO items (name, image_url, score, license, tenant_key) VALUES
 ('Convenience Store Woman', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/IMG-20251210-WA0006.jpg', 1000.0000, 'Submitted by user', 'book'),
 ('Slaughterhouse-Five', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/slaughterhouse_5.png', 1000.0000, 'Submitted by user', 'book'),
 ('The White Tiger', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/the_white_tiger.png', 1000.0000, 'Submitted by user', 'book'),
-('This Is Going To Hurt', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/this_is_going_to_hurt.png', 1000.0000, 'Submitted by user', 'book');
+('This Is Going To Hurt', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/this_is_going_to_hurt.png', 1000.0000, 'Submitted by user', 'book'),
+('Dustbin Baby', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/dustbin_baby.png', 1000.0000, 'Submitted by user', 'book'),
+('Girl Interrupted', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/girl_interrupted.png', 1000.0000, 'Submitted by user', 'book'),
+('The Kreutzer Sonata', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/kreutzer_sonata.png', 1000.0000, 'Submitted by user', 'book'),
+('The House On Mango Street', 'https://pub-7a23e348b3054580a5ec15b0c45cc8d7.r2.dev/booksmash/the_house_on_mango_street.png', 1000.0000, 'Submitted by user', 'book');
