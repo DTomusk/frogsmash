@@ -2,6 +2,7 @@ package config
 
 type AppConfig struct {
 	AllowedOrigin       string
+	AllowedOrigin2      string
 	AppURL              string
 	KFactor             float64
 	MaxFileSize         int64
@@ -14,6 +15,7 @@ type AppConfig struct {
 func NewAppConfig() *AppConfig {
 	return &AppConfig{
 		AllowedOrigin:       getEnv("ALLOWED_ORIGIN"),
+		AllowedOrigin2:      getEnv("ALLOWED_ORIGIN_2"),
 		AppURL:              getEnv("APP_URL"),
 		KFactor:             getFloat("KFACTOR"),
 		MaxFileSize:         getInt64("MAX_FILE_SIZE_MB") * 1024 * 1024,           // Convert MB to bytes

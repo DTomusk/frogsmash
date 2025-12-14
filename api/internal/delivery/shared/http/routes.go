@@ -21,8 +21,13 @@ func SetupRoutes(c *container.APIContainer) *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(middleware.MaxBodySize(c.Config.AppConfig.MaxFileSize + 1<<20))
 
+	allowedOrigins := []string{c.Config.AppConfig.AllowedOrigin}
+	if c.Config.AppConfig.AllowedOrigin2 != "" {
+		allowedOrigins = append(allowedOrigins, c.Config.AppConfig.AllowedOrigin2)
+	}
+
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{c.Config.AppConfig.AllowedOrigin},
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
